@@ -1,16 +1,17 @@
 """
-ApplicationPaths
+Rutas de aplicación
 -----------------
-This module handles the loading and creation of relative paths
-to different files needed in the app.
+Este módulo maneja la carga y creación de las rutas a todos
+los archivos que la aplicación necesita. 
 
-All of the paths are initially loaded relative to the project 
-directory where `src/` is located. The main class in this module
-transforms those relative paths into absolute paths once the 
-project is located.
+Inicialmente, las rutas se encuentran relativas al directorio
+principal del proyecto (donde se encuentra `src/`).
 
-The process assumes there exists the `paths.json` file in the
-same directory as this module
+La clase principal, `ApplicationPaths` se encarga de transformar
+esas rutas relativas a rutas absolutas cargadas de forma dinámica.
+
+Todo el proceso asume que el archivo `paths.json` se encuentra en
+el mismo directorio que este módulo.
 """
 from enum import Enum
 from json import load
@@ -20,14 +21,16 @@ from os.path import dirname
 
 class PathKey(Enum):
     """
-    Enum class containing the key-value names for the different files.
+    Clase *Enum* que contiene los valores de las llaves referentes a 
+    los distintos archivos.
     """
     APPLICATION_ICON: str = 'application_icon'
 
 class ApplicationPaths:
     """
-    Main class that loads the relative paths and transforms them into
-    absolute paths.
+    Clase principal que carga las rutas relativas y las transforma en
+    rutas absolutas cargadas de forma dinámica. Además, provee un
+    método para la lectura de las rutas.
     """
     _paths_map: dict = {}
 
@@ -40,7 +43,7 @@ class ApplicationPaths:
     @classmethod
     def _normalize_paths(cls):
         """
-        Normalize all paths to ensure they are absolute paths.
+        Transforma de ruta relativa a ruta absoluta
         """
         base_dir = abspath(join(dirname(__file__), '..', '..'))
         for key, path in cls._paths_map.items():
@@ -49,12 +52,12 @@ class ApplicationPaths:
     @classmethod
     def get_path(cls, key: PathKey) -> str:
         """
-        Get the normalized path for the given key.
+        Obtener la ruta al archivo que la llave refiere
         """
         if key.value not in cls._paths_map:
             raise KeyError(f"Key '{key.value}' not found in paths map.")
         return cls._paths_map.get(key.value)
 
-# Initialize the paths map on module load
+# Inicializa la carga de rutas cuando el módulo sea cargado
 ApplicationPaths._load_paths_from_json(
     join(abspath(dirname(__file__)), "paths.json"))

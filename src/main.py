@@ -1,7 +1,8 @@
 """
-This is the entrance module for the application. The app will likely
-not work if another module is used as the entrance point. The program
-will stop if it reaches this module from another one.
+Este es el módulo de entrada para la aplicación. El programa no
+funcionará si otro módulo es utilizado como punto de entrada.
+Además, se detendrá la ejecución si este módulo es importado
+por otro.
 """
 import sys
 
@@ -13,7 +14,8 @@ Please start the app using this module found in src/main.py
 ''')
     sys.exit()
 
-# First step is to add src/ to PATH to search for project modules
+# El primer paso es añadir src/ al PATH del sistema para
+# importar los módulos consistentemente
 from os.path import abspath
 from os.path import dirname
 from os.path import join
@@ -22,9 +24,9 @@ src_dir = abspath(dirname(__file__))
 if src_dir not in sys.path:
     sys.path.insert(0, src_dir)
 
-# Modules are correctly found relative to src/
+# Ahora los módulos son correctamente encontrados a partir de src/
 from PUCalendarApp import MainApp
 
-# Initialize and run
+# Inicializar la aplicación y ejecutar
 my_app = MainApp(sys.argv)
 sys.exit(my_app.exec())
