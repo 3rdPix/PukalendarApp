@@ -25,6 +25,8 @@ class PathKey(Enum):
     los distintos archivos.
     """
     APPLICATION_ICON: str = 'application_icon'
+    QSS_MAIN_WINDOW: str = 'main_win_qss'
+    LOCALE_DIR: str = 'locale_dir'
 
 class ApplicationPaths:
     """
@@ -55,7 +57,7 @@ class ApplicationPaths:
         Obtener la ruta al archivo que la llave refiere
         """
         if key.value not in cls._paths_map:
-            raise KeyError(f"Key '{key.value}' not found in paths map.")
+            raise KeyError(f"[ERROR] Key '{key.value}' not found in paths map.")
         return cls._paths_map.get(key.value)
 
 # Inicializa la carga de rutas cuando el módulo sea cargado
