@@ -28,6 +28,7 @@ class PathKey(Enum):
     QSS_MAIN_WINDOW: str = 'main_win_qss'
     LOCALE_DIR: str = 'locale_dir'
     ABOUT_BUBBLE_IMAGE: str = 'abt_img'
+    QSS_HOME_VIEW: str = 'homeview_qss'
 
 class ApplicationPaths:
     """

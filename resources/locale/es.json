@@ -5,5 +5,11 @@
     "agenda_ico_txt": "Agenda",
     "abt_title": "Acerca de",
     "abt_description": "PUCalendarApp es una aplicación de código abierto diseñada por y para estudiantes con la finlalidad de otorgar una ayuda en la organización y registro de todos los quehaceres universitarios.",
-    "win_title": "PUCalendarApp"
+    "win_title": "PUCalendarApp",
+    "infobox_agenda": "Próximos eventos",
+    "infobox_courses": "Cursos",
+    "infobox_settings": "Configuraciones rápidas",
+    "infobox_dangers": "Peligros",
+    "infobox_external": "Actividades externas",
+    "infobox_time": "Sesiones de estudio"
 }

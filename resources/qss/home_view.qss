@@ -1,0 +1,10 @@
+#homescrollarea {
+    background: transparent;
+}
+
+#homewidgetobject {
+    background: qlineargradient(
+        spread:pad, x1:0.5, y1:0.8, x2:0.5, y2:1, 
+        stop:0 #00000000, stop:1 #7c4cacff
+    );
+}
