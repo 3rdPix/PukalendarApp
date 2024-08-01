@@ -21,3 +21,4 @@ class TextKey(Enum):
     AGENDA_LABEL: str = 'agenda_ico_txt'
     ABOUT_DESCRIPTION: str = 'abt_description'
     WINDOW_TITLE: str = 'win_title'
+    ABOUT_LABEL: str = 'abt_title'
