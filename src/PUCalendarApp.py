@@ -20,7 +20,6 @@ class MainApp(QApplication):
         #                          #
 
         self.my_wdgt = MainWindow()
-        self.my_wdgt.show()
 
         #                           #
         #                           #

@@ -16,6 +16,9 @@ from gui.tabs_views import HomeView
 from gui.tabs_views import CalendarView
 from gui.tabs_views import CoursesView
 from gui.tabs_views import AgendaView
+from qfluentwidgets import SplashScreen
+from PyQt6.QtCore import QEventLoop
+from PyQt6.QtCore import QTimer
 
 class MainWindow(MSFluentWindow):
     """
@@ -25,8 +28,22 @@ class MainWindow(MSFluentWindow):
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
-        self._init_self()
         self.setObjectName('MainWindow')
+        self.splash_screen = SplashScreen(
+            ApplicationPaths.get_path(PathKey.APPLICATION_ICON), self)
+        self.show()
+        self._init_self()
+        
+        # Le compraré tiempo intencionalmente al splash para que se aprecie
+        # Lo más probable es que una vez la aplicación esté más avanzada no
+        # sea necesario comprarle nada, y logre solo
+        self.loopear_3_sec()
+        self.splash_screen.finish()
+
+    def loopear_3_sec(self) -> None:
+        loop = QEventLoop(self)
+        QTimer.singleShot(3000, loop.quit)
+        loop.exec()
     
     def _init_self(self) -> None:
         """

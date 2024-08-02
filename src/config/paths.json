@@ -1,7 +1,8 @@
 {
-    "application_icon": ["resources", "images", "uc.png"],
+    "application_icon": ["resources", "images", "logo.png"],
     "main_win_qss": ["resources", "qss", "main_window.qss"],
     "locale_dir": ["resources", "locale"],
     "abt_img": ["resources", "images", "campus3.png"],
-    "homeview_qss": ["resources", "qss", "home_view.qss"]
+    "homeview_qss": ["resources", "qss", "home_view.qss"],
+    "last_status": ["resources", "config", "last_state.json"]
 }
