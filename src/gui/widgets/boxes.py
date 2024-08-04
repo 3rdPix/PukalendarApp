@@ -4,12 +4,20 @@ Widgets personalizados
 Contenedores para diferentes propósitos específicos
 """
 from qfluentwidgets import CardWidget
+from qfluentwidgets import CaptionLabel
+from PyQt6.QtWidgets import QLabel
+from PyQt6.QtWidgets import QHBoxLayout
 from qfluentwidgets.components.widgets.card_widget import CardSeparator
 from qfluentwidgets import SubtitleLabel
 from PyQt6.QtWidgets import QVBoxLayout
 from PyQt6.QtWidgets import QWidget
 from PyQt6.QtWidgets import QLayout
 from PyQt6.QtCore import QSize
+from PyQt6.QtWidgets import QStyle
+from config.text_keys import TextKey
+from utils.i18n import _
+from qfluentwidgets import StrongBodyLabel
+from qfluentwidgets import ElevatedCardWidget
 
 
 class HomeViewInfoBox(CardWidget):
@@ -74,3 +82,56 @@ class _HomeViewInfoBoxManager:
 
         for instance in cls.instances:
             instance.setMinimumSize(QSize(max_width, max_height))
+
+class AllClassesClassBox(ElevatedCardWidget):
+
+    def __init__(self):
+        super().__init__()
+        self._init_gui()
+
+    def _init_gui(self) -> None:
+        container: QVBoxLayout = QVBoxLayout(self)
+        top_container: QHBoxLayout = QHBoxLayout()
+        self._color_label: QLabel = QLabel()
+        self._color_label.setMaximumSize(30, 30)
+        self._alias_label: StrongBodyLabel = StrongBodyLabel()
+        top_container.addWidget(self._color_label)
+        top_container.addWidget(self._alias_label)
+        container.addLayout(top_container)
+        container.addWidget(CardSeparator())
+        
+        # mas info específica
+        # de momento es lo que se me ocurre poner
+
+        self._prof_name: QLabel = QLabel(_(TextKey.PROFESSOR_LABEL))
+        self._prof_mail: QLabel = QLabel(_(TextKey.PROFESSOR_MAIL_LABEL))
+        self._section: QLabel = QLabel(_(TextKey.SECTION_LABEL))
+        self._current_grade: QLabel = QLabel(_(TextKey.CURRENT_GRADE_LABEL))
+        self._class_code: QLabel = QLabel(_(TextKey.CLASS_CODE_LABEL))
+
+        self._shown_info_labels: dict[str, QLabel] = {}
+
+        self._shown_info_labels['professor'] = self._prof_name
+        self._shown_info_labels['professor_mail'] = self._prof_mail
+        self._shown_info_labels['section'] = self._section
+        self._shown_info_labels['current_grade'] = self._current_grade
+        self._shown_info_labels['class_code'] = self._class_code
+
+        container.addWidget(self._prof_name)
+        container.addWidget(self._prof_mail)
+        container.addWidget(self._section)
+        container.addWidget(self._current_grade)
+        container.addWidget(self._class_code)
+
+    def load_data(self, data: dict) -> None:
+        for key, value in data:
+            if key in self._shown_info_labels:
+                self._shown_info_labels.get(key).setText(
+                    self._shown_info_labels.get(key).text() + value)
+                
+    def set_class_alias(self, alias: str) -> None:
+        self._alias_label.setText(alias)
+    
+    def set_class_color(self, color: str) -> None:
+        # Usar hex color #xxxxxx
+        self._color_label.setStyleSheet(f'QLabel {{background: {color};}}')

@@ -11,5 +11,15 @@
     "infobox_settings": "Configuraciones rápidas",
     "infobox_dangers": "Peligros",
     "infobox_external": "Actividades externas",
-    "infobox_time": "Sesiones de estudio"
+    "infobox_time": "Sesiones de estudio",
+    "cb_add": "Agregar nueva clase",
+    "cb_del": "Eliminar clase",
+    "cb_edit": "Editar",
+    "cb_scale": "Editar escala de grados",
+    "no_class": "No has agregado ninguna clase.",
+    "prof": "Profesor: ",
+    "prof_mail": "Correo profesor: ",
+    "section": "N° sección: ",
+    "curr_grade": "Promedio actual: ",
+    "class_code": "Código de curso: "
 }

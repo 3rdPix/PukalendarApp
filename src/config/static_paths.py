@@ -31,6 +31,7 @@ class PathKey(Enum):
     QSS_HOME_VIEW: str = 'homeview_qss'
     LAST_INSTANCE_SETTING: str = 'last_status'
     USER_WINDOW_STATUS: str = 'usr_win'
+    NO_CLASS_CREATED_ICON: str = 'no_class'
 
 class ApplicationPaths:
     """
