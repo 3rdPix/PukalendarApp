@@ -4,5 +4,6 @@
     "locale_dir": ["resources", "locale"],
     "abt_img": ["resources", "images", "campus3.png"],
     "homeview_qss": ["resources", "qss", "home_view.qss"],
-    "last_status": ["resources", "config", "last_state.json"]
+    "last_status": ["resources", "config", "last_state.json"],
+    "usr_win": ["usr", "win.json"]
 }

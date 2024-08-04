@@ -15,13 +15,19 @@ from PyQt6.QtCore import QSize
 class HomeViewInfoBox(CardWidget):
     """
     A card widget with a title, made to display the
-    summarized info in the home interface
+    summarized info in the home interface.
+    By default, all instances of HomeViewInfoBox are synced to be
+    of equal size, determined by the minimum max size required
+    to display all content of the "biggest" box.
+    You can change this for each instance by specifying the argument
+    trackSize=False
     """
 
     def __init__(self, parent=None, trackSize: bool=True) -> None:
         super().__init__(parent)
         self._init_gui()
-        if trackSize: _HomeViewInfoBoxManager.add_instance(self)
+        self._tracking: bool = trackSize
+        if self._tracking: _HomeViewInfoBoxManager.add_instance(self)
 
     def _init_gui(self) -> None:
         """
@@ -34,15 +40,15 @@ class HomeViewInfoBox(CardWidget):
 
     def setTitle(self, card_title: str) -> None:
         self._title_label.setText(card_title)
-        _HomeViewInfoBoxManager.update_all_sizes()
+        if self._tracking: _HomeViewInfoBoxManager.update_all_sizes()
 
     def insert_widget(self, widget: QWidget) -> None:
         self._card_layout.addWidget(widget)
-        _HomeViewInfoBoxManager.update_all_sizes()
+        if self._tracking: _HomeViewInfoBoxManager.update_all_sizes()
 
     def insert_layout(self, layout: QLayout) -> None:
         self._card_layout.addLayout(layout)
-        _HomeViewInfoBoxManager.update_all_sizes()
+        if self._tracking: _HomeViewInfoBoxManager.update_all_sizes()
         
 class _HomeViewInfoBoxManager:
     """

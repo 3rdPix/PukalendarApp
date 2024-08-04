@@ -24,3 +24,8 @@ class MainApp(QApplication):
         #                           #
         #                           #
         #############################
+
+    def pporqye():
+        pass
+
+    

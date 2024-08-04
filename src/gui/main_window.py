@@ -1,8 +1,9 @@
+from PyQt6.QtCore import QRect
 from qfluentwidgets import MSFluentWindow
 from qfluentwidgets import NavigationItemPosition
 from config.static_paths import ApplicationPaths
 from config.static_paths import PathKey
-from PyQt6.QtGui import QIcon
+from PyQt6.QtGui import QCloseEvent, QIcon
 from utils.i18n import _
 from config.text_keys import TextKey
 from qfluentwidgets import FluentIcon as FIF
@@ -19,12 +20,19 @@ from gui.tabs_views import AgendaView
 from qfluentwidgets import SplashScreen
 from PyQt6.QtCore import QEventLoop
 from PyQt6.QtCore import QTimer
+from json import dump
+from json import load
+from json import JSONDecodeError
+from PyQt6.QtCore import QSize
+from PyQt6.QtCore import QPoint
 
 class MainWindow(MSFluentWindow):
     """
     Clase de la ventana principal de la aplicación sobre la
     que se despliegan todas las vistas y sub-widgets
     """
+
+
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
@@ -39,6 +47,19 @@ class MainWindow(MSFluentWindow):
         # sea necesario comprarle nada, y logre solo
         self.loopear_3_sec()
         self.splash_screen.finish()
+
+    def show(self) -> None:
+        try:
+            with open(ApplicationPaths.get_path(PathKey.USER_WINDOW_STATUS), 'r') as raw_file:
+                status: dict = load(raw_file)
+                self.move(status.get('x'), status.get('y'))
+                self.resize(status.get('w'), status.get('h'))
+        except FileNotFoundError:
+            pass
+        except JSONDecodeError:
+            # Archivo vacío
+            pass
+        return super().show()
 
     def loopear_3_sec(self) -> None:
         loop = QEventLoop(self)
@@ -116,3 +137,15 @@ class MainWindow(MSFluentWindow):
     def hide_about_bubble(self, panel: TeachingTip) -> bool:
         self.__showing_about = False
         return panel.close()
+    
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        current_win_size: QSize = self.size()
+        current_win_pos: QPoint = self.mapToGlobal(self.pos())
+        print(current_win_pos, current_win_pos.x(), current_win_pos.y())
+        with open(ApplicationPaths.get_path(PathKey.USER_WINDOW_STATUS), 'w') as raw_file:
+            dump({'x': current_win_pos.x(),
+                  'y': current_win_pos.y(),
+                  'h': current_win_size.height(),
+                  'w': current_win_size.width()},
+                  raw_file)
+        return super().closeEvent(a0)

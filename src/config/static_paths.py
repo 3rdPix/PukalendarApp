@@ -30,6 +30,7 @@ class PathKey(Enum):
     ABOUT_BUBBLE_IMAGE: str = 'abt_img'
     QSS_HOME_VIEW: str = 'homeview_qss'
     LAST_INSTANCE_SETTING: str = 'last_status'
+    USER_WINDOW_STATUS: str = 'usr_win'
 
 class ApplicationPaths:
     """
