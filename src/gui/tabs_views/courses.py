@@ -1,3 +1,8 @@
+from gui.widgets.boxes import SingleClassCategoryBox
+from PyQt6.QtWidgets import QHBoxLayout
+from PyQt6.QtWidgets import QGridLayout
+from qfluentwidgets import FlowLayout
+from gui.widgets.boxes import AllClassesClassBox
 from random import randint
 from qfluentwidgets import SubtitleLabel
 from config.static_paths import ApplicationPaths
@@ -18,7 +23,7 @@ from PyQt6.QtWidgets import QGraphicsOpacityEffect
 from PyQt6.QtCore import QPropertyAnimation
 from PyQt6.QtWidgets import QLabel
 from PyQt6.QtGui import QPixmap
-from gui.other_views.all_classes import AllClassesView
+from qfluentwidgets import PrimaryToolButton
 
 
 class OpacityAniStackedWidget(QStackedWidget):
@@ -156,13 +161,85 @@ class CoursesView(QFrame):
         layout.addStretch()
         self._stacked_area.addWidget(no_puclass_layer)
 
-        # Capa 2 la importamos
+        # Capa 2 
         self._all_classes_view: AllClassesView = AllClassesView()
         self._stacked_area.addWidget(self._all_classes_view)
+
+        # Capa 3
+        self._single_class_view: SingleClassView = SingleClassView()
+        self._stacked_area.addWidget(self._single_class_view)
 
         """
         BORRAR
         """
-        self._stacked_area.setCurrentIndex(1)
-        for i in range(11):
-            self._all_classes_view.add_class('curso', '#' + str(randint(100000, 999999)))
+        self._stacked_area.setCurrentIndex(2)
+        #for i in range(11):
+        #    self._all_classes_view.add_class('curso', '#' + str(randint(100000, 999999)))
+
+class AllClassesView(QFrame):
+
+    def __init__(self) -> None:
+        super().__init__(flags=Qt.WindowType.FramelessWindowHint)
+        self._flow_container: FlowLayout = FlowLayout(self, True)
+
+    def add_class(self, alias: str, color: str, data: dict={}) -> None:
+        new_box: AllClassesClassBox = AllClassesClassBox()
+        new_box.set_class_alias(alias)
+        new_box.set_class_color(color)
+        new_box.load_data(data)
+        self._flow_container.addWidget(new_box)
+
+class SingleClassView(QFrame):
+    """
+    Desplegamos las categorías
+     - Información general
+     - Horario
+     - Calificaciones
+     - Eventos / Tareas / Pendientes
+    """
+
+    def __init__(self) -> None:
+        super().__init__(flags=Qt.WindowType.FramelessWindowHint)
+        self._load_view()
+
+    def _load_view(self) -> None:
+        """
+        <- [color] Nombre [color]
+        --------------------------
+              [general][horario]
+              [calificaciones][eventos]
+        """
+        first_layout: QVBoxLayout = QVBoxLayout(self)
+        top_layout: QHBoxLayout = QHBoxLayout()
+        self._return_button: PrimaryToolButton = PrimaryToolButton(FIF.RETURN, self)
+        self._left_stripe = QLabel()
+        self._name_label = SubtitleLabel()
+        self._right_stripe = QLabel()
+        top_layout.addWidget(self._return_button)
+        top_layout.addWidget(self._left_stripe)
+        top_layout.addWidget(self._name_label)
+        top_layout.addWidget(self._right_stripe)
+        first_layout.addLayout(top_layout, 0)
+        first_layout.addWidget(CardSeparator(), 0)
+
+        bottom_layout: QGridLayout = QGridLayout()
+        self._generic_cat_box: SingleClassCategoryBox = SingleClassCategoryBox()
+        self._schedule_cat_box: SingleClassCategoryBox = SingleClassCategoryBox()
+        self._grades_cat_box: SingleClassCategoryBox = SingleClassCategoryBox()
+        self._events_cat_box: SingleClassCategoryBox = SingleClassCategoryBox()
+        bottom_layout.addWidget(self._generic_cat_box, 0, 0)
+        bottom_layout.addWidget(self._schedule_cat_box, 0, 1)
+        bottom_layout.addWidget(self._grades_cat_box, 1, 0)
+        bottom_layout.addWidget(self._events_cat_box, 1, 1)
+        first_layout.addLayout(bottom_layout, 1)
+
+    def load_data(self, class_data: object) -> None:
+        """
+        Recibe @dataclass con toda la información del curso a desplegar
+        """
+        pass
+
+    def _set_stripe_color(self, color: str) -> None:
+        # Usar hexadecimal #xxxxxx
+        self._left_stripe.setStyleSheet(f'QLabel {{background: {color};}}')
+        self._right_stripe.setStyleSheet(f'QLabel {{background: {color};}}')

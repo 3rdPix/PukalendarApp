@@ -135,3 +135,8 @@ class AllClassesClassBox(ElevatedCardWidget):
     def set_class_color(self, color: str) -> None:
         # Usar hex color #xxxxxx
         self._color_label.setStyleSheet(f'QLabel {{background: {color};}}')
+
+class SingleClassCategoryBox(CardWidget):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
