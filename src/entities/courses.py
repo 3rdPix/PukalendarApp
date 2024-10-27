@@ -1,11 +1,43 @@
 from typing import TypeAlias
+from datetime import datetime
+from datetime import timedelta
 
 CourseCode: TypeAlias = str
 Module: TypeAlias = int
-NRC: TypeAlias = int
 Campus: TypeAlias = int
 PersonName: TypeAlias = str
-Minutes: TypeAlias = int
+
+
+class SessionTimer:
+    _instance: object = None
+    on_session: bool = False
+    session_start: datetime = None
+    session_end: datetime = None
+    session_duration: timedelta = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def start_session(self) -> bool:
+        if self.on_session: return False
+        self.on_session = True
+        self.session_start = datetime.now()
+        return True
+    
+    def end_session(self) -> timedelta:
+        if not self.on_session: return False
+        self.session_end = datetime.now()
+        self.session_duration = self.session_start - self.session_end
+        self.on_session = False
+        return self.session_duration
+
+class NRC(int):
+    def __new__(cls, value: int):
+        if not (10000 <= value <= 99999):
+            raise ValueError("NRC must be between 10000 and 99999.")
+        return super().__new__(cls, value) 
 
 
 class HexColor:
@@ -47,9 +79,11 @@ class Course:
     official_modules: list[Module] = None
     user_alias: str = None
     user_color: HexColor = None
-    user_dedicated_time: Minutes = None
+    user_dedicated_time: timedelta = None
     user_grades: GradeTable = None
     user_modules: list[Module] = None
+    sessions_timer: SessionTimer = SessionTimer()
+    course_on_session: bool = False
 
     def __init__(self, alias: str, color: str) -> None:
         self.user_alias = alias
@@ -75,3 +109,11 @@ class Course:
         self.user_color = source.get("user_color")
         self.user_dedicated_time = source.get("user_dedicated_time")
         self.user_modules = source.get("user_modules")
+
+    def start_session(self) -> None:
+        if Course.sessions_timer.start_session():
+            self.course_on_session = True
+    
+    def stop_session(self) -> None:
+        session_time: timedelta = Course.sessions_timer.end_session()
+        self.user_dedicated_time += session_time
