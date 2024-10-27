@@ -19,6 +19,9 @@ Please start the app using this module found in src/main.py
 from os.path import abspath
 from os.path import dirname
 from os.path import join
+import logging
+
+logging.basicConfig()
 
 src_dir = abspath(dirname(__file__))
 if src_dir not in sys.path:
