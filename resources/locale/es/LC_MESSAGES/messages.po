@@ -1,0 +1,147 @@
+# Spanish translations for PUCalendarApp.
+# This file is distributed under the same license as the PUCalendarApp project.
+# FIRST AUTHOR <claudio.mora@uc.cl>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2024-10-28 04:41-0300\n"
+"PO-Revision-Date: 2024-10-28 04:42-0300\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: es\n"
+"Language-Team: es <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.16.0\n"
+
+#: src/gui/main_window.py:60
+msgid "MainWindow.Title"
+msgstr "PUCalendarApp"
+
+#: src/gui/main_window.py:64
+msgid "MainWindow.NavigationInterface.About"
+msgstr "Acerca de"
+
+#: src/gui/main_window.py:75
+msgid "MainWindow.NavigationInterface.Home"
+msgstr "Inicio"
+
+#: src/gui/main_window.py:77
+msgid "MainWindow.NavigationInterface.Agenda"
+msgstr "Agenda"
+
+#: src/gui/main_window.py:80
+msgid "MainWindow.NavigationInterface.Courses"
+msgstr "Cursos"
+
+#: src/gui/main_window.py:82
+msgid "MainWindow.NavigationInterface.Calendar"
+msgstr "Calendario"
+
+#: src/gui/main_window.py:97
+msgid "MainWindow.About.Title"
+msgstr "Acerca de"
+
+#: src/gui/main_window.py:98
+msgid "MainWindow.About.Description"
+msgstr "PUCalendarApp es una aplicación de código abierto diseñada por y para estudiantes con la finalidad de otorgar una ayuda en la organización y registro de todos los quehaceres universitarios."
+
+#: src/gui/tabs_views/courses.py:107
+msgid "MainWindow.Courses.CommandBar.AddNew"
+msgstr "Agregar curso"
+
+#: src/gui/tabs_views/courses.py:111
+msgid "MainWindow.Courses.CommandBar.Delete"
+msgstr "Eliminar curso"
+
+#: src/gui/tabs_views/courses.py:115
+msgid "MainWindow.Courses.CommandBar.Edit"
+msgstr "Editar curso"
+
+#: src/gui/tabs_views/courses.py:119
+msgid "MainWindow.Courses.CommandBar.Scale"
+msgstr "Editar escala de calificaciones"
+
+#: src/gui/tabs_views/courses.py:154
+msgid "MainWindow.Courses.NoClassView.NoClass"
+msgstr "No se han agregado clases"
+
+#: src/gui/tabs_views/home.py:43
+msgid "MainWindow.Home.InfoBoxAgenda.Title"
+msgstr "Próximos eventos"
+
+#: src/gui/tabs_views/home.py:48
+msgid "MainWindow.Home.InfoBoxCourses.Title"
+msgstr "Cursos"
+
+#: src/gui/tabs_views/home.py:53
+msgid "MainWindow.Home.InfoBoxSettings.Title"
+msgstr "Configuraciones rápidas"
+
+#: src/gui/tabs_views/home.py:58
+msgid "MainWindow.Home.InfoBoxDangers.Title"
+msgstr "Peligros"
+
+#: src/gui/tabs_views/home.py:63
+msgid "MainWindow.Home.InfoBoxExternal.Title"
+msgstr "Actividades externas"
+
+#: src/gui/tabs_views/home.py:68
+msgid "MainWindow.Home.InfoBoxTime.Title"
+msgstr "Sesiones de estudio"
+
+#: src/gui/widgets/boxes.py:105
+msgid "MainWindow.Courses.AllCourses.CardBox.Professor"
+msgstr "Profesor"
+
+#: src/gui/widgets/boxes.py:106
+msgid "MainWindow.Courses.AllCourses.CardBox.ProfessorMail"
+msgstr "Correo del profesor"
+
+#: src/gui/widgets/boxes.py:107
+msgid "MainWindow.Courses.AllCourses.CardBox.Section"
+msgstr "Sección"
+
+#: src/gui/widgets/boxes.py:108
+msgid "MainWindow.Courses.AllCourses.CardBox.CurrentGrade"
+msgstr "Calificación actual"
+
+#: src/gui/widgets/boxes.py:109
+msgid "MainWindow.Courses.AllCourses.CardBox.CourseCode"
+msgstr "Sigla del curso"
+
+#: src/gui/widgets/dialogs.py:30
+msgid "MainWindow.Courses.NewClassDialog.Search"
+msgstr "Buscar"
+
+#: src/gui/widgets/dialogs.py:33
+msgid "MainWindow.Courses.NewClassDialog.SearchPlaceholder"
+msgstr "Ingresa el patrón de búsqueda"
+
+#: src/gui/widgets/dialogs.py:44
+msgid "MainWindow.Courses.NewClassDialog.Alias"
+msgstr "Apodo"
+
+#: src/gui/widgets/dialogs.py:47
+msgid "MainWindow.Courses.NewClassDialog.AliasPlaceholder"
+msgstr "Ingresa un apodo para el curso"
+
+#: src/gui/widgets/dialogs.py:50
+msgid "MainWindow.Courses.NewClassDialog.Color"
+msgstr "Color"
+
+#: src/gui/widgets/dialogs.py:52
+msgid "MainWindow.Courses.NewClassDialog.ColorDialog.Title"
+msgstr "Asigna un color al curso"
+
+#: src/gui/widgets/dialogs.py:61
+msgid "MainWindow.Courses.NewClassDialog.Confirm"
+msgstr "Confirmar"
+
+#: src/gui/widgets/dialogs.py:63
+msgid "MainWindow.Courses.NewClassDialog.Cancel"
+msgstr "Cancelar"
+

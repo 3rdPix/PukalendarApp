@@ -5,9 +5,7 @@ from gui.widgets import HomeViewInfoBox
 from qfluentwidgets import ScrollArea
 from qfluentwidgets import FlowLayout
 from PyQt6.QtCore import QEasingCurve
-from config.static_paths import ApplicationPaths
-from config.static_paths import PathKey
-from config.text_keys import TextKey
+from config import PUCalendarAppPaths as pt
 from utils.i18n import _
 
 class HomeView(QFrame):
@@ -27,7 +25,7 @@ class HomeView(QFrame):
         self._scroll_area.setWidget(self._widget_object)
         self._load_cards()
         try:
-            with open(ApplicationPaths.get_path(PathKey.QSS_HOME_VIEW), 'r') as raw_file:
+            with open(pt.Qss.HOME_VIEW, 'r') as raw_file:
                 self.setStyleSheet(raw_file.read())
         except FileNotFoundError:
             print(f'[ERROR] Couldn\'t find stylesheet for {self}')
@@ -42,32 +40,32 @@ class HomeView(QFrame):
         
     def _create_agenda_infobox(self) -> HomeViewInfoBox:
         self.agenda_infobox: HomeViewInfoBox = HomeViewInfoBox()
-        self.agenda_infobox.setTitle(_(TextKey.INFOBOX_AGENDA_TITLE))
+        self.agenda_infobox.setTitle(_("MainWindow.Home.InfoBoxAgenda.Title"))
         return self.agenda_infobox
 
     def _create_courses_infobox(self) -> HomeViewInfoBox:
         self.courses_infobox: HomeViewInfoBox = HomeViewInfoBox()
-        self.courses_infobox.setTitle(_(TextKey.INFOBOX_COURSES_TITLE))
+        self.courses_infobox.setTitle(_("MainWindow.Home.InfoBoxCourses.Title"))
         return self.courses_infobox
 
     def _create_settings_infobox(self) -> HomeViewInfoBox:
         self.settings_infobox: HomeViewInfoBox = HomeViewInfoBox()
-        self.settings_infobox.setTitle(_(TextKey.INFOBOX_SETTINGS_TITLE))
+        self.settings_infobox.setTitle(_("MainWindow.Home.InfoBoxSettings.Title"))
         return self.settings_infobox
 
     def _create_dangers_infobox(self) -> HomeViewInfoBox:
         self.dangers_infobox: HomeViewInfoBox = HomeViewInfoBox()
-        self.dangers_infobox.setTitle(_(TextKey.INFOBOX_DANGERS_TITLE))
+        self.dangers_infobox.setTitle(_("MainWindow.Home.InfoBoxDangers.Title"))
         return self.dangers_infobox
 
     def _create_external_infobox(self) -> HomeViewInfoBox:
         self.external_infobox: HomeViewInfoBox = HomeViewInfoBox()
-        self.external_infobox.setTitle(_(TextKey.INFOBOX_EXTERNAL_TITLE))
+        self.external_infobox.setTitle(_("MainWindow.Home.InfoBoxExternal.Title"))
         return self.external_infobox
 
     def _create_time_infobox(self) -> HomeViewInfoBox:
         self.time_infobox: HomeViewInfoBox = HomeViewInfoBox()
-        self.time_infobox.setTitle(_(TextKey.INFOBOX_TIME_TITLE))
+        self.time_infobox.setTitle(_("MainWindow.Home.InfoBoxTime.Title"))
         return self.time_infobox
     
     def resizeEvent(self, a0: QResizeEvent | None) -> None:

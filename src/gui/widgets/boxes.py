@@ -14,7 +14,6 @@ from PyQt6.QtWidgets import QWidget
 from PyQt6.QtWidgets import QLayout
 from PyQt6.QtCore import QSize
 from PyQt6.QtWidgets import QStyle
-from config.text_keys import TextKey
 from utils.i18n import _
 from qfluentwidgets import StrongBodyLabel
 from qfluentwidgets import ElevatedCardWidget
@@ -103,11 +102,11 @@ class AllClassesClassBox(ElevatedCardWidget):
         # mas info específica
         # de momento es lo que se me ocurre poner
 
-        self._prof_name: QLabel = QLabel(_(TextKey.PROFESSOR_LABEL))
-        self._prof_mail: QLabel = QLabel(_(TextKey.PROFESSOR_MAIL_LABEL))
-        self._section: QLabel = QLabel(_(TextKey.SECTION_LABEL))
-        self._current_grade: QLabel = QLabel(_(TextKey.CURRENT_GRADE_LABEL))
-        self._class_code: QLabel = QLabel(_(TextKey.CLASS_CODE_LABEL))
+        self._prof_name: QLabel = QLabel(_("MainWindow.Courses.AllCourses.CardBox.Professor"))
+        self._prof_mail: QLabel = QLabel(_("MainWindow.Courses.AllCourses.CardBox.ProfessorMail"))
+        self._section: QLabel = QLabel(_("MainWindow.Courses.AllCourses.CardBox.Section"))
+        self._current_grade: QLabel = QLabel(_("MainWindow.Courses.AllCourses.CardBox.CurrentGrade"))
+        self._class_code: QLabel = QLabel(_("MainWindow.Courses.AllCourses.CardBox.CourseCode"))
 
         self._shown_info_labels: dict[str, QLabel] = {}
 

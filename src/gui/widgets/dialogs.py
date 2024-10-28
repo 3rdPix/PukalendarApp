@@ -8,7 +8,6 @@ from qfluentwidgets import LineEdit
 from qfluentwidgets import ListWidget
 from qfluentwidgets import ColorPickerButton
 from PyQt6.QtGui import QColor
-from config.text_keys import TextKey
 from utils.i18n import _
 
 class NewClassDialog(MessageBoxBase):
@@ -28,10 +27,10 @@ class NewClassDialog(MessageBoxBase):
     def init_gui(self) -> None:
         # Search block
         sub_layout1 = QHBoxLayout()
-        search_label = CaptionLabel(text=_(TextKey.NEW_CLASS_DIALOG_SEARCH_LABEL))
+        search_label = CaptionLabel(text=_("MainWindow.Courses.NewClassDialog.Search"))
         self.search_linedit = LineEdit(self)
         self.search_linedit.setClearButtonEnabled(True)
-        self.search_linedit.setPlaceholderText(_(TextKey.NEW_CLASS_DIALOG_SEARCH_PLACEHOLDER))
+        self.search_linedit.setPlaceholderText(_("MainWindow.Courses.NewClassDialog.SearchPlaceholder"))
         sub_layout1.addWidget(search_label)
         sub_layout1.addWidget(self.search_linedit)
         self.viewLayout.addLayout(sub_layout1)
@@ -42,15 +41,15 @@ class NewClassDialog(MessageBoxBase):
 
         # Other parameters
         sub_layout2 = QHBoxLayout()
-        alias_label = CaptionLabel(text=_(TextKey.NEW_CLASS_DIALOG_ALIAS_LABEL))
+        alias_label = CaptionLabel(text=_("MainWindow.Courses.NewClassDialog.Alias"))
         self.alias_linedit = LineEdit(self)
         self.alias_linedit.setClearButtonEnabled(True)
-        self.alias_linedit.setPlaceholderText(_(TextKey.NEW_CLASS_DIALOG_ALIAS_PLACEHOLDER))
+        self.alias_linedit.setPlaceholderText(_("MainWindow.Courses.NewClassDialog.AliasPlaceholder"))
         self.alias_linedit.setEnabled(False)
         self.alias_linedit.setMaxLength(10)
-        color_label = CaptionLabel(_(TextKey.NEW_CLASS_DIALOG_COLOR_LABEL))
+        color_label = CaptionLabel(_("MainWindow.Courses.NewClassDialog.Color"))
         self.color_selector = ColorPickerButton(
-            QColor('#5010aaa2'), _(TextKey.NEW_CLASS_DIALOG_COLOR_SELECTOR_TITLE))
+            QColor('#5010aaa2'), _("MainWindow.Courses.NewClassDialog.ColorDialog.Title"))
         self.color_selector.setEnabled(False)
         sub_layout2.addWidget(alias_label)
         sub_layout2.addWidget(self.alias_linedit)
@@ -59,9 +58,9 @@ class NewClassDialog(MessageBoxBase):
         self.viewLayout.addLayout(sub_layout2)
 
         # final text
-        self.yesButton.setText(_(TextKey.NEW_CLASS_DIALOG_CONFIRM_BUTTON))
+        self.yesButton.setText(_("MainWindow.Courses.NewClassDialog.Confirm"))
         self.yesButton.setEnabled(False)
-        self.cancelButton.setText(_(TextKey.NEW_CLASS_DIALOG_CANCEL_BUTTON))
+        self.cancelButton.setText(_("MainWindow.Courses.NewClassDialog.Cancel"))
 
     def connect_signals(self) -> None:
         self.search_linedit.returnPressed.connect(

@@ -1,3 +1,4 @@
+from config import PUCalendarAppPaths as pt
 from gui.widgets.boxes import SingleClassCategoryBox
 from PyQt6.QtWidgets import QHBoxLayout
 from PyQt6.QtWidgets import QGridLayout
@@ -5,8 +6,6 @@ from qfluentwidgets import FlowLayout
 from gui.widgets.boxes import AllClassesClassBox
 from random import randint
 from qfluentwidgets import SubtitleLabel
-from config.static_paths import ApplicationPaths
-from config.static_paths import PathKey
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QVBoxLayout
 from PyQt6.QtWidgets import QFrame
@@ -14,7 +13,6 @@ from PyQt6.QtWidgets import QWidget
 from qfluentwidgets import Action
 from qfluentwidgets import CommandBar
 from qfluentwidgets import FluentIcon as FIF
-from config.text_keys import TextKey
 from utils.i18n import _
 from qfluentwidgets.components.widgets.card_widget import CardSeparator
 from PyQt6.QtWidgets import QStackedWidget
@@ -106,19 +104,19 @@ class CoursesView(QFrame):
     def _create_command_bar_actions(self) -> list[Action]:
         actions: list = list()
 
-        add_new = Action(FIF.ADD, _(TextKey.COMMAND_BAR_ADD_NEW))
+        add_new = Action(FIF.ADD, _("MainWindow.Courses.CommandBar.AddNew"))
         add_new.triggered.connect(self._CB_add_new)
         actions.append(add_new)
 
-        delete_puclass = Action(FIF.DELETE, _(TextKey.COMMAND_BAR_DEL))
+        delete_puclass = Action(FIF.DELETE, _("MainWindow.Courses.CommandBar.Delete"))
         delete_puclass.triggered.connect(self._CB_del)
         actions.append(delete_puclass)
 
-        edit_puclass = Action(FIF.EDIT, _(TextKey.COMMAND_BAR_EDIT))
+        edit_puclass = Action(FIF.EDIT, _("MainWindow.Courses.CommandBar.Edit"))
         edit_puclass.triggered.connect(self._CB_edit)
         actions.append(edit_puclass)
 
-        set_scale = Action(FIF.IOT, _(TextKey.COMMAND_BAR_SCALE))
+        set_scale = Action(FIF.IOT, _("MainWindow.Courses.CommandBar.Scale"))
         set_scale.triggered.connect(self._CB_scale)
         actions.append(set_scale)
 
@@ -151,10 +149,9 @@ class CoursesView(QFrame):
         # Primera capa puede ser creada acá
         no_puclass_layer = QWidget()
         icon = QLabel()
-        icon.setPixmap(QPixmap(
-            ApplicationPaths.get_path(PathKey.NO_CLASS_CREATED_ICON)))
+        icon.setPixmap(QPixmap(pt.Resources.VIEW_COURSES_NO_BOOK))
         icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        subtitle = SubtitleLabel(_(TextKey.NO_CLASS_CREATED_LABEL))
+        subtitle = SubtitleLabel(_("MainWindow.Courses.NoClassView.NoClass"))
         subtitle.setWordWrap(True)
         subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout = QVBoxLayout(no_puclass_layer)
