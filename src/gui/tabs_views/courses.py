@@ -24,6 +24,7 @@ from PyQt6.QtCore import QPropertyAnimation
 from PyQt6.QtWidgets import QLabel
 from PyQt6.QtGui import QPixmap
 from qfluentwidgets import PrimaryToolButton
+from gui.widgets.dialogs import NewClassDialog
 
 
 class OpacityAniStackedWidget(QStackedWidget):
@@ -124,7 +125,9 @@ class CoursesView(QFrame):
         return actions
     
     def _CB_add_new(self) -> None:
-        pass
+        # Es mejor que sea una ventana propia
+        self.new_class_dialog = NewClassDialog(self)
+        self.new_class_dialog.show()
 
     def _CB_del(self) -> None:
         pass
@@ -172,7 +175,7 @@ class CoursesView(QFrame):
         """
         BORRAR
         """
-        self._stacked_area.setCurrentIndex(2)
+        # self._stacked_area.setCurrentIndex(2)
         #for i in range(11):
         #    self._all_classes_view.add_class('curso', '#' + str(randint(100000, 999999)))
 

@@ -38,3 +38,11 @@ class TextKey(Enum):
     SECTION_LABEL: str = 'section'
     CURRENT_GRADE_LABEL: str = 'curr_grade'
     CLASS_CODE_LABEL: str = 'class_code'
+    NEW_CLASS_DIALOG_SEARCH_LABEL: str = "new_class_search_label"
+    NEW_CLASS_DIALOG_SEARCH_PLACEHOLDER: str = "new_class_search_placeholder"
+    NEW_CLASS_DIALOG_ALIAS_LABEL: str = "new_class_alias_label"
+    NEW_CLASS_DIALOG_ALIAS_PLACEHOLDER: str = "new_class_alias_placeholder"
+    NEW_CLASS_DIALOG_COLOR_LABEL: str = "new_class_color_label"
+    NEW_CLASS_DIALOG_COLOR_SELECTOR_TITLE: str = "new_class_color_title"
+    NEW_CLASS_DIALOG_CONFIRM_BUTTON: str = "new_class_confirm"
+    NEW_CLASS_DIALOG_CANCEL_BUTTON: str = "new_class_cancel"

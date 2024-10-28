@@ -24,6 +24,7 @@ from json import dump
 from json import load
 from json import JSONDecodeError
 from PyQt6.QtCore import QSize
+from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtCore import QPoint
 
 class MainWindow(MSFluentWindow):
@@ -31,7 +32,7 @@ class MainWindow(MSFluentWindow):
     Clase de la ventana principal de la aplicación sobre la
     que se despliegan todas las vistas y sub-widgets
     """
-
+    windowIsClosing: pyqtSignal = pyqtSignal(name="MainWindow_closing")
 
 
     def __init__(self, parent=None) -> None:

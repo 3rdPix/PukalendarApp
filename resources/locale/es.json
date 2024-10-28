@@ -21,5 +21,13 @@
     "prof_mail": "Correo profesor: ",
     "section": "N° sección: ",
     "curr_grade": "Promedio actual: ",
-    "class_code": "Código de curso: "
+    "class_code": "Código de curso: ",
+    "new_class_search_label": "Buscar: ",
+    "new_class_search_placeholder": "Ingresa patrón de búsqueda",
+    "new_class_alias_label": "Alias: ",
+    "new_class_alias_placeholder": "Ingresa apodo para la clase",
+    "new_class_color_label": "Color: ",
+    "new_class_color_title": "Elige un color para identificar el ramo",
+    "new_class_confirm": "Confirmar",
+    "new_class_cancel": "Cancelar"
 }

@@ -6,5 +6,6 @@
     "homeview_qss": ["resources", "qss", "home_view.qss"],
     "last_status": ["resources", "config", "last_state.json"],
     "usr_win": ["usr", "win.json"],
-    "no_class": ["resources", "images", "no_book.png"]
+    "no_class": ["resources", "images", "no_book.png"],
+    "usr_courses": ["usr", "courses.pkl"]
 }
