@@ -15,7 +15,7 @@ def get_year_and_value() -> tuple[str, str]:
 
 def _extract_course_data(html_snippet: str) -> list:
     """
-    Parse HTML from buscacursos.uc.cl to read results of the search
+    Parsear HTML del sitio para leer resultados
     """
     soup = BeautifulSoup(html_snippet, 'html.parser')
     rows = soup.find_all(class_=["resultadosRowPar", "resultadosRowImpar"])
@@ -33,10 +33,10 @@ def _extract_course_data(html_snippet: str) -> list:
             'official_modules': []}
 
         try:
-            course_dict['professor'] = \
+            course_dict['official_professor'] = \
                 columns[10].find_all('a')[0].get_text().strip()
         except IndexError:
-            course_dict['professor'] = 'Ninguno'
+            course_dict['official_professor'] = 'Ninguno'
 
         # Extract dates from the table
         table_rows = row.find_all('tr')
@@ -46,7 +46,7 @@ def _extract_course_data(html_snippet: str) -> list:
                 date_info = [date_columns[0].get_text().strip(),
                              date_columns[1].get_text().strip(),
                              date_columns[2].get_text().strip()]
-                course_dict['dates'].append(date_info)
+                course_dict['official_modules'].append(date_info)
 
         course_list.append(course_dict)
         
@@ -55,14 +55,12 @@ def _extract_course_data(html_snippet: str) -> list:
 
 def search_for_puclasses(search_pattern: str) -> list[dict] | None:
     """
-    Searches for courses that match the pattern
+    Busca cursos que coincidan con el texto
     -------------------------------------------
-    `search_pattern: str`: any nrc-like or name-like
-    `year: str`: as string, for example, `"2024"`
-    `semester: str`: as string. Only "1" or "2".
-    -------------------------------------------
-    Returns a list with all courses matching the pattern in the form of 
-    dictionaries.
+    `search_pattern: str`: intento de NRC ó nombre
+    
+    Retorna una lista con todos los cursos que coincidan con el patrón
+    de búsqueda, en que cada curso es un diccionario.
     """
     name_url = ("https://buscacursos.uc.cl/?cxml_semestre={}-{}&cxml_sigla"
                 "=&cxml_nrc=&cxml_nombre={}&cxml_categoria=TODOS&cxml_area"

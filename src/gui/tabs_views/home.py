@@ -7,6 +7,10 @@ from qfluentwidgets import FlowLayout
 from PyQt6.QtCore import QEasingCurve
 from config import PUCalendarAppPaths as pt
 from utils.i18n import _
+import logging
+
+
+log = logging.getLogger("HomeView")
 
 class HomeView(QFrame):
     
@@ -28,7 +32,7 @@ class HomeView(QFrame):
             with open(pt.Qss.HOME_VIEW, 'r') as raw_file:
                 self.setStyleSheet(raw_file.read())
         except FileNotFoundError:
-            print(f'[ERROR] Couldn\'t find stylesheet for {self}')
+            log.error(f"Couldn't load Qss file")
 
     def _load_cards(self) -> None:
         self._widget_flow_layout.addWidget(self._create_agenda_infobox())

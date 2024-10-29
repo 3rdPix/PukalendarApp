@@ -1,10 +1,10 @@
+
 from config import PUCalendarAppPaths as pt
 from gui.widgets.boxes import SingleClassCategoryBox
 from PyQt6.QtWidgets import QHBoxLayout
 from PyQt6.QtWidgets import QGridLayout
 from qfluentwidgets import FlowLayout
 from gui.widgets.boxes import AllClassesClassBox
-from random import randint
 from qfluentwidgets import SubtitleLabel
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QVBoxLayout
@@ -15,76 +15,22 @@ from qfluentwidgets import CommandBar
 from qfluentwidgets import FluentIcon as FIF
 from utils.i18n import _
 from qfluentwidgets.components.widgets.card_widget import CardSeparator
-from PyQt6.QtWidgets import QStackedWidget
-from PyQt6.QtCore import QAbstractAnimation
-from PyQt6.QtWidgets import QGraphicsOpacityEffect
-from PyQt6.QtCore import QPropertyAnimation
 from PyQt6.QtWidgets import QLabel
 from PyQt6.QtGui import QPixmap
 from qfluentwidgets import PrimaryToolButton
 from gui.widgets.dialogs import NewClassDialog
+from gui.widgets.misc import OpacityAniStackedWidget
 
-
-class OpacityAniStackedWidget(QStackedWidget):
-    """ Stacked widget with fade in and fade out animation """
-
-    def __init__(self, parent=None) -> None:
-        super().__init__(parent=parent)
-        self.__create_animations()
-
-    def setCurrentIndex(self, index: int) -> None:
-        if index == self.currentIndex(): return
-        if not self.widget(index): return # avoids going to nonexisting index
-        
-        # Current index hides, target index shows
-        self.currentWidget().setGraphicsEffect(self._opacity1)
-        self.widget(index).setGraphicsEffect(self._opacity2)
-
-        # Show target index (currently invisible)
-        self.widget(index).show()
-
-        # Start animations
-        self._opacityUp.finished.connect(
-            lambda: self.rst_effects(self.currentWidget(), self.widget(index)))
-        self._opacityDown.start(QAbstractAnimation.DeletionPolicy.KeepWhenStopped)
-        self._opacityUp.start(QAbstractAnimation.DeletionPolicy.KeepWhenStopped)
-
-    def rst_effects(self, w_hidden: QWidget, w_shown: QWidget) -> None:
-        super().setCurrentWidget(w_shown)
-        w_hidden.setGraphicsEffect(None)
-        w_shown.setGraphicsEffect(None)
-        self.__create_animations()
-
-    def __create_animations(self) -> None:
-
-        self._opacity1 = QGraphicsOpacityEffect(self)
-        self._opacity2 = QGraphicsOpacityEffect(self)
-        self._opacity2.setOpacity(0.0)
-
-        ## Animation for both opacities
-        self._opacityDown = QPropertyAnimation(self._opacity1, b'opacity')
-        self._opacityDown.setStartValue(1.0)
-        self._opacityDown.setEndValue(0.0)
-
-        self._opacityUp = QPropertyAnimation(self._opacity2, b'opacity')
-        self._opacityUp.setStartValue(0.0)
-        self._opacityUp.setEndValue(1.0)
-
-    def setDuration(self, ms: int) -> None:
-        """Sets the duration of the transition between widgets"""
-        self._opacityUp.setDuration(ms)
-        self._opacityDown.setDuration(ms)
-
-    def setCurrentWidget(self, w: QWidget) -> None:
-        self.setCurrentIndex(self.indexOf(w))
 
 class CoursesView(QFrame):
-    
+    new_class_dialog: NewClassDialog
+
     def __init__(self, parent: QWidget | None=None) -> None:
         super().__init__(parent)
         self.setObjectName('courses_view')
         self._create_layout()
         self._create_layers()
+        self.new_class_dialog = NewClassDialog()
 
     def _create_layout(self) -> None:
         """
@@ -124,7 +70,6 @@ class CoursesView(QFrame):
     
     def _CB_add_new(self) -> None:
         # Es mejor que sea una ventana propia
-        self.new_class_dialog = NewClassDialog(self)
         self.new_class_dialog.show()
 
     def _CB_del(self) -> None:
@@ -169,6 +114,18 @@ class CoursesView(QFrame):
         self._single_class_view: SingleClassView = SingleClassView()
         self._stacked_area.addWidget(self._single_class_view)
 
+    def RQ_update_courses(self, courses_list: list[dict]) -> None:
+        self._all_classes_view.clear()
+        for course in courses_list:
+            alias = course.get("user_alias")
+            color = course.get("user_color")
+            self._all_classes_view.add_class(alias, color, course)
+        # ¿? Automáticamente mostrar segunda capa
+        self._stacked_area.setCurrentIndex(
+            1 if self._all_classes_view.has_items else 0)
+        # Al parecer tiene problemas si se pierde el foco
+        self.setFocus()
+
         """
         BORRAR
         """
@@ -188,6 +145,14 @@ class AllClassesView(QFrame):
         new_box.set_class_color(color)
         new_box.load_data(data)
         self._flow_container.addWidget(new_box)
+    
+    def read_container(self) -> bool:
+        return bool(self._flow_container._items)
+    
+    has_items = property(read_container)
+
+    def clear(self) -> None:
+        self._flow_container.takeAllWidgets()
 
 class SingleClassView(QFrame):
     """

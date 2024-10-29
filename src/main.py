@@ -21,11 +21,10 @@ from os.path import dirname
 from os.path import join
 import logging
 
-logging.basicConfig()
 
+logging.basicConfig(level=logging.DEBUG)
 src_dir = abspath(dirname(__file__))
-if src_dir not in sys.path:
-    sys.path.insert(0, src_dir)
+if src_dir not in sys.path: sys.path.insert(0, src_dir)
 
 # Ahora los módulos son correctamente encontrados a partir de src/
 from PUCalendarApp import MainApp

@@ -18,13 +18,17 @@ from qfluentwidgets import SplashScreen
 from PyQt6.QtCore import QEventLoop
 from PyQt6.QtCore import QTimer
 from PyQt6.QtCore import pyqtSignal
+import logging
+
+
+log = logging.getLogger("MainWindow")
 
 class MainWindow(MSFluentWindow):
     """
     Clase de la ventana principal de la aplicación sobre la
     que se despliegan todas las vistas y sub-widgets
     """
-    windowIsClosing: pyqtSignal = pyqtSignal(name="MainWindow_closing")
+    SG_window_close_event: pyqtSignal = pyqtSignal(name="MainWindow_closing")
 
 
     def __init__(self, parent=None) -> None:
@@ -56,7 +60,7 @@ class MainWindow(MSFluentWindow):
                        'r', encoding='utf-8') as raw_file:
                 self.setStyleSheet(raw_file.read())
         except FileNotFoundError:
-            print(f'[ERROR] loading {pt.Qss.MAIN_WINDOW}')
+            log.error(f"Loading of {pt.Qss.MAIN_WINDOW} could not be resolved")
         self.setWindowTitle(_("MainWindow.Title"))
         self.navigationInterface.addItem(
             routeKey='about_app',
@@ -71,15 +75,21 @@ class MainWindow(MSFluentWindow):
         """
         Añade las pestañas a la navegación para su posterior despliegue
         """
-        self.addSubInterface(
-            HomeView(), FIF.HOME, _("MainWindow.NavigationInterface.Home"), FIF.HOME_FILL)
-        self.addSubInterface(
-            AgendaView(), FIF.TAG, _("MainWindow.NavigationInterface.Agenda"), FIF.CHECKBOX)
-        self.addSubInterface(
-            CoursesView(), FIF.LIBRARY,
-            _("MainWindow.NavigationInterface.Courses"), FIF.LIBRARY_FILL)
-        self.addSubInterface(
-            CalendarView(), FIF.CALENDAR, _("MainWindow.NavigationInterface.Calendar"))
+        self.home_view = HomeView()
+        self.addSubInterface(self.home_view, FIF.HOME,
+                             _("MainWindow.NavigationInterface.Home"),
+                             FIF.HOME_FILL)
+        self.agenda_view = AgendaView()
+        self.addSubInterface(self.agenda_view, FIF.TAG,
+                             _("MainWindow.NavigationInterface.Agenda"),
+                             FIF.CHECKBOX)
+        self.courses_view = CoursesView()
+        self.addSubInterface(self.courses_view, FIF.LIBRARY,
+                             _("MainWindow.NavigationInterface.Courses"),
+                             FIF.LIBRARY_FILL)
+        self.calendar_view = CalendarView()
+        self.addSubInterface(self.calendar_view, FIF.CALENDAR,
+                             _("MainWindow.NavigationInterface.Calendar"))
 
     def _load_self_variables(self) -> None:
         """
@@ -117,4 +127,5 @@ class MainWindow(MSFluentWindow):
         return panel.close()
     
     def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.SG_window_close_event.emit()
         return super().closeEvent(a0)

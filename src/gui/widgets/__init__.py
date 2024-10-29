@@ -1,1 +1,3 @@
-from gui.widgets.boxes import HomeViewInfoBox
+from .misc import *
+from .boxes import *
+from .dialogs import *

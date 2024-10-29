@@ -1,0 +1,1 @@
+from .buscacursos import search_for_puclasses

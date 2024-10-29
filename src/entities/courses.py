@@ -70,20 +70,20 @@ class GradeTable:
 
 
 class Course:
-    official_name: str = None
-    official_nrc: NRC = None
-    official_code: CourseCode = None
-    official_professor: PersonName = None
-    official_campus: Campus = None
-    official_section: int = None
-    official_modules: list[Module] = None
-    user_alias: str = None
-    user_color: HexColor = None
-    user_dedicated_time: timedelta = None
-    user_grades: GradeTable = None
-    user_modules: list[Module] = None
+    official_name: str
+    official_nrc: NRC
+    official_code: CourseCode
+    official_professor: PersonName
+    official_campus: Campus
+    official_section: int
+    official_modules: list[Module]
+    user_alias: str
+    user_color: HexColor
+    user_dedicated_time: timedelta
+    user_grades: GradeTable
+    user_modules: list[Module]
     sessions_timer: SessionTimer = SessionTimer()
-    course_on_session: bool = False
+    course_on_session: bool
 
     def __init__(self, alias: str, color: str) -> None:
         self.user_alias = alias

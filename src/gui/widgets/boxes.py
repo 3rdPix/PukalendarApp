@@ -103,27 +103,25 @@ class AllClassesClassBox(ElevatedCardWidget):
         # de momento es lo que se me ocurre poner
 
         self._prof_name: QLabel = QLabel(_("MainWindow.Courses.AllCourses.CardBox.Professor"))
-        self._prof_mail: QLabel = QLabel(_("MainWindow.Courses.AllCourses.CardBox.ProfessorMail"))
         self._section: QLabel = QLabel(_("MainWindow.Courses.AllCourses.CardBox.Section"))
-        self._current_grade: QLabel = QLabel(_("MainWindow.Courses.AllCourses.CardBox.CurrentGrade"))
+        # self._current_grade: QLabel = QLabel(_("MainWindow.Courses.AllCourses.CardBox.CurrentGrade"))
         self._class_code: QLabel = QLabel(_("MainWindow.Courses.AllCourses.CardBox.CourseCode"))
 
         self._shown_info_labels: dict[str, QLabel] = {}
 
-        self._shown_info_labels['professor'] = self._prof_name
-        self._shown_info_labels['professor_mail'] = self._prof_mail
-        self._shown_info_labels['section'] = self._section
-        self._shown_info_labels['current_grade'] = self._current_grade
-        self._shown_info_labels['class_code'] = self._class_code
+        self._shown_info_labels['official_professor'] = self._prof_name
+        self._shown_info_labels['official_section'] = self._section
+        # self._shown_info_labels['current_grade'] = self._current_grade
+        self._shown_info_labels['official_code'] = self._class_code
 
         container.addWidget(self._prof_name)
-        container.addWidget(self._prof_mail)
+        # container.addWidget(self._prof_mail)
         container.addWidget(self._section)
-        container.addWidget(self._current_grade)
+        # container.addWidget(self._current_grade)
         container.addWidget(self._class_code)
 
     def load_data(self, data: dict) -> None:
-        for key, value in data:
+        for key, value in data.items():
             if key in self._shown_info_labels:
                 self._shown_info_labels.get(key).setText(
                     self._shown_info_labels.get(key).text() + value)
