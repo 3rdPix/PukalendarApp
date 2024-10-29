@@ -16,7 +16,7 @@ class MainApp(QApplication):
         #      ZONA DE BORRADO     #
         #                          #
         self.application_driver = MainDriver()
-        self.my_wdgt = MainWindow()
+        self.main_window = MainWindow()
 
         #                           #
         #                           #
@@ -30,13 +30,17 @@ class MainApp(QApplication):
         pass
 
     def connect_signals(self) -> None:
-        self.my_wdgt.SG_window_close_event.connect(
+        self.main_window.SG_window_close_event.connect(
             self.application_driver.closeEvent)
-        self.my_wdgt.courses_view.new_class_dialog.SG_request_search.connect(
+        self.main_window.courses_view.new_class_dialog.SG_request_search.connect(
             self.application_driver.RQ_search_course)
         self.application_driver.SG_web_search_results.connect(
-            self.my_wdgt.courses_view.new_class_dialog.RQ_show_search_result)
-        self.my_wdgt.courses_view.new_class_dialog.SG_confirm_creation.connect(
+            self.main_window.courses_view.new_class_dialog.RQ_show_search_result)
+        self.main_window.courses_view.new_class_dialog.SG_confirm_creation.connect(
             self.application_driver.RQ_create_course)
         self.application_driver.SG_update_courses.connect(
-            self.my_wdgt.courses_view.RQ_update_courses)
+            self.main_window.courses_view.RQ_update_courses)
+        self.main_window.courses_view._all_classes_view.SG_request_SingleClassView.connect(
+            self.application_driver.RQ_load_SingleClassView_data)
+        self.application_driver.SG_show_SingleClassView.connect(
+            self.main_window.courses_view.RQ_show_SingleClassView)

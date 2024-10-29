@@ -1,3 +1,4 @@
+from PyQt6.QtCore import QRect
 from PyQt6.QtCore import QObject
 from config import PUCalendarAppPaths as pt
 from entities.courses import Course
@@ -6,6 +7,7 @@ from utils import search_for_puclasses
 from entities import Course
 from typing import Any
 from collections.abc import Callable
+import config
 import logging
 import pickle
 
@@ -66,6 +68,7 @@ class CoursesDict(dict):
 class MainDriver(QObject):
     SG_update_courses = pyqtSignal(list)
     SG_web_search_results = pyqtSignal(list)
+    SG_show_SingleClassView = pyqtSignal(dict)
 
     def __init__(self) -> None:
         super().__init__()
@@ -91,11 +94,16 @@ class MainDriver(QObject):
         for course in courses_list:
             self.courses[course.official_nrc] = course
 
-    def closeEvent(self) -> None:
+    def closeEvent(self, window_status: QRect) -> None:
         courses_list: list[Course] = list(self.courses.values())
         log.debug(f"Dumping courses into {pt.Config.USER_COURSES}")
         with open(pt.Config.USER_COURSES, 'wb') as raw_file:
             pickle.dump(courses_list, raw_file)
+        config.setWindowHeight(window_status.height())
+        config.setWindowWidth(window_status.width())
+        config.setWindowX(window_status.x())
+        config.setWindowY(window_status.y())
+        config.dump_configuration()
 
     def RQ_search_course(self, search_pattern: str) -> None:
         self.web_search_results = search_for_puclasses(search_pattern)
@@ -109,3 +117,6 @@ class MainDriver(QObject):
         self.courses[identifier] = course
         self.web_search_results = None
         log.debug(f"Successfully addded {identifier} to Courses")
+
+    def RQ_load_SingleClassView_data(self, _with: str) -> None:
+        self.SG_show_SingleClassView.emit(self.courses.get(_with).__dict__)

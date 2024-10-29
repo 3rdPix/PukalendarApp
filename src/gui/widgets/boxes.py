@@ -121,6 +121,7 @@ class AllClassesClassBox(ElevatedCardWidget):
         container.addWidget(self._class_code)
 
     def load_data(self, data: dict) -> None:
+        self.identifier = data.get("official_nrc")
         for key, value in data.items():
             if key in self._shown_info_labels:
                 self._shown_info_labels.get(key).setText(
@@ -135,5 +136,13 @@ class AllClassesClassBox(ElevatedCardWidget):
 
 class SingleClassCategoryBox(CardWidget):
 
-    def __init__(self, parent=None):
+    def __init__(self, title: str, parent=None) -> None:
         super().__init__(parent)
+        self.title: str = title
+        self.set_gui()
+
+    def set_gui(self) -> None:
+        layout_vertical: QVBoxLayout = QVBoxLayout(self)
+        self.label_title = CaptionLabel(self.title)
+        layout_vertical.addWidget(self.label_title)
+        layout_vertical.addWidget(CardSeparator())

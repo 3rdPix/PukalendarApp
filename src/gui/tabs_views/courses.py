@@ -1,4 +1,4 @@
-
+from PyQt6.QtCore import pyqtSignal
 from config import PUCalendarAppPaths as pt
 from gui.widgets.boxes import SingleClassCategoryBox
 from PyQt6.QtWidgets import QHBoxLayout
@@ -112,6 +112,8 @@ class CoursesView(QFrame):
 
         # Capa 3
         self._single_class_view: SingleClassView = SingleClassView()
+        self._single_class_view.SG_request_return.connect(
+            lambda: self._stacked_area.setCurrentIndex(1))
         self._stacked_area.addWidget(self._single_class_view)
 
     def RQ_update_courses(self, courses_list: list[dict]) -> None:
@@ -126,24 +128,24 @@ class CoursesView(QFrame):
         # Al parecer tiene problemas si se pierde el foco
         self.setFocus()
 
-        """
-        BORRAR
-        """
-        # self._stacked_area.setCurrentIndex(2)
-        #for i in range(11):
-        #    self._all_classes_view.add_class('curso', '#' + str(randint(100000, 999999)))
+    def RQ_show_SingleClassView(self, data: dict) -> None:
+        self._single_class_view.load_data(data)
+        self._stacked_area.setCurrentIndex(2)
 
 class AllClassesView(QFrame):
+    SG_request_SingleClassView = pyqtSignal(str)
 
     def __init__(self) -> None:
         super().__init__(flags=Qt.WindowType.FramelessWindowHint)
-        self._flow_container: FlowLayout = FlowLayout(self, True)
+        self._flow_container: FlowLayout = FlowLayout(self)
 
     def add_class(self, alias: str, color: str, data: dict={}) -> None:
         new_box: AllClassesClassBox = AllClassesClassBox()
         new_box.set_class_alias(alias)
         new_box.set_class_color(color)
         new_box.load_data(data)
+        new_box.clicked.connect(
+            lambda: self.SG_request_SingleClassView.emit(new_box.identifier))
         self._flow_container.addWidget(new_box)
     
     def read_container(self) -> bool:
@@ -162,6 +164,7 @@ class SingleClassView(QFrame):
      - Calificaciones
      - Eventos / Tareas / Pendientes
     """
+    SG_request_return = pyqtSignal()
 
     def __init__(self) -> None:
         super().__init__(flags=Qt.WindowType.FramelessWindowHint)
@@ -177,32 +180,37 @@ class SingleClassView(QFrame):
         first_layout: QVBoxLayout = QVBoxLayout(self)
         top_layout: QHBoxLayout = QHBoxLayout()
         self._return_button: PrimaryToolButton = PrimaryToolButton(FIF.RETURN, self)
+        self._return_button.clicked.connect(self.SG_request_return.emit)
         self._left_stripe = QLabel()
+        self._left_stripe.setFixedHeight(10)
         self._name_label = SubtitleLabel()
         self._right_stripe = QLabel()
+        self._right_stripe.setFixedHeight(10)
         top_layout.addWidget(self._return_button)
-        top_layout.addWidget(self._left_stripe)
+        top_layout.addWidget(self._left_stripe, Qt.AlignmentFlag.AlignBottom)
         top_layout.addWidget(self._name_label)
-        top_layout.addWidget(self._right_stripe)
+        top_layout.addWidget(self._right_stripe, Qt.AlignmentFlag.AlignBottom)
         first_layout.addLayout(top_layout, 0)
         first_layout.addWidget(CardSeparator(), 0)
 
         bottom_layout: QGridLayout = QGridLayout()
-        self._generic_cat_box: SingleClassCategoryBox = SingleClassCategoryBox()
-        self._schedule_cat_box: SingleClassCategoryBox = SingleClassCategoryBox()
-        self._grades_cat_box: SingleClassCategoryBox = SingleClassCategoryBox()
-        self._events_cat_box: SingleClassCategoryBox = SingleClassCategoryBox()
+        self._generic_cat_box: SingleClassCategoryBox = SingleClassCategoryBox(
+            _("MainWindow.Courses.SingleClassView.General"))
+        self._schedule_cat_box: SingleClassCategoryBox = SingleClassCategoryBox(
+            _("MainWindow.Courses.SingleClassView.Schedule"))
+        self._grades_cat_box: SingleClassCategoryBox = SingleClassCategoryBox(
+            _("MainWindow.Courses.SingleClassView.Grades"))
+        self._events_cat_box: SingleClassCategoryBox = SingleClassCategoryBox(
+            _("MainWindow.Courses.SingleClassView.Events"))
         bottom_layout.addWidget(self._generic_cat_box, 0, 0)
         bottom_layout.addWidget(self._schedule_cat_box, 0, 1)
         bottom_layout.addWidget(self._grades_cat_box, 1, 0)
         bottom_layout.addWidget(self._events_cat_box, 1, 1)
         first_layout.addLayout(bottom_layout, 1)
 
-    def load_data(self, class_data: object) -> None:
-        """
-        Recibe @dataclass con toda la información del curso a desplegar
-        """
-        pass
+    def load_data(self, course_data: dict) -> None:
+        self._set_stripe_color(course_data.get("user_color"))
+        self._name_label.setText(course_data.get("official_name"))
 
     def _set_stripe_color(self, color: str) -> None:
         # Usar hexadecimal #xxxxxx
