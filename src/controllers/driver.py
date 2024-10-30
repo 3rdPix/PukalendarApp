@@ -1,13 +1,13 @@
 from PyQt6.QtCore import QRect
 from PyQt6.QtCore import QObject
 from config import PUCalendarAppPaths as pt
+from config import Settings
 from entities.courses import Course
 from PyQt6.QtCore import pyqtSignal
 from utils import search_for_puclasses
 from entities import Course
 from typing import Any
 from collections.abc import Callable
-import config
 import logging
 import pickle
 
@@ -69,6 +69,9 @@ class MainDriver(QObject):
     SG_update_courses = pyqtSignal(list)
     SG_web_search_results = pyqtSignal(list)
     SG_show_SingleClassView = pyqtSignal(dict)
+    SG_window_setting = pyqtSignal(QRect)
+    SG_show_main_window = pyqtSignal()
+    SG_finished_loading = pyqtSignal()
 
     def __init__(self) -> None:
         super().__init__()
@@ -76,7 +79,12 @@ class MainDriver(QObject):
 
     def drive(self) -> None:
         # Corre la aplicación
+        self.load_settings()
         self.load_courses()
+        self.SG_finished_loading.emit()
+
+    def load_settings(self) -> None:
+        self.SG_window_setting.emit(Settings.value(Settings.Window.RECT))
 
     def load_courses(self) -> None:
         self.courses: CoursesDict[str, Course] = CoursesDict(self.SG_update_courses)
@@ -99,11 +107,7 @@ class MainDriver(QObject):
         log.debug(f"Dumping courses into {pt.Config.USER_COURSES}")
         with open(pt.Config.USER_COURSES, 'wb') as raw_file:
             pickle.dump(courses_list, raw_file)
-        config.setWindowHeight(window_status.height())
-        config.setWindowWidth(window_status.width())
-        config.setWindowX(window_status.x())
-        config.setWindowY(window_status.y())
-        config.dump_configuration()
+        Settings.setValue(Settings.Window.RECT, window_status)
 
     def RQ_search_course(self, search_pattern: str) -> None:
         self.web_search_results = search_for_puclasses(search_pattern)

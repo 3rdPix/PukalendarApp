@@ -15,7 +15,7 @@ def build_path(*args) -> str: return join(base_directory, *args)
 
 class PUCalendarAppPaths:
     """
-    Clase principal que contiene las rutas a los recursos de interfaz
+    Clase principal que contiene las rutas a los recursos de la aplicación
     """
     @dataclass
     class Resources:
@@ -31,5 +31,5 @@ class PUCalendarAppPaths:
 
     @dataclass
     class Config:
-        WINDOW_CONF: str = build_path("usr", "window.conf")
+        DEFAULTS: str = build_path("src", "config", "defaults.ini")
         USER_COURSES: str = build_path("usr", "courses.pkl")

@@ -44,3 +44,7 @@ class MainApp(QApplication):
             self.application_driver.RQ_load_SingleClassView_data)
         self.application_driver.SG_show_SingleClassView.connect(
             self.main_window.courses_view.RQ_show_SingleClassView)
+        self.application_driver.SG_window_setting.connect(
+            self.main_window.RQ_load_settings)
+        self.application_driver.SG_finished_loading.connect(
+            self.main_window.RQ_splash_finish)

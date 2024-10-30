@@ -1,61 +1,55 @@
 from .path_handler import PUCalendarAppPaths
-from configparser import ConfigParser
 import logging
-from os.path import exists
+from PyQt6.QtCore import QSettings
+from typing import Any
+from typing import TypeAlias
 from enum import StrEnum
 
 
-class AppSettings(StrEnum):
+log = logging.getLogger("config")
+
+
+class ApplicationSettings(QSettings):
+    """
+    Clase especial para manejar la posibilidad de perder configuraciones
+    personalizadas y cargar las configuraciones por defecto en su lugar.
+    No se encarga de verificar la integridad del archivo `defaults.conf`:
+    hágase de este último un archivo de solo lectura durante la instalación
+    para asegurar su integridad.
+    """
+    class Window(StrEnum):
+        RECT: str = "Window/rect"
+
     class General(StrEnum):
+        # IMPORTANTE: solo en este caso no anteponer "General" porque
+        # QSettings es estúpido
         LOCALE: str = "locale"
     
-    class Window(StrEnum):
-        WIDTH: str = "width"
-        HEIGHT: str = "height"
-        COORD_X: str = "X"
-        COORD_Y: str = "Y"
+    SettingOption: TypeAlias = Window | General
+
+    def __init__(self) -> None:
+        super().__init__("Pukalendar", "PukalendarApp")
+        self.defaults = QSettings(PUCalendarAppPaths.Config.DEFAULTS,
+                                  QSettings.Format.IniFormat)
+    
+    def value(self, key: SettingOption) -> Any:
+        having: Any = super().value(key)
+        # Si no se obtuvo valor de las configuraciones personalizadas
+        # es necesario cargar el valor por defecto
+        if having is not None: return having
+        self.setValue(key, self.defaults.value(key))
+        return self.defaults.value(key)
+    
+    def restore_defaults(self) -> None:
+        [self.setValue(key, self.defaults.value(
+            key)) for key in self.defaults.allKeys()]
+        self.sync()
+
+    def setValue(self, key: SettingOption, value: Any) -> None:
+        super().setValue(key, value)
+        self.sync()
 
 
-
-
-log = logging.getLogger("config")
-__configuration_loader = ConfigParser()
-if exists(PUCalendarAppPaths.Config.WINDOW_CONF):
-    __configuration_loader.read(PUCalendarAppPaths.Config.WINDOW_CONF)
-else:
-    # Carga valores por defecto
-    log.warning("No window.conf file found, loading defaults")
-    __configuration_loader["general"] = {
-        "locale" : "es"
-    }
-    __configuration_loader["window"] = {
-        "width" : 1024,
-        "height" : 768,
-        "X": 200,
-        "Y": 200
-    }
-
-LOCALE = __configuration_loader["general"]["locale"]
-WINDOW_WIDTH = __configuration_loader["window"]["width"]
-WINDOW_HEIGHT = __configuration_loader["window"]["height"]
-
-
-def dump_configuration() -> None:
-    log.debug(f"Dumping settings into {PUCalendarAppPaths.Config.WINDOW_CONF}")
-    with open(PUCalendarAppPaths.Config.WINDOW_CONF, "w") as raw_file:
-        __configuration_loader.write(raw_file)
-
-
-def setWindowWidth(w: int) -> None:
-    __configuration_loader["window"]["width"] = w
-
-
-def setWindowHeight(h: int) -> None:
-    __configuration_loader["window"]["height"] = h
-
-def setWindowX(x: int) -> None:
-    __configuration_loader["window"]["X"] = x
-
-
-def setWindowY(y: int) -> None:
-    __configuration_loader["window"]["Y"] = y
+Settings: ApplicationSettings = ApplicationSettings()
+# Particularmente obtener locale para dárselo a Babel sin pasar por Qt
+LOCALE: str = Settings.value(Settings.General.LOCALE)

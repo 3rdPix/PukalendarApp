@@ -18,6 +18,7 @@ from qfluentwidgets import SplashScreen
 from PyQt6.QtCore import QEventLoop
 from PyQt6.QtCore import QTimer
 from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import QRect
 import logging
 
 
@@ -28,26 +29,17 @@ class MainWindow(MSFluentWindow):
     Clase de la ventana principal de la aplicación sobre la
     que se despliegan todas las vistas y sub-widgets
     """
-    SG_window_close_event: pyqtSignal = pyqtSignal(name="MainWindow_closing")
+    SG_window_close_event: pyqtSignal = pyqtSignal(QRect, name="MainWindow_closing")
 
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setObjectName('MainWindow')
-        self.splash_screen = SplashScreen(pt.Resources.APPLICATION_ICON, self)
-        self.show()
-        self._init_self()
         
-        # Le compraré tiempo intencionalmente al splash para que se aprecie
-        # Lo más probable es que una vez la aplicación esté más avanzada no
-        # sea necesario comprarle nada, y logre solo
-        self.loopear_3_sec()
-        self.splash_screen.finish()
+        self._init_self()
 
-    def loopear_3_sec(self) -> None:
-        loop = QEventLoop(self)
-        QTimer.singleShot(3000, loop.quit)
-        loop.exec()
+    def RQ_splash_finish(self) -> None:
+        self.splash_screen.finish()
     
     def _init_self(self) -> None:
         """
@@ -126,6 +118,11 @@ class MainWindow(MSFluentWindow):
         self.__showing_about = False
         return panel.close()
     
+    def RQ_load_settings(self, window_setting: QRect) -> None:
+        self.setGeometry(window_setting)
+        self.splash_screen = SplashScreen(pt.Resources.APPLICATION_ICON, self)
+        self.show()
+    
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.SG_window_close_event.emit()
+        self.SG_window_close_event.emit(self.geometry())
         return super().closeEvent(a0)
