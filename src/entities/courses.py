@@ -1,11 +1,20 @@
+from dataclasses import dataclass
 from typing import TypeAlias
 from datetime import datetime
 from datetime import timedelta
+import logging
+
+
+log = logging.getLogger("Courses")
+
 
 CourseCode: TypeAlias = str
 Module: TypeAlias = int
 Campus: TypeAlias = int
 PersonName: TypeAlias = str
+GRADE_LOWEST: int = 1
+GRADE_APPROVAL: int = 4
+GRADE_HIGHEST: int = 7
 
 
 class SessionTimer:
@@ -60,10 +69,150 @@ class HexColor:
         return self.hex_value
 
 
+def calculate_grade(obtained_score: float, total_score: float,
+                    exigency: int) -> float:
+    percentage = 100 * (obtained_score / total_score)
+    slope_red = (GRADE_APPROVAL - GRADE_LOWEST) / exigency
+    slope_blue = (GRADE_HIGHEST - GRADE_APPROVAL) / (100 - exigency)
+    grade_red = (slope_red * percentage) + GRADE_LOWEST
+    grade_blue = (slope_blue * percentage) - (slope_blue * exigency) + GRADE_APPROVAL
+    if percentage >= exigency: return grade_blue
+    return grade_red
+
+
+class Grade: # Deprecate? No!
+    """
+    Nota
+    ----
+    Por si sola no tiene significado ni peso. Esta estructura se utiliza
+    únicamente para guardar una calificación atómica que
+    pueda ser expresada a través de estructuras con deiniciones de relación.
+    """
+    def __init__(self, obtained_score: float, total_score: float,
+                    obtained_grade: float=-1, exigency: int=60) -> None:
+        self.obtained_score = obtained_score
+        self.total_score = total_score
+        if obtained_grade == -1:
+            self.obtained_grade = calculate_grade(
+                obtained_score, total_score, exigency)
+        else: self.obtained_grade = obtained_grade
+        self.exigency = exigency
+
+
+class SimpleGrade:
+    """
+    Calificación simple
+    --------------------
+
+    La estructura de notas más sencilla para un ramo está conformada
+    por ponderaciones de calificaciones directas que pertenecen a esta
+    clase. Esta estructura además acepta la posibilidad de integrar
+    puntos adicionales en forma de \"décimas\" que son agregadas a la
+    calificación.
+
+    Un ejemplo de un ramo que utilice solo este tipo de calificación
+    puede ser como el siguiente:
+
+    **Lenguaje Rúnico II**
+      - Interrogación 1 (40%): 7.0 * (0.4) = 2.8
+      - Interrogación 2 (40%) (+2 dećimas): 6.0 * (0.4) + 0.2 = 2.6
+      - Examen (20%): 5.0 * (0.2) = 1
+      Nota final: 6.4
+    
+    En este escenario, cada evaluación (Interrogación 1, Interrogación 2, y
+    Examen) es una estructura de tipo `SimpleGrade` con su propia ponderación.
+    """
+    def __init__(self, name: str, ponderator: int=-1, obtained_score: float=-1,
+                 total_score: float=-1, obtained_grade: float=-1,
+                 exigency: int=60, extra_points: int=0) -> None:
+        self.name: str = name
+        self.ponderator = ponderator if ponderator > 0 else None
+        # Verificar sentido numérico
+        condition_0: bool = obtained_score >= 0
+        condition_1: bool = total_score > 0
+        condition_2: bool = obtained_score <= total_score
+        condition_3: bool = 1 <= exigency <= 99
+        condition_4: bool = 0 <= extra_points <= 70
+        if all([condition_0, condition_1, condition_2,
+                condition_3, condition_4]):
+            self.grade: Grade = Grade(obtained_score, total_score,
+                                      obtained_grade=obtained_grade,
+                                      exigency=exigency)
+
+
+class GroupGrade:
+    """
+    Calificación de grupo
+    ---------------------
+    Esta estructura busca agrupar evaluaciones que están asociadas
+    a un mismo ponderador. Por lo general esta toma forma de controles
+    que se realizan a lo largo del semestre. La nota final de este grupo
+    es calculada como la media aritmética entre todas las evaluaciones
+    que contiene.
+
+    Supongamos que en un ramo **Lenguaje Rúnico II** hay 4 controles a lo
+    largo del semestre, y que la nota de controles se evalúa como el 20%
+    de la nota final del curso. El aporte final de los controles se puede
+    calcular de la siguiente forma:
+
+      - Control 1:  7.0
+      - Control 2:  2.0
+      - Control 3:  5.0
+      - Control 4:  5.5
+      Promedio controles: (7.0 + 2.0 + 5.0 + 5.5) / 4 = 4.875
+      Aporte a la nota final: 4.875 * (0.2) = 0.975
+
+    Cada calificación es almacenada como una instancia de la clase
+    `SimpleGrade` por lo que es posible asignarle a cada control un
+    ponderador que tendrá efecto únicamente dentro de este grupo.
+    La nota final será calculada en consideración de tales ponderadores,
+    y las evaluaciones que no tienen ponderadores se agruparán para aportar
+    con el porcentaje restante de la nota final del grupo.
+    """
+
+class SubCourse:
+    """
+    Estructura de califiaciones semejante a sub-grupo pero puede estar al
+    mismo nivel de un ramo. Pensada a partir de laboratorios, con sus
+    propios nombres, horarios, y ponderaciones, pero que siguen formando
+    parte de un ramo padre
+    """
+
+
+class FormattedGroup:
+    """
+    Grupo de calificaciones con formato
+    -----------------------------------
+    Esta estructura relaciona `Grade` a través de una fórmula que puede
+    ser dinámicamente definida por el usuario. Tiene el objetivo de aceptar
+    combinaciones condicionales, en que las ponderaciones no son suficientes
+    para modelar el comportamiento de los resultados.
+
+    Un ejemplo con el ramo *Magia Elemental III* que tiene dos interrogaciones
+    y un examen. Estas evaluaciones forma el grupo "notas teóricas", que
+    tiene ponderación del 70% de la nota final como grupo, pero cada
+    evaluación se relaciona de la siguiente forma:
+    
+    >>> i1, i2, Ex = interrogacion_1, interrogacion_2, Examen
+    >>> nota_teorica = (i1 + i2 + 2 * Ex - min(i1, i2, Ex)) / 3
+    
+    Es decir, `nota_teorica` es la media aritmética de el examen, y las dos
+    evaluaciones con nota mayor (pudiendo incluir al examen mismo de nuevo).
+    Esta y otras estructuras complejas con fórmulas no comunes pueden ser
+    definidas en esta clase.
+    """
+
 class GradeTable:
     """
-    Definición de estructura de grados
+    Tabla de grados
+    --------------------
+    Cada curso tiene asociada una tabla de grados que contiene todas las
+    sub-estructuras de calificaciones que el usuario defina. Esta clase
+    se encarga de verificar una repartición ponderada coherente, así como
+    de integrar las diferencias entre las sub-estructuras en el cálculo de
+    nota final.
     """
+    
     @classmethod
     def from_data(cls, data) -> None:
         raise NotImplementedError

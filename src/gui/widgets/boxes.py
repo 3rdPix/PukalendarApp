@@ -125,7 +125,8 @@ class AllClassesClassBox(ElevatedCardWidget):
         for key, value in data.items():
             if key in self._shown_info_labels:
                 self._shown_info_labels.get(key).setText(
-                    self._shown_info_labels.get(key).text() + value)
+                    self._shown_info_labels.get(key).text()
+                    + ": " + value)
                 
     def set_class_alias(self, alias: str) -> None:
         self._alias_label.setText(alias)
