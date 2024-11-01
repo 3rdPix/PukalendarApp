@@ -3,7 +3,7 @@ from typing import TypeAlias
 from datetime import datetime
 from datetime import timedelta
 import logging
-
+import grades
 
 log = logging.getLogger("Courses")
 
@@ -15,6 +15,7 @@ PersonName: TypeAlias = str
 GRADE_LOWEST: int = 1
 GRADE_APPROVAL: int = 4
 GRADE_HIGHEST: int = 7
+GRADE_HIGHEST_BASE: int = 6
 
 
 class SessionTimer:
@@ -70,7 +71,7 @@ class HexColor:
 
 
 def calculate_grade(obtained_score: float, total_score: float,
-                    exigency: int) -> float:
+                    exigency: int, add_base: bool) -> float:
     percentage = 100 * (obtained_score / total_score)
     slope_red = (GRADE_APPROVAL - GRADE_LOWEST) / exigency
     slope_blue = (GRADE_HIGHEST - GRADE_APPROVAL) / (100 - exigency)
