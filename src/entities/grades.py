@@ -60,6 +60,8 @@ Para azules:
     - ((6.0 - 3.0) / (100.0 - exigencia)) * exigencia + 1
 """
 from typing import Optional
+from collections import defaultdict
+from typing import Self
 import logging
 
 
@@ -204,8 +206,24 @@ class GradeSimple:
     
     En este escenario, cada evaluación (Interrogación 1, Interrogación 2, y
     Examen) es una estructura de tipo `GradeSimple` con su propia ponderación.
+
+    + `name`: el nombre asociado a la evaluación
+
+    + `ponderation`: el porcentaje de importancia de la evaluación en el
+    conjunto al que pertenece. Es nulo por defecto, de modo que pasa como
+    argumento en el cálculo de media aritmética.
+
+    + `extra_points`: décimas extra que se aplican a la calificación, en caso
+    de que existan.
+
+    + `extremist`: si la evaluación tiene requisitos de rendimiento propias,
+    es decir, requiere de una nota mínima para aprobar el curso, se debe
+    indicar a través de este atributo. Esto ocurre en ocasiones con algunos
+    examenes llamados "reprobatorios" que exigen una nota mínima de 3.95
+    por si propia cuenta para aprobar el ramo.
     """
     def __init__(self, id: int, name: str, ponderation: Optional[int]=None,
+                 extra_points: int=0, extremist: Optional[float]=None,
                  **kwargs) -> None:
         try:
             self.grade: Grade = Grade(name, **kwargs)
@@ -218,3 +236,101 @@ class GradeSimple:
             log.error(f"There was an error while assigning id={id} to {name}:"
                       f"\"{error}\". GradeSimple is kept, Grade is kept,"
                       f"but id is not.")
+        self.ponderator = ponderation
+        self.extra_points = extra_points
+        self.extremist = extremist
+    
+    def _get_grade(self) -> float: ...
+    def _set_grade(self, force: float) -> float: ...
+    value = property(_get_grade, _set_grade)
+        
+
+class GradeGroup:
+    """
+    Calificación de grupo
+    ---------------------
+    Esta estructura busca agrupar evaluaciones que están asociadas a un mismo
+    ponderador. Por lo general esta toma forma de controles que se realizan
+    a lo largo del semestre. Pero es posible agrupar `GradeSimple` de modo que
+    la nota final de este grupo se calcule como una ponderación de sus
+    elementos. Esto aplica únicamente a aquellos elementos que tengan
+    asignado un porcentaje.  
+
+    Esta estructura, en conjunto con `GradeSimple` debería ser suficiente
+    para modelar la gran mayoría de los cursos. Un curso en sí, es una
+    estructura `GradeGroup` que contiene otros `GradeGroup` dentro de sí, los
+    cuales interactúan con los `GradeSimple` definidos para el curso.
+    """
+    def __init__(self, name: str, ponderation: Optional[int]=None,
+                 extra_points: int=0, extremist: Optional[float]=None) -> None:
+        # Para esta clase el método __init__ no tiene mucha magia
+        # Toda la lógica mágica está contenido en los métodos
+        self.name: str = name[:61] if len(name) > 60 else name
+        self.ponderation = ponderation
+        self.extra_points = extra_points
+        self.extremist = extremist
+        self.group_ponderated: dict[int, GradeSimple] = defaultdict()
+
+    # Hablando de métodos... no los voy a definir por ahora xD
+    def add_grade(self, *args, **kwargs) -> None: ...
+    def remove_grade(self, *args, **kwargs) -> None: ...
+    def edit_grade(self, *args, **kwargs) -> None: ...
+    def edit_group(self, *args, **kwargs) -> None: ...
+    
+    def _get_grade(self) -> float: ...
+    def _set_grade(self, force: float) -> float: ...
+    value = property(_get_grade, _set_grade)
+
+
+class GradeFormatted:
+    """
+    Calificación de formato complejo
+    --------------------------------
+    Estructura grupal que relaciona varias instancias de `Grade` a través de
+    una conexión compleja que no puede ser definida por ponderadores ni
+    combinaciones lineales. Esto incluye grupos dinámicos en que la nota y
+    las evaluaciones que afectan a la calificación están condicionadas por
+    expresiones no simples.
+
+    Por ejemplo: supóngase el ramo **Magia Elemental I** que tiene dos
+    interrogaciones y un examen. Estas evaluaciones forman el grupo "notas
+    teóricas" cuya ponderación en la nota final es del 70%. Sin embargo,
+    dentro de este grupo de notas teóricas la importancia está definida de
+    la siguiente manera:
+
+    >>> i1, i2, Ex = Interrogacion1, Interrogacion2, Examen
+    >>> nota_teorica = (i1 + i2 + 2 * Ex - min(i1, i2, Ex)) / 3
+
+    Es decir, `nota_teorica` es la media aritmética del examen, en conjunto
+    con las siguiente dos notas de mayor valor, pudiendo incluir al mismo
+    examen nuevamente. Luego de este cálculo, el valor de `nota_teorica`
+    es ponderado para considerar su aporte a la nota final del curso.
+    """
+    def __init__(self, name: str, ponderation: Optional[int]=None,
+                 *args, **kwargs) -> None: ...
+    def add_single(self, *args, **kwargs) -> None: ...
+    def math_represent(self, *args, **kwargs) -> None: ...
+    def conditional_exprs(self, *args, **kwargs) -> None: ...
+    def explicit_input(self, expr: str, *args, **kwargs): ...
+    def _check_safe(self) -> None: ...
+    def nosequehacer(self) -> True: ...
+    
+    def _get_grade(self) -> float: ...
+    def _set_grade(self, force: float) -> float: ...
+    value = property(_get_grade, _set_grade)
+
+
+class GradeTable(GradeGroup):
+    """
+    Tabla de grados
+    ---------------
+    Cada curso tiene asociada una tabla de grados que contiene todas las
+    sub-estructuras de calificaciones que el usuario defina. Esta clase
+    se encarga de verificar una repartición ponderada coherente, así como
+    de integrar las diferencias entre las sub-estructuras en el cálculo de
+    nota final. Además, es la encargada de registrar los identificadores
+    para cada evaluación existente.
+    """
+    @classmethod
+    def from_data(cls, data) -> Self:
+        raise NotImplementedError
