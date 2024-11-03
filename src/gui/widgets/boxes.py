@@ -143,7 +143,13 @@ class SingleClassCategoryBox(CardWidget):
         self.set_gui()
 
     def set_gui(self) -> None:
-        layout_vertical: QVBoxLayout = QVBoxLayout(self)
+        self.layout_vertical: QVBoxLayout = QVBoxLayout(self)
         self.label_title = CaptionLabel(self.title)
-        layout_vertical.addWidget(self.label_title)
-        layout_vertical.addWidget(CardSeparator())
+        self.layout_vertical.addWidget(self.label_title ,0)
+        self.layout_vertical.addWidget(CardSeparator(), 0)
+    
+    def set_content_layout(self, layout: QLayout) -> None:
+        self.layout_vertical.addLayout(layout, 1)
+
+    def get_content_layout(self) -> QLayout:
+        return self.layout_vertical.itemAt(2)

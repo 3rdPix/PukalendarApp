@@ -62,6 +62,10 @@ Para azules:
 from typing import Optional
 from collections import defaultdict
 from typing import Self
+from typing import TypeAlias
+from collections.abc import Iterator
+from itertools import count
+from utils import WtfError
 import logging
 
 
@@ -164,7 +168,7 @@ class Grade:
             self._mathed_grade = calculate_grade(obtained_score, total_score,
                                                  threshold, add_base)
         if obtained_grade:
-            if not 1 <= obtained_grade <= 7:
+            if not GRADE_MINIMUM <= obtained_grade <= GRADE_MAXIMUM:
                 raise ValueError("Obtained grade not within valid range")
             self._obtained_grade = obtained_grade
         self._id: int = None
@@ -227,7 +231,7 @@ class GradeSimple:
                  **kwargs) -> None:
         try:
             self.grade: Grade = Grade(name, **kwargs)
-            self.grade.id = id
+            self.id = id
         except ValueError as error:
             log.error(f"There was an error while translating {kwargs} into"
                       f" a grade: \"{error}\". GradeSimple is not kept.")
@@ -261,7 +265,8 @@ class GradeGroup:
     estructura `GradeGroup` que contiene otros `GradeGroup` dentro de sí, los
     cuales interactúan con los `GradeSimple` definidos para el curso.
     """
-    def __init__(self, name: str, ponderation: Optional[int]=None,
+    _ids: Iterator = count()
+    def __init__(self, id: int, name: str, ponderation: Optional[int]=None,
                  extra_points: int=0, extremist: Optional[float]=None) -> None:
         # Para esta clase el método __init__ no tiene mucha magia
         # Toda la lógica mágica está contenido en los métodos
@@ -270,11 +275,50 @@ class GradeGroup:
         self.extra_points = extra_points
         self.extremist = extremist
         self.group_ponderated: dict[int, GradeSimple] = defaultdict()
+        self.group_unponderated: dict[int, GradeSimple] = defaultdict()
+        self.id = id
+        self._table_level: int = 100
+    
+    def try_ponderation(self, request: int) -> int:
+        if request is None or request < 1: return None
+        if self._table_level < request:
+            return self.try_ponderation(self._table_level)
+        self._table_level -= request
+        return request
+
 
     # Hablando de métodos... no los voy a definir por ahora xD
-    def add_grade(self, *args, **kwargs) -> None: ...
-    def remove_grade(self, *args, **kwargs) -> None: ...
-    def edit_grade(self, *args, **kwargs) -> None: ...
+    def add_grade(self, name: str, **data) -> int|None:
+        if name is None: return None
+        ponderation = self.try_ponderation(data.get("ponderation"))
+        creation = GradeSimple(next(self._ids), name, ponderation=ponderation,
+                               **{key: data.get(key) for key in data.keys() \
+                                  if key not in ("name", "ponderation")})
+        if creation.ponderator is None:
+            self.group_ponderated.__setitem__(creation.id, creation)
+        else:
+            self.group_unponderated.__setitem__(creation.id, creation)
+        return creation.id
+
+    def remove_grade(self, id: int) -> bool:
+        if id in self.group_ponderated.keys():
+            self.group_ponderated.__delitem__(id)
+        else:
+            self.group_unponderated.__delitem__(id)
+        return True
+        
+    def edit_grade(self, id: int, **kwargs) -> bool:
+        if id in self.group_ponderated.keys():
+            reference = self.group_ponderated.get(id)
+        elif id in self.group_unponderated.keys():
+            reference = self.group_unpoderated.keys()
+        else:
+            raise WtfError("GradeGroup>edit_grade")
+        for key in kwargs:
+            if hasattr(reference, key):
+                setattr(reference, key, kwargs.get(key))
+        return True
+
     def edit_group(self, *args, **kwargs) -> None: ...
     
     def _get_grade(self) -> float: ...
@@ -320,7 +364,10 @@ class GradeFormatted:
     value = property(_get_grade, _set_grade)
 
 
-class GradeTable(GradeGroup):
+Evals: TypeAlias = GradeSimple | GradeGroup | GradeFormatted
+
+
+class GradeTable:
     """
     Tabla de grados
     ---------------
@@ -331,6 +378,42 @@ class GradeTable(GradeGroup):
     nota final. Además, es la encargada de registrar los identificadores
     para cada evaluación existente.
     """
+    _ids: Iterator = count()
+    def __init__(self) -> None:
+        self.ponderated_groups: dict[int, Evals] = defaultdict()
+        self.unponderated_groups: dict[int, Evals] = defaultdict()
+        self.unassigned: dict[int, Evals] = defaultdict()
+        self._table_level: int = 100
+    
+    def try_ponderation(self, request: int) -> int:
+        if request is None or request < 1: return None
+        if self._table_level < request:
+            return self.try_ponderation(self._table_level)
+        self._table_level -= request
+        return request
+
+    def create_grade(self, requested_type: Evals, **data) -> bool:
+        if data.get("name") is None: return False
+        ponderation = self.try_ponderation(data.get("ponderation"))
+        if requested_type == GradeSimple:
+            creation = GradeSimple(next(self._ids), data.get("name"),
+                                   ponderation=ponderation,
+                                   **{key: data.get(key) for key in \
+                                      data.keys() if \
+                                      key not in ("name", "ponderation")})
+        elif requested_type == GradeGroup:
+            creation = GradeGroup(next(self._ids), data.get("name"),
+                                  ponderation=ponderation,
+                                  **{key: data.get(key) for key in data.keys()\
+                                     if key not in ("name", "ponderation")})
+        else:
+            raise WtfError("GradeTable>create_grade on grades.py")
+        if creation.ponderation is None:
+            self.unponderated_groups.__setitem__(creation.id, creation)
+        else:
+            self.ponderated_groups.__setitem__(creation.id, creation)
+        return True
+
     @classmethod
     def from_data(cls, data) -> Self:
         raise NotImplementedError

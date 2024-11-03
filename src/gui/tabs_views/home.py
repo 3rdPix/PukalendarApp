@@ -12,6 +12,9 @@ import logging
 
 log = logging.getLogger("HomeView")
 
+
+
+
 class HomeView(QFrame):
     
     def __init__(self, parent: QWidget | None=None) -> None:
@@ -50,6 +53,7 @@ class HomeView(QFrame):
     def _create_courses_infobox(self) -> HomeViewInfoBox:
         self.courses_infobox: HomeViewInfoBox = HomeViewInfoBox()
         self.courses_infobox.setTitle(_("MainWindow.Home.InfoBoxCourses.Title"))
+        
         return self.courses_infobox
 
     def _create_settings_infobox(self) -> HomeViewInfoBox:

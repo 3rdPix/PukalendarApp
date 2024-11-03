@@ -112,9 +112,17 @@ class CoursesView(QFrame):
 
         # Capa 3
         self._single_class_view: SingleClassView = SingleClassView()
-        self._single_class_view.SG_request_return.connect(
-            lambda: self._stacked_area.setCurrentIndex(1))
+        self._single_class_view.SG_request_return.connect(self.show_all_classes)
         self._stacked_area.addWidget(self._single_class_view)
+
+    def show_all_classes(self) -> None:
+        self._stacked_area.setCurrentIndex(
+            1 if self._all_classes_view.has_items else 0)
+        cb: CommandBar = self.layout().itemAt(0).widget()
+        cb.actions()[0].setEnabled(True)
+        cb.actions()[1].setEnabled(False)
+        cb.actions()[2].setEnabled(False)
+        cb.actions()[3].setEnabled(False)
 
     def RQ_update_courses(self, courses_list: list[dict]) -> None:
         self._all_classes_view.clear()
@@ -123,14 +131,20 @@ class CoursesView(QFrame):
             color = course.get("user_color")
             self._all_classes_view.add_class(alias, color, course)
         # ¿? Automáticamente mostrar segunda capa
-        self._stacked_area.setCurrentIndex(
-            1 if self._all_classes_view.has_items else 0)
+        # -- weno pero usando su método para ajustar botones
+        self.show_all_classes()
         # Al parecer tiene problemas si se pierde el foco
         self.setFocus()
 
     def RQ_show_SingleClassView(self, data: dict) -> None:
         self._single_class_view.load_data(data)
         self._stacked_area.setCurrentIndex(2)
+        cb: CommandBar = self.layout().itemAt(0).widget()
+        cb.actions()[0].setEnabled(False)
+        cb.actions()[1].setEnabled(True)
+        cb.actions()[2].setEnabled(True)
+        cb.actions()[3].setEnabled(True)
+        
 
 class AllClassesView(QFrame):
     SG_request_SingleClassView = pyqtSignal(str)
@@ -194,23 +208,64 @@ class SingleClassView(QFrame):
         first_layout.addWidget(CardSeparator(), 0)
 
         bottom_layout: QGridLayout = QGridLayout()
-        self._generic_cat_box: SingleClassCategoryBox = SingleClassCategoryBox(
-            _("MainWindow.Courses.SingleClassView.General"))
+        generic = self.__create_generic_box()
         self._schedule_cat_box: SingleClassCategoryBox = SingleClassCategoryBox(
             _("MainWindow.Courses.SingleClassView.Schedule"))
         self._grades_cat_box: SingleClassCategoryBox = SingleClassCategoryBox(
             _("MainWindow.Courses.SingleClassView.Grades"))
         self._events_cat_box: SingleClassCategoryBox = SingleClassCategoryBox(
             _("MainWindow.Courses.SingleClassView.Events"))
-        bottom_layout.addWidget(self._generic_cat_box, 0, 0)
+        bottom_layout.addWidget(generic, 0, 0)
         bottom_layout.addWidget(self._schedule_cat_box, 0, 1)
         bottom_layout.addWidget(self._grades_cat_box, 1, 0)
         bottom_layout.addWidget(self._events_cat_box, 1, 1)
         first_layout.addLayout(bottom_layout, 1)
 
+    def __create_generic_box(self) -> QWidget:
+        if hasattr(self, "_generic_cat_box"): return None
+        self._generic_cat_box: SingleClassCategoryBox = SingleClassCategoryBox(
+            _("MainWindow.Courses.SingleClassView.General"))
+        layout_general = QGridLayout()
+        indicator_nrc = QLabel(
+            _("MainWindow.Courses.SingleClassView.Indicator.NRC"))
+        information_nrc = QLabel()
+        indicator_code = QLabel(
+            _("MainWindow.Courses.SingleClassView.Indicator.Code"))
+        information_code = QLabel()
+        indicator_professor = QLabel(
+            _("MainWindow.Courses.SingleClassView.Indicator.Professor"))
+        information_professor = QLabel()
+        indicator_campus = QLabel(
+            _("MainWindow.Courses.SingleClassView.Indicator.Campus"))
+        information_campus = QLabel()
+        indicator_section = QLabel(
+            _("MainsWindow.Courses.SingleClassView.Indicator.Section"))
+        information_section = QLabel()
+        # De momento no es necesario parametrizar a este nivel
+        layout_general.addWidget(indicator_nrc, 0, 0)
+        layout_general.addWidget(information_nrc, 0, 1)
+        layout_general.addWidget(indicator_code, 1, 0)
+        layout_general.addWidget(information_code, 1, 1)
+        layout_general.addWidget(indicator_professor, 2, 0)
+        layout_general.addWidget(information_professor, 2, 1)
+        layout_general.addWidget(indicator_campus, 3, 0)
+        layout_general.addWidget(information_campus, 3, 1)
+        layout_general.addWidget(indicator_section, 4, 0)
+        layout_general.addWidget(information_section, 4, 1)
+        self._generic_cat_box.set_content_layout(layout_general)
+        return self._generic_cat_box
+
     def load_data(self, course_data: dict) -> None:
         self._set_stripe_color(course_data.get("user_color"))
         self._name_label.setText(course_data.get("official_name"))
+        
+        # Información general
+        distr: QGridLayout = self._generic_cat_box.get_content_layout()
+        distr.itemAtPosition(0, 1).widget().setText(course_data.get("official_nrc"))
+        distr.itemAtPosition(1, 1).widget().setText(course_data.get("official_code"))
+        distr.itemAtPosition(2, 1).widget().setText(course_data.get("official_professor"))
+        distr.itemAtPosition(3, 1).widget().setText(course_data.get("official_campus"))
+        distr.itemAtPosition(4, 1).widget().setText(course_data.get("official_section"))
 
     def _set_stripe_color(self, color: str) -> None:
         # Usar hexadecimal #xxxxxx

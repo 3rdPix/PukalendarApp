@@ -1,18 +1,18 @@
-# Spanish translations for PUCalendarApp.
-# This file is distributed under the same license as the PUCalendarApp
-# project.
-# FIRST AUTHOR <claudio.mora@uc.cl>, 2024.
+# French translations for PROJECT.
+# Copyright (C) 2024 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2024-11-03 08:25-0300\n"
-"PO-Revision-Date: 2024-10-28 04:42-0300\n"
+"PO-Revision-Date: 2024-11-03 07:55-0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language: es\n"
-"Language-Team: es <LL@li.org>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: fr\n"
+"Language-Team: fr <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -20,172 +20,157 @@ msgstr ""
 
 #: src/gui/main_window.py:55
 msgid "MainWindow.Title"
-msgstr "PUCalendarApp"
+msgstr ""
 
 #: src/gui/main_window.py:59
 msgid "MainWindow.NavigationInterface.About"
-msgstr "Acerca de"
+msgstr ""
 
 #: src/gui/main_window.py:71
 msgid "MainWindow.NavigationInterface.Home"
-msgstr "Inicio"
+msgstr ""
 
 #: src/gui/main_window.py:75
 msgid "MainWindow.NavigationInterface.Agenda"
-msgstr "Agenda"
+msgstr ""
 
 #: src/gui/main_window.py:79
 msgid "MainWindow.NavigationInterface.Courses"
-msgstr "Cursos"
+msgstr ""
 
 #: src/gui/main_window.py:83
 msgid "MainWindow.NavigationInterface.Calendar"
-msgstr "Calendario"
+msgstr ""
 
 #: src/gui/main_window.py:98
 msgid "MainWindow.About.Title"
-msgstr "Acerca de"
+msgstr ""
 
 #: src/gui/main_window.py:99
 msgid "MainWindow.About.Description"
 msgstr ""
-"PUCalendarApp es una aplicación de código abierto diseñada por y para "
-"estudiantes con la finalidad de otorgar una ayuda en la organización y "
-"registro de todos los quehaceres universitarios."
 
 #: src/gui/tabs_views/courses.py:53
 msgid "MainWindow.Courses.CommandBar.AddNew"
-msgstr "Agregar curso"
+msgstr ""
 
 #: src/gui/tabs_views/courses.py:57
 msgid "MainWindow.Courses.CommandBar.Delete"
-msgstr "Eliminar curso"
+msgstr ""
 
 #: src/gui/tabs_views/courses.py:61
 msgid "MainWindow.Courses.CommandBar.Edit"
-msgstr "Editar curso"
+msgstr ""
 
 #: src/gui/tabs_views/courses.py:65
 msgid "MainWindow.Courses.CommandBar.Scale"
-msgstr "Editar escala de calificaciones"
+msgstr ""
 
 #: src/gui/tabs_views/courses.py:99
 msgid "MainWindow.Courses.NoClassView.NoClass"
-msgstr "No se han agregado clases"
+msgstr ""
 
 #: src/gui/tabs_views/courses.py:213
 msgid "MainWindow.Courses.SingleClassView.Schedule"
-msgstr "Pendientes"
+msgstr ""
 
 #: src/gui/tabs_views/courses.py:215
 msgid "MainWindow.Courses.SingleClassView.Grades"
-msgstr "Calificaciones"
+msgstr ""
 
 #: src/gui/tabs_views/courses.py:217
 msgid "MainWindow.Courses.SingleClassView.Events"
-msgstr "Eventos"
+msgstr ""
 
 #: src/gui/tabs_views/courses.py:227
 msgid "MainWindow.Courses.SingleClassView.General"
-msgstr "Información general"
+msgstr ""
 
 #: src/gui/tabs_views/courses.py:230
 msgid "MainWindow.Courses.SingleClassView.Indicator.NRC"
-msgstr "NRC"
+msgstr ""
 
 #: src/gui/tabs_views/courses.py:233
 msgid "MainWindow.Courses.SingleClassView.Indicator.Code"
-msgstr "Sigla del curso"
+msgstr ""
 
 #: src/gui/tabs_views/courses.py:236
 msgid "MainWindow.Courses.SingleClassView.Indicator.Professor"
-msgstr "Profesor"
+msgstr ""
 
 #: src/gui/tabs_views/courses.py:239
 msgid "MainWindow.Courses.SingleClassView.Indicator.Campus"
-msgstr "Campus"
+msgstr ""
 
 #: src/gui/tabs_views/courses.py:242
 msgid "MainsWindow.Courses.SingleClassView.Indicator.Section"
-msgstr "Sección"
+msgstr ""
 
 #: src/gui/tabs_views/home.py:50
 msgid "MainWindow.Home.InfoBoxAgenda.Title"
-msgstr "Próximos eventos"
+msgstr ""
 
 #: src/gui/tabs_views/home.py:55
 msgid "MainWindow.Home.InfoBoxCourses.Title"
-msgstr "Cursos"
+msgstr ""
 
 #: src/gui/tabs_views/home.py:61
 msgid "MainWindow.Home.InfoBoxSettings.Title"
-msgstr "Configuraciones rápidas"
+msgstr ""
 
 #: src/gui/tabs_views/home.py:66
 msgid "MainWindow.Home.InfoBoxDangers.Title"
-msgstr "Peligros"
+msgstr ""
 
 #: src/gui/tabs_views/home.py:71
 msgid "MainWindow.Home.InfoBoxExternal.Title"
-msgstr "Actividades externas"
+msgstr ""
 
 #: src/gui/tabs_views/home.py:76
 msgid "MainWindow.Home.InfoBoxTime.Title"
-msgstr "Sesiones de estudio"
+msgstr ""
 
 #: src/gui/widgets/boxes.py:105
 msgid "MainWindow.Courses.AllCourses.CardBox.Professor"
-msgstr "Profesor"
+msgstr ""
 
 #: src/gui/widgets/boxes.py:106
 msgid "MainWindow.Courses.AllCourses.CardBox.Section"
-msgstr "Sección"
+msgstr ""
 
 #: src/gui/widgets/boxes.py:108
 msgid "MainWindow.Courses.AllCourses.CardBox.CourseCode"
-msgstr "Sigla del curso"
+msgstr ""
 
 #: src/gui/widgets/dialogs.py:32
 msgid "Dialogs.NewClass.Search"
-msgstr "Buscar"
+msgstr ""
 
 #: src/gui/widgets/dialogs.py:35
 msgid "Dialogs.NewClass.SearchPlaceholder"
-msgstr "Ingresa el patrón de búsqueda"
+msgstr ""
 
 #: src/gui/widgets/dialogs.py:46
 msgid "Dialogs.NewClass.Alias"
-msgstr "Alias"
+msgstr ""
 
 #: src/gui/widgets/dialogs.py:49
 msgid "Dialogs.NewClass.AliasPlaceholder"
-msgstr "Ingresa un apodo para el curso"
+msgstr ""
 
 #: src/gui/widgets/dialogs.py:51
 msgid "Dialogs.NewClass.Color"
-msgstr "Color"
+msgstr ""
 
 #: src/gui/widgets/dialogs.py:53
 msgid "Dialogs.NewClass.ColorDialog.Title"
-msgstr "Asigna un color al curso"
+msgstr ""
 
 #: src/gui/widgets/dialogs.py:63
 msgid "Dialogs.NewClass.Confirm"
-msgstr "Confirmar"
+msgstr ""
 
 #: src/gui/widgets/dialogs.py:66
 msgid "Dialogs.NewClass.Cancel"
-msgstr "Cancelar"
-
-#~ msgid "MainWindow.Courses.AllCourses.CardBox.ProfessorMail"
-#~ msgstr "Correo del profesor"
-
-#~ msgid "MainWindow.Courses.AllCourses.CardBox.CurrentGrade"
-#~ msgstr "Calificación actual"
-
-#~ msgid "MainWindow.Courses.NewClassDialog.Alias"
-#~ msgstr "Apodo"
-
-#~ msgid "MainWindow.Courses.NewClassDialog.Color"
-#~ msgstr "Color"
+msgstr ""
 

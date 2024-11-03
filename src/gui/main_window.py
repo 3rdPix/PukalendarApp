@@ -48,8 +48,7 @@ class MainWindow(MSFluentWindow):
         self._load_self_variables()
         self.setWindowIcon(QIcon(pt.Resources.APPLICATION_ICON))
         try:
-            with open(pt.Qss.MAIN_WINDOW,
-                       'r', encoding='utf-8') as raw_file:
+            with open(pt.Qss.MAIN_WINDOW, 'r', encoding='utf-8') as raw_file:
                 self.setStyleSheet(raw_file.read())
         except FileNotFoundError:
             log.error(f"Loading of {pt.Qss.MAIN_WINDOW} could not be resolved")
