@@ -66,6 +66,12 @@ from typing import TypeAlias
 from collections.abc import Iterator
 from itertools import count
 from utils import WtfError
+from math import prod
+from abc import ABC
+from abc import abstractmethod
+from typing import Protocol
+from typing import overload
+from collections.abc import Callable
 import logging
 
 
@@ -118,7 +124,7 @@ def calculate_grade(obtained_score: float, total_score: float,
         return calculate_red(percentage, threshold, add_base)
 
 
-class Grade:
+class Grade(ABC):
     """
     Nota
     ----
@@ -133,7 +139,7 @@ class Grade:
     + `total_score`: el puntaje máximo obtenible. Por ejemplo, en una prueba
     de 80 preguntas de alternativa, el puntaje máximo obtenible es 80.
 
-    + `exigency`: porcentaje de respuestas correctas necesarias para obtener
+    + `threshold`: porcentaje de respuestas correctas necesarias para obtener
     el mínimo grado de aprobación. Por defecto es 60.
 
     + `obtained_grade`: sobrescribe la nota calculada según `obtained_score`.
@@ -142,22 +148,23 @@ class Grade:
     + `add_base`: si se habilita, se le agrega un punto base (1.0) a la nota
     calculada según el puntaje obtenido.
 
-    Esta estructura lleva nombre (puede ser definido por el usuario). Acepta
-    propiedad `enti` (id) definida una sola vez, esta debería ser asignada por
-    la clase controladora del grupo al que la nota se agregue.
+    Esta estructura lleva nombre (puede ser definido por el usuario).
     """
-    def __init__(self, name: str, obtained_score: Optional[float]=None,
-                 total_score: float=100.0, threshold: int=DEFAULT_THRESHOLD,
-                 obtained_grade: Optional[float]=None,
-                 add_base: bool=False) -> None:
-        self._defined_as: dict[str, str|float|bool|None] = {
-            "name": name,
-            "obtained_grade": obtained_grade,
-            "total_score": total_score,
-            "threshold:": threshold,
-            "obtained_grade": obtained_grade,
-            "add_base": add_base}
-        self.name: str = name[:61] if len(name) > 60 else name
+    def _get_grade(self) -> float:
+        if hasattr(self, "_obtained_grade"): return self._obtained_grade
+        if hasattr(self, "_mathed_grade"): return self._mathed_grade
+        return -1
+    def _set_grade(self, forced_value: float) -> None:
+        if not GRADE_MINIMUM <= forced_value <= GRADE_MAXIMUM:
+            raise ValueError("Obtained grade not within valid range")
+        self._obtained_grade = forced_value
+    value = property(_get_grade, _set_grade)
+
+    def assign_numbers(self, obtained_score: Optional[float]=None,
+                       total_score: float=100.0,
+                       threshold: int=DEFAULT_THRESHOLD,
+                       obtained_grade: Optional[float]=None,
+                       add_base: bool=False) -> None:
         if obtained_score is not None:
             condicion_1 = obtained_score >= 0
             condicion_2 = obtained_score <= total_score
@@ -171,26 +178,27 @@ class Grade:
             if not GRADE_MINIMUM <= obtained_grade <= GRADE_MAXIMUM:
                 raise ValueError("Obtained grade not within valid range")
             self._obtained_grade = obtained_grade
-        self._id: int = None
+        
 
-    def _get_id(self) -> int: return self._id
-    def _set_id(self, id_candidate: int):
-        if self._id is None:
-            self._id = id_candidate
-        raise AttributeError("Invalid id assignment")
-    
-    id = property(_get_id, _set_id)
+class MathingGrades:
+    """
+    Una colección de funciones para calcular la nota final de acuerdo con
+    la función definida por el usuario.
+    """
+    @staticmethod
+    def arithmetic_mean(grades: list[Grade]) -> float:
+        return sum(grade.value for grade in grades) / len(grades)
 
-    def _get_grade(self) -> float:
-        if hasattr(self, "_obtained_grade"):
-            return self._obtained_grade
-        if hasattr(self, "_mathed_grade"):
-            return self._mathed_grade
-        return -1
+    @staticmethod
+    def geometric_mean(grades: list[Grade]) -> float:
+        return prod(grade.value for grade in grades) ** (1 / len(grades))
 
-    value = property(_get_grade)
+    @staticmethod
+    def harmonic_mean(grades: list[Grade]) -> float:
+        return len(grades) / sum(1 / grade.value for grade in grades)
 
-class GradeSimple:
+
+class GradeSimple(Grade):
     """
     Calificación simple
     -------------------
@@ -226,30 +234,41 @@ class GradeSimple:
     examenes llamados "reprobatorios" que exigen una nota mínima de 3.95
     por si propia cuenta para aprobar el ramo.
     """
-    def __init__(self, id: int, name: str, ponderation: Optional[int]=None,
-                 extra_points: int=0, extremist: Optional[float]=None,
-                 **kwargs) -> None:
-        try:
-            self.grade: Grade = Grade(name, **kwargs)
-            self.id = id
-        except ValueError as error:
-            log.error(f"There was an error while translating {kwargs} into"
-                      f" a grade: \"{error}\". GradeSimple is not kept.")
-            raise NonGradable
-        except AttributeError as error:
-            log.error(f"There was an error while assigning id={id} to {name}:"
-                      f"\"{error}\". GradeSimple is kept, Grade is kept,"
-                      f"but id is not.")
-        self.ponderator = ponderation
-        self.extra_points = extra_points
-        self.extremist = extremist
-    
-    def _get_grade(self) -> float: ...
-    def _set_grade(self, force: float) -> float: ...
-    value = property(_get_grade, _set_grade)
-        
+    def __init__(self, id: int, name: str) -> None:
+        super().__init__()
+        self.id: int = id
+        self.name: str = name
 
-class GradeGroup:
+    def define_relation(self, ponderator: Optional[int]=None,
+                        extra_points: int=0,
+                        extremist: Optional[float]=None) -> None:
+        if ponderator is not None: self.ponderator = ponderator
+        self.extra_points = extra_points
+        if extremist is not None: self.extremist = extremist
+    
+    def _get_relative_value(self) -> float:
+        concurrent: float = self.value
+        if hasattr(self, "extra_points") \
+           and not hasattr(self, "_obtained_grade"):
+            concurrent += self.extra_points / 10
+        if hasattr(self, "ponderator"):
+            concurrent *= (self.ponderator / 100)
+        return concurrent
+    value_relative = property(_get_relative_value)
+
+
+class GradingFormula(Protocol):
+    @overload
+    def __call__(grades: list[Grade]) -> float: ...
+    @overload
+    def __call__(grades: list[Grade],
+                 usr_def: Callable[[list[Grade]], float]) -> float: ...
+    @overload
+    def __call__(grades: dict[int, Grade],
+                 usr_def: Callable[[list[Grade]], float]) -> float: ...
+
+
+class GradeGroup(GradeSimple):
     """
     Calificación de grupo
     ---------------------
@@ -265,40 +284,75 @@ class GradeGroup:
     estructura `GradeGroup` que contiene otros `GradeGroup` dentro de sí, los
     cuales interactúan con los `GradeSimple` definidos para el curso.
     """
-    _ids: Iterator = count()
-    def __init__(self, id: int, name: str, ponderation: Optional[int]=None,
-                 extra_points: int=0, extremist: Optional[float]=None) -> None:
-        # Para esta clase el método __init__ no tiene mucha magia
-        # Toda la lógica mágica está contenido en los métodos
-        self.name: str = name[:61] if len(name) > 60 else name
-        self.ponderation = ponderation
-        self.extra_points = extra_points
-        self.extremist = extremist
-        self.group_ponderated: dict[int, GradeSimple] = defaultdict()
-        self.group_unponderated: dict[int, GradeSimple] = defaultdict()
+    def __init__(self, id: int, name: str) -> None:
         self.id = id
-        self._table_level: int = 100
+        self.name = name
+        self.id_handler: Iterator = count()
+        self._total_ponderation: int = 100
+        self.group_ponderated = dict[int, GradeSimple] = defaultdict()
+        self.group_unponderated = dict[int, GradeSimple] = defaultdict()
+        # Por defecto dejamos la media aritmética
+        self.mathing_formula: GradingFormula = MathingGrades.arithmetic_mean
+    
     
     def try_ponderation(self, request: int) -> int:
+        """
+        Asegura que la ponderación total de los elementos no supere el valor
+        máximo del ramo (100%).
+        """
         if request is None or request < 1: return None
-        if self._table_level < request:
-            return self.try_ponderation(self._table_level)
-        self._table_level -= request
-        return request
+        if self._total_ponderation < request:
+            return self.try_ponderation(self._total_ponderation)
+        approved = int(request)
+        self._total_ponderation -= request
+        return approved
 
+    # Redefinimos el valor
+    def _get_grade(self) -> float:
+        if hasattr(self, "_obtained_grade"): return self._obtained_grade
+        total_grade = 0
+        for grade in self.group_ponderated.values():
+            total_grade += grade.value_relative
+        lonely_grades = list(self.group_unponderated.values())
+        total_grade += self.mathing_formula.__call__(lonely_grades)
+        # Agregamos un checkeo solo por si acaso
+        if not GRADE_MINIMUM <= total_grade <= GRADE_MAXIMUM:
+            log.error(f"Couldn't grade {self}:{total_grade}")
+            raise ValueError
+        self._mathed_grade = total_grade
+        return total_grade
+    def _set_grade(self, forced_value: float) -> None:
+        if not GRADE_MINIMUM <= forced_value <= GRADE_MAXIMUM:
+            raise ValueError("Obtained grade not within valid range")
+        self._obtained_grade = forced_value
+    value = property(_get_grade, _set_grade)
 
-    # Hablando de métodos... no los voy a definir por ahora xD
-    def add_grade(self, name: str, **data) -> int|None:
+    def create_grade(self, name: str, **data) -> int|None:
         if name is None: return None
         ponderation = self.try_ponderation(data.get("ponderation"))
-        creation = GradeSimple(next(self._ids), name, ponderation=ponderation,
-                               **{key: data.get(key) for key in data.keys() \
-                                  if key not in ("name", "ponderation")})
+        creation = GradeSimple(
+            next(self.id_handler), name, ponderation=ponderation,
+            **{key: data.get(key) for key in data.keys()
+               if key not in ("name", "ponderation")})
         if creation.ponderator is None:
             self.group_ponderated.__setitem__(creation.id, creation)
         else:
             self.group_unponderated.__setitem__(creation.id, creation)
         return creation.id
+
+    def create_grade(self, requested_type: int, name: str) -> int|None:
+        """
+        Instancia una evaluación del tipo solicitado y retorna el `id` para
+        referenciarle posteriormente.
+        """
+        if requested_type == 0:
+            new = GradeSimple(next(self.id_handler), name)
+            self.group_unponderated.__setitem__(new.id, new)
+        elif requested_type == 1:
+            new = GradeGroup(next(self.id_handler), name)
+            self.group_unponderated.__setitem__(new.id, new)
+        return new.id
+
 
     def remove_grade(self, id: int) -> bool:
         if id in self.group_ponderated.keys():
@@ -307,6 +361,8 @@ class GradeGroup:
             self.group_unponderated.__delitem__(id)
         return True
         
+    
+
     def edit_grade(self, id: int, **kwargs) -> bool:
         if id in self.group_ponderated.keys():
             reference = self.group_ponderated.get(id)
@@ -314,16 +370,38 @@ class GradeGroup:
             reference = self.group_unpoderated.keys()
         else:
             raise WtfError("GradeGroup>edit_grade")
-        for key in kwargs:
-            if hasattr(reference, key):
-                setattr(reference, key, kwargs.get(key))
+        reference: GradeSimple
+        reference.assign_numbers(**kwargs)
         return True
 
-    def edit_group(self, *args, **kwargs) -> None: ...
-    
-    def _get_grade(self) -> float: ...
-    def _set_grade(self, force: float) -> float: ...
-    value = property(_get_grade, _set_grade)
+    def assign_numbers(self, locate: list[int], **kwargs) -> None:
+        this_level = locate.pop(0)
+        if this_level in self.group_ponderated.keys():
+            sub_location = self.group_ponderated.get(this_level)
+            if isinstance(sub_location, GradeSimple):
+                sub_location.assign_numbers(**kwargs)
+            elif isinstance(sub_location, GradeGroup):
+                sub_location.assign_numbers(locate, **kwargs)
+            else:
+                log.error(f"Trying to assign numbers to non Grade object "
+                          f"at level {this_level}->{locate} which is"
+                          f" {sub_location}. Payload is {kwargs}")
+                raise TypeError
+        elif this_level in self.group_unponderated.keys():
+            sub_location = self.group_unponderated.get(this_level)
+            if isinstance(sub_location, GradeSimple):
+                sub_location.assign_numbers(**kwargs)
+            elif isinstance(sub_location, GradeGroup):
+                sub_location.assign_numbers(locate, **kwargs)
+            else:
+                log.error(f"Trying to assign numbers to non Grade object "
+                          f"at level {this_level}->{locate} which is"
+                          f" {sub_location}. Payload is {kwargs}")
+                raise TypeError
+        else:
+            log.error(f"Asigning numbers to non-existing Grade on {this_level}"
+                      f"->{locate}.")
+            raise KeyError
 
 
 class GradeFormatted:
@@ -413,6 +491,35 @@ class GradeTable:
         else:
             self.ponderated_groups.__setitem__(creation.id, creation)
         return True
+
+    def assign_numbers(self, locate: list[int], **kwargs) -> None:
+        this_level = locate.pop(0)
+        if this_level in self.group_ponderated.keys():
+            sub_location = self.group_ponderated.get(this_level)
+            if isinstance(sub_location, GradeSimple):
+                sub_location.assign_numbers(**kwargs)
+            elif isinstance(sub_location, GradeGroup):
+                sub_location.assign_numbers(locate, **kwargs)
+            else:
+                log.error(f"Trying to assign numbers to non Grade object "
+                          f"at level {this_level}->{locate} which is"
+                          f" {sub_location}. Payload is {kwargs}")
+                raise TypeError
+        elif this_level in self.group_unponderated.keys():
+            sub_location = self.group_unponderated.get(this_level)
+            if isinstance(sub_location, GradeSimple):
+                sub_location.assign_numbers(**kwargs)
+            elif isinstance(sub_location, GradeGroup):
+                sub_location.assign_numbers(locate, **kwargs)
+            else:
+                log.error(f"Trying to assign numbers to non Grade object "
+                          f"at level {this_level}->{locate} which is"
+                          f" {sub_location}. Payload is {kwargs}")
+                raise TypeError
+        else:
+            log.error(f"Asigning numbers to non-existing Grade on {this_level}"
+                      f"->{locate}.")
+            raise KeyError
 
     @classmethod
     def from_data(cls, data) -> Self:

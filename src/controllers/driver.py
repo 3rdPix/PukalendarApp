@@ -87,7 +87,8 @@ class MainDriver(QObject):
         self.SG_window_setting.emit(Settings.value(Settings.Window.RECT))
 
     def load_courses(self) -> None:
-        self.courses: CoursesDict[str, Course] = CoursesDict(self.SG_update_courses)
+        self.courses: CoursesDict[str, Course] = CoursesDict(
+            self.SG_update_courses)
         log.debug("Trying to load courses from file")
         try:
             with open(pt.Config.USER_COURSES, "rb") as raw_file:
@@ -124,3 +125,13 @@ class MainDriver(QObject):
 
     def RQ_load_SingleClassView_data(self, _with: str) -> None:
         self.SG_show_SingleClassView.emit(self.courses.get(_with).__dict__)
+
+    def RQ_start_timer(self, course_id: int) -> None:
+        log.debug(f"Received id:{course_id} to search on {self.courses}")
+        which: Course = self.courses.get(course_id)
+        log.debug(f"Got {which}")
+        which.start_session()
+    
+    def RQ_stop_timer(self, course_id: int) -> None:
+        which: Course = self.courses.get(course_id)
+        which.stop_session()

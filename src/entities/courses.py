@@ -39,13 +39,13 @@ class SessionTimer:
     def end_session(self) -> timedelta:
         if not self.on_session: return False
         self.session_end = datetime.now()
-        self.session_duration = self.session_start - self.session_end
+        self.session_duration = self.session_end - self.session_start
         self.on_session = False
         return self.session_duration
 
 class NRC(int):
     def __new__(cls, value: int):
-        if not (10000 <= value <= 99999):
+        if not (10000 <= int(value) <= 99999):
             raise ValueError("NRC must be between 10000 and 99999.")
         return super().__new__(cls, value) 
 
@@ -57,7 +57,8 @@ class HexColor:
         self.hex_value = hex_value
 
     def _is_valid_hex(self, hex_value: str) -> bool:
-        if isinstance(hex_value, str) and len(hex_value) == 7 and hex_value[0] == '#':
+        if (isinstance(hex_value, str) and len(hex_value) == 7
+           and hex_value[0] == '#'):
             hex_digits = hex_value[1:]
             return all(c in '0123456789ABCDEFabcdef' for c in hex_digits)
         return False
@@ -89,13 +90,13 @@ class Course:
     def __init__(self, alias: str, color: str) -> None:
         self.user_alias = alias
         self.user_color = HexColor(color)
-        self.user_dedicated_time = 0
+        self.user_dedicated_time = timedelta(0)
         self.user_grades = GradeTable()
         self.user_modules = list()
 
     def load_official_data(self, source: dict[str, str|int]) -> None:
         self.official_name = source.get("official_name")
-        self.official_nrc = source.get("official_nrc")
+        self.official_nrc = NRC(source.get("official_nrc"))
         self.official_code = source.get("official_code")
         self.official_professor = source.get("official_professor")
         self.official_campus = source.get("official_campus")

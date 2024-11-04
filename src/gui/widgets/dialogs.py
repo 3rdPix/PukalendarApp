@@ -68,6 +68,7 @@ class NewClassDialog(QWidget):
         sub_layout3.addWidget(self.yesButton)
         sub_layout3.addWidget(self.cancelButton)
         self.viewLayout.addLayout(sub_layout3)
+        self.setMinimumSize(500, 600)
 
     def connect_signals(self) -> None:
         self.search_linedit.returnPressed.connect(

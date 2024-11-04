@@ -48,3 +48,7 @@ class MainApp(QApplication):
             self.main_window.RQ_load_settings)
         self.application_driver.SG_finished_loading.connect(
             self.main_window.RQ_splash_finish)
+        self.main_window.courses_view._single_class_view.SG_start_timer.connect(
+            self.application_driver.RQ_start_timer)
+        self.main_window.courses_view._single_class_view.SG_stop_timer.connect(
+            self.application_driver.RQ_stop_timer)

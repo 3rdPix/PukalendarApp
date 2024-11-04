@@ -1,3 +1,4 @@
+from qfluentwidgets import PushButton
 from PyQt6.QtCore import pyqtSignal
 from config import PUCalendarAppPaths as pt
 from gui.widgets.boxes import SingleClassCategoryBox
@@ -20,6 +21,11 @@ from PyQt6.QtGui import QPixmap
 from qfluentwidgets import PrimaryToolButton
 from gui.widgets.dialogs import NewClassDialog
 from gui.widgets.misc import OpacityAniStackedWidget
+from entities.courses import NRC
+import logging
+
+
+log = logging.getLogger("CoursesTab")
 
 
 class CoursesView(QFrame):
@@ -147,7 +153,7 @@ class CoursesView(QFrame):
         
 
 class AllClassesView(QFrame):
-    SG_request_SingleClassView = pyqtSignal(str)
+    SG_request_SingleClassView = pyqtSignal(NRC)
 
     def __init__(self) -> None:
         super().__init__(flags=Qt.WindowType.FramelessWindowHint)
@@ -179,6 +185,8 @@ class SingleClassView(QFrame):
      - Eventos / Tareas / Pendientes
     """
     SG_request_return = pyqtSignal()
+    SG_start_timer = pyqtSignal(NRC)
+    SG_stop_timer = pyqtSignal(NRC)
 
     def __init__(self) -> None:
         super().__init__(flags=Qt.WindowType.FramelessWindowHint)
@@ -213,13 +221,38 @@ class SingleClassView(QFrame):
             _("MainWindow.Courses.SingleClassView.Schedule"))
         self._grades_cat_box: SingleClassCategoryBox = SingleClassCategoryBox(
             _("MainWindow.Courses.SingleClassView.Grades"))
-        self._events_cat_box: SingleClassCategoryBox = SingleClassCategoryBox(
-            _("MainWindow.Courses.SingleClassView.Events"))
+        events = self.__create_events_cat_box()
         bottom_layout.addWidget(generic, 0, 0)
         bottom_layout.addWidget(self._schedule_cat_box, 0, 1)
         bottom_layout.addWidget(self._grades_cat_box, 1, 0)
-        bottom_layout.addWidget(self._events_cat_box, 1, 1)
+        bottom_layout.addWidget(events, 1, 1)
         first_layout.addLayout(bottom_layout, 1)
+
+    def __create_events_cat_box(self) -> QWidget:
+        self._events_cat_box: SingleClassCategoryBox = SingleClassCategoryBox(
+            _("MainWindow.Courses.SingleClassView.Events"))
+        self.start_timer_button = PushButton(FIF.PLAY, _("MainWindow.Courses.SingleClassView.ButtonStartTimer"))
+        self.start_timer_button.clicked.connect(self.TR_start_timer_clicked)
+        self.stop_timer_button = PushButton(FIF.PAUSE, _("MainWindow.Courses.SingleClassView.ButtonStopTimer"))
+        self.stop_timer_button.clicked.connect(self.TR_stop_timer_clicked)
+        how_much = SubtitleLabel()
+        layout_general = QVBoxLayout()
+        layout_general.addWidget(self.start_timer_button)
+        layout_general.addWidget(self.stop_timer_button)
+        layout_general.addWidget(how_much)
+        self._events_cat_box.set_content_layout(layout_general)
+        return self._events_cat_box
+
+    def TR_start_timer_clicked(self) -> None:
+        self.SG_start_timer.emit(self._current_course_id)
+        self.start_timer_button.setEnabled(False)
+        self.stop_timer_button.setEnabled(True)
+
+    def TR_stop_timer_clicked(self) -> None:
+        self.SG_stop_timer.emit(self._current_course_id)
+        self.start_timer_button.setEnabled(True)
+        self.stop_timer_button.setEnabled(False)
+
 
     def __create_generic_box(self) -> QWidget:
         if hasattr(self, "_generic_cat_box"): return None
@@ -258,14 +291,25 @@ class SingleClassView(QFrame):
     def load_data(self, course_data: dict) -> None:
         self._set_stripe_color(course_data.get("user_color"))
         self._name_label.setText(course_data.get("official_name"))
+        self._current_course_id = course_data.get("official_nrc")
+        log.debug(f"Course id:{self._current_course_id}")
         
         # Información general
         distr: QGridLayout = self._generic_cat_box.get_content_layout()
-        distr.itemAtPosition(0, 1).widget().setText(course_data.get("official_nrc"))
-        distr.itemAtPosition(1, 1).widget().setText(course_data.get("official_code"))
-        distr.itemAtPosition(2, 1).widget().setText(course_data.get("official_professor"))
-        distr.itemAtPosition(3, 1).widget().setText(course_data.get("official_campus"))
-        distr.itemAtPosition(4, 1).widget().setText(course_data.get("official_section"))
+        distr.itemAtPosition(0, 1).widget().setText(
+            str(course_data.get("official_nrc")))
+        distr.itemAtPosition(1, 1).widget().setText(
+            course_data.get("official_code"))
+        distr.itemAtPosition(2, 1).widget().setText(
+            course_data.get("official_professor"))
+        distr.itemAtPosition(3, 1).widget().setText(
+            course_data.get("official_campus"))
+        distr.itemAtPosition(4, 1).widget().setText(
+            course_data.get("official_section"))
+
+        # Eventos
+        distr: QVBoxLayout = self._events_cat_box.get_content_layout()
+        distr.itemAt(2).widget().setText(str(course_data.get("user_dedicated_time")))
 
     def _set_stripe_color(self, color: str) -> None:
         # Usar hexadecimal #xxxxxx

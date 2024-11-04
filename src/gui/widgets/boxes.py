@@ -102,10 +102,14 @@ class AllClassesClassBox(ElevatedCardWidget):
         # mas info específica
         # de momento es lo que se me ocurre poner
 
-        self._prof_name: QLabel = QLabel(_("MainWindow.Courses.AllCourses.CardBox.Professor"))
-        self._section: QLabel = QLabel(_("MainWindow.Courses.AllCourses.CardBox.Section"))
-        # self._current_grade: QLabel = QLabel(_("MainWindow.Courses.AllCourses.CardBox.CurrentGrade"))
-        self._class_code: QLabel = QLabel(_("MainWindow.Courses.AllCourses.CardBox.CourseCode"))
+        self._prof_name: QLabel = QLabel(
+            _("MainWindow.Courses.AllCourses.CardBox.Professor"))
+        self._section: QLabel = QLabel(
+            _("MainWindow.Courses.AllCourses.CardBox.Section"))
+        #self._current_grade: QLabel = QLabel(
+        #    _("MainWindow.Courses.AllCourses.CardBox.CurrentGrade"))
+        self._class_code: QLabel = QLabel(
+            _("MainWindow.Courses.AllCourses.CardBox.CourseCode"))
 
         self._shown_info_labels: dict[str, QLabel] = {}
 
