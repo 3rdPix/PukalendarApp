@@ -1,3 +1,4 @@
+"""@private"""
 from PyQt6.QtCore import QRect
 from PyQt6.QtCore import QObject
 from config import PUCalendarAppPaths as pt
@@ -117,7 +118,7 @@ class MainDriver(QObject):
     def RQ_create_course(self, index_ref: int, alias: str, color: str) -> None:
         official_info = self.web_search_results[index_ref]
         course = Course(alias, color)
-        course.load_official_data(official_info)
+        course._load_official_data(official_info)
         identifier = course.official_nrc
         self.courses[identifier] = course
         self.web_search_results = None

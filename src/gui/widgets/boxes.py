@@ -1,4 +1,4 @@
-"""
+"""@private
 Widgets personalizados
 -----------------------
 Contenedores para diferentes propósitos específicos

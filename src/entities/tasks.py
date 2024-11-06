@@ -1,5 +1,13 @@
+"""
+# Tareas y eventos
+
+En este módulo se definen las estructuras de eventos y tareas independientes
+ó pertenecientes a un curso.
+"""
 from datetime import datetime
 from dataclasses import dataclass
+
+__all__ = {"Task", "Event", "BulletTask"}
 
 class Progression(int):
     def __new__(cls, value: int):

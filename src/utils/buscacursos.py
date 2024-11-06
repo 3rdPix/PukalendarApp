@@ -1,7 +1,16 @@
+r"""
+# Scrapper
+
+Este módulo provee el catálogo de cursos de acuerdo a un patrón de búsqueda
+especificado por el usuario. Para lograr esto, se realiza extracción de
+contenido del sitio [Buscacursos](http://buscacursos.uc.cl).
+"""
 import requests
 import datetime
 from bs4 import BeautifulSoup
 
+
+__all__ = {"search_for_puclasses"}
 
 def get_year_and_value() -> tuple[str, str]:
     current_month = datetime.datetime.now().month
@@ -55,9 +64,9 @@ def _extract_course_data(html_snippet: str) -> list:
 
 def search_for_puclasses(search_pattern: str) -> list[dict] | None:
     """
-    Busca cursos que coincidan con el texto
-    -------------------------------------------
-    `search_pattern: str`: intento de NRC ó nombre
+    # Busca cursos que coincidan con el texto
+    
+    `search_pattern: str`: intento de sigla ó nombre
     
     Retorna una lista con todos los cursos que coincidan con el patrón
     de búsqueda, en que cada curso es un diccionario.

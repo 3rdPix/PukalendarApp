@@ -1,3 +1,10 @@
+"""
+# Cursos
+
+Este módulo encapsula el comportamiento de los cursos. Estableciendo los
+atributos que tienen y las funcionalidades asociadas a cada uno.
+"""
+
 from dataclasses import dataclass
 from typing import TypeAlias
 from datetime import datetime
@@ -7,6 +14,7 @@ from entities.grades import GradeTable
 
 log = logging.getLogger("Courses")
 
+__all__ = {"Course", "SessionTimer", "NRC"}
 
 CourseCode: TypeAlias = str
 Module: TypeAlias = int
@@ -20,10 +28,12 @@ GRADE_HIGHEST_BASE: int = 6
 
 class SessionTimer:
     _instance: object = None
-    on_session: bool = False
-    session_start: datetime = None
-    session_end: datetime = None
-    session_duration: timedelta = None
+
+    def __init__(self) -> None:
+        self._on_session: bool = False
+        self._session_start: datetime = None
+        self._session_end: datetime = None
+        self._session_duration: datetime = None
 
     def __new__(cls):
         if cls._instance is None:
@@ -31,19 +41,36 @@ class SessionTimer:
         return cls._instance
 
     def start_session(self) -> bool:
-        if self.on_session: return False
-        self.on_session = True
-        self.session_start = datetime.now()
+        """
+        Intenta iniciar una sesión de estudio. Si tiene éxito, guarda el
+        `datetime.now()` en `session_start` y actualiza el valor de estado
+        `on_session`. Retorna `True` si tiene éxito, `False` en caso
+        contrario.
+        """
+        if self._on_session: return False
+        self._on_session = True
+        self._session_start = datetime.now()
         return True
     
     def end_session(self) -> timedelta:
-        if not self.on_session: return False
-        self.session_end = datetime.now()
-        self.session_duration = self.session_end - self.session_start
-        self.on_session = False
-        return self.session_duration
+        """
+        Intenta detener la sesión de estudio si el valor de estado
+        `on_session` es coherente. Si tiene éxito, calcula y retorna
+        el `timedelta` desde el inicio de la sesión. Retorna `False` en caso
+        contrario.
+        """
+        if not self._on_session: return False
+        self._session_end = datetime.now()
+        self._session_duration = self._session_end - self._session_start
+        self._on_session = False
+        return self._session_duration
 
 class NRC(int):
+    """
+    Clase particular de `int` que limita los valores a un rango válido
+    basado en los valores posibles para los NRC de los cursos. Se asume
+    que los valores están en el rango $[10000, 99999]$.
+    """
     def __new__(cls, value: int):
         if not (10000 <= int(value) <= 99999):
             raise ValueError("NRC must be between 10000 and 99999.")
@@ -72,29 +99,24 @@ class HexColor:
 
 
 class Course:
-    official_name: str
-    official_nrc: NRC
-    official_code: CourseCode
-    official_professor: PersonName
-    official_campus: Campus
-    official_section: int
-    official_modules: list[Module]
-    user_alias: str
-    user_color: HexColor
-    user_dedicated_time: timedelta
-    user_grades: GradeTable
-    user_modules: list[Module]
-    sessions_timer: SessionTimer = SessionTimer()
+    """
+    La clase que define a un curso particular, guarda sus atributos y
+    contiene referencia a el estado del mismo en relación con `SessionTimer`
+    """
+    _sessions_timer: SessionTimer = SessionTimer()
     course_on_session: bool
 
     def __init__(self, alias: str, color: str) -> None:
+        self._establish_attr(alias, color)
+    
+    def _establish_attr(self, alias: str, color: str) -> None:
         self.user_alias = alias
         self.user_color = HexColor(color)
         self.user_dedicated_time = timedelta(0)
         self.user_grades = GradeTable()
         self.user_modules = list()
 
-    def load_official_data(self, source: dict[str, str|int]) -> None:
+    def _load_official_data(self, source: dict[str, str|int]) -> None:
         self.official_name = source.get("official_name")
         self.official_nrc = NRC(source.get("official_nrc"))
         self.official_code = source.get("official_code")
@@ -103,19 +125,32 @@ class Course:
         self.official_section = source.get("official_section")
         self.official_modules = source.get("official_modules")
 
-    def load_gradeTable(self, data=None) -> None:
+    def _load_gradeTable(self, data=None) -> None:
         self.user_grades = GradeTable.from_data(data) if data else GradeTable()
 
-    def load_user_data(self, source: dict[str, str|int|list]) -> None:
+    def _load_user_data(self, source: dict[str, str|int|list]) -> None:
         self.user_alias = source.get("user_alias")
         self.user_color = source.get("user_color")
         self.user_dedicated_time = source.get("user_dedicated_time")
         self.user_modules = source.get("user_modules")
 
     def start_session(self) -> None:
-        if Course.sessions_timer.start_session():
+        """
+        Crea una marca temporal que indica el inicio de la sesión de estudio.
+        `SessionTimer` es bloqueado, de modo que no es posible iniciar otra
+        sesión de estudio asociada a algún curso diferente, ni volver a iniciar
+        una sesión de estudio en el curso que ya inició una.
+        """
+        if Course._sessions_timer.start_session():
             self.course_on_session = True
     
     def stop_session(self) -> None:
-        session_time: timedelta = Course.sessions_timer.end_session()
+        """
+        Utiliza la marca temporal creada anteriormente para calcular el tiempo
+        dedicado en la sesión de estudio. Agrega este valor al total de
+        tiempo dedicado. Desbloquea `SessionTimer` para que pueda ser
+        utilizado por otras instancias de `Course`.
+        """
+        if not self.course_on_session: return
+        session_time: timedelta = Course._sessions_timer.end_session()
         self.user_dedicated_time += session_time

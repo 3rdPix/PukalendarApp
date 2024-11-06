@@ -1,63 +1,36 @@
-"""
-Cómo funcionan las notas?
--------------------------
-No sé gracias, solo sé que nota 7 = promedio 7
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-.
-La nota mínima en la universidad es 1.0, la exigencia te dice qué porcentaje
-de \"correctitud\" debe tener para lograr la nota mínima de aprobación (4.0).
-Por lo tanto el formato de cálculo más simple implica crear dos rectas, una
-para el segmento \"rojo\" entre [1.0, 4.0) y el segmento \"azul\" [4.0, 7.0]
-de modo que para un `x` porcentaje de correctitud, la nota `y` será:
+r"""
+# Módulo de calificaciones
 
-Para rojos:
->>> y = ((4.0 - 1.0) / exigencia) * x + 1
+La nota mínima en la universidad es $1.0$, la nota de aprobación es $4.0$, y la
+nota máxima es $7.0$. La exigencia refiere al porcentaje de correctitud que
+debe tener una evaluación para alcanzar la nota de aprobación, de este modo,
+en una prueba con $100$ preguntas al $60\%$ de exigencia, se deben tener
+justamente $60$ respuestas correctas para alcanzar la nota $4.0$.
 
-Para azules:
->>> y = ((7.0 - 4.0) / (100.0 - exigencia)) * x + 4.0
-    - ((7.0 - 4.0) / (100.0 - exigencia)) * exigencia
+El formato de cálculo más simple implica crear dos rectas; una para el
+segmento llamado "rojo" (bajo la nota de aprobación) entre $[1.0, 4.0)$, y
+otra para el segmento llamado "azul" (sobre la nota de aprobación) entre
+$[4.0, 7.0]$.
 
-Esta ecuación debe ajustarse para aquellas calificaciones que tienen un punto
-base, el cual se agrega luego de calcular la nota según el puntaje obtenido.
-Las ecuaciones en este caso se transforman en:
+Luego, si se tiene $x$ porcentaje de respuestas correctas para una evaluación,
+la nota será determinada según:
 
-Para rojos:
->>> y = (3.0 / exigencia) * x + 1
++ **Para rojos:** ($x < \text{exigencia}$)
+$$
+    y = \left(
+    \frac{7.0 - 4.0}{\text{exigencia}}
+    \right) x + 4.0
+$$
 
-Para azules:
->>> y = ((6.0 - 3.0) / (100.0 - exigencia)) * x + 3.0
-    - ((6.0 - 3.0) / (100.0 - exigencia)) * exigencia + 1
++ **Para azules:** ($x \geq \text{exigencia}$)
+
+$$
+    y = \left(
+    \frac{7.0 -4.0}{100.0 - \text{exigencia}}
+    \right) x + 4.0 - \left(
+    \frac{7.0 -4.0}{100.0 - \text{exigencia}}
+    \right) \text{exigencia}
+$$
 """
 from typing import Optional
 from collections import defaultdict
@@ -74,6 +47,9 @@ from typing import overload
 from collections.abc import Callable
 import logging
 
+
+__all__ = {"Grade", "GradeSimple", "GradeGroup", "GradingFormula",
+           "MathingGrades"}
 
 log = logging.getLogger("Grading")
 GRADE_MINIMUM: float = 1.0
@@ -183,7 +159,7 @@ class Grade(ABC):
 class MathingGrades:
     """
     Una colección de funciones para calcular la nota final de acuerdo con
-    la función definida por el usuario.
+    la función elegida por el usuario.
     """
     @staticmethod
     def arithmetic_mean(grades: list[Grade]) -> float:
@@ -255,9 +231,21 @@ class GradeSimple(Grade):
             concurrent *= (self.ponderator / 100)
         return concurrent
     value_relative = property(_get_relative_value)
+    """
+    Es el valor que toma realmente la evaluación para el aporte final de
+    la nota dentro del grupo al que pertenece. Si no tiene ponderador,
+    retornará su valor natural y el contenedor es el encargado de integrar
+    ese valor a la ecuación adecuada.
+    """
 
 
 class GradingFormula(Protocol):
+    """
+    # Fórmula de calificación
+    Puede ser una predefinida en los contenedores correspondientes (por
+    ejemplo en `MathingGrades`) ó una definida por el usuario a través de
+    las clases correspondientes.
+    """
     @overload
     def __call__(grades: list[Grade]) -> float: ...
     @overload
@@ -327,52 +315,59 @@ class GradeGroup(GradeSimple):
         self._obtained_grade = forced_value
     value = property(_get_grade, _set_grade)
 
-    def create_grade(self, name: str, **data) -> int|None:
-        if name is None: return None
-        ponderation = self.try_ponderation(data.get("ponderation"))
-        creation = GradeSimple(
-            next(self.id_handler), name, ponderation=ponderation,
-            **{key: data.get(key) for key in data.keys()
-               if key not in ("name", "ponderation")})
-        if creation.ponderator is None:
-            self.group_ponderated.__setitem__(creation.id, creation)
+    def get_eval_from_id(self, id: int) -> object:
+        # Si o si es de este nivel
+        if id in self.group_ponderated.keys():
+            return self.group_ponderated.get(id)
+        elif id in self.group_unponderated.keys():
+            return self.group_unponderated.get(id)
         else:
-            self.group_unponderated.__setitem__(creation.id, creation)
-        return creation.id
+            log.error(f"Tried to find id:{id} at {self} but"
+                      f" wasn't found on: {self.group_ponderated}"
+                      f" or {self.group_unponderated}")
+            raise KeyError("Id not here")
 
-    def create_grade(self, requested_type: int, name: str) -> int|None:
+    def create_grade(self, locate: list[int], requested_type: object,
+                     name: str) -> int|None:
         """
         Instancia una evaluación del tipo solicitado y retorna el `id` para
         referenciarle posteriormente.
         """
-        if requested_type == 0:
-            new = GradeSimple(next(self.id_handler), name)
-            self.group_unponderated.__setitem__(new.id, new)
-        elif requested_type == 1:
-            new = GradeGroup(next(self.id_handler), name)
-            self.group_unponderated.__setitem__(new.id, new)
+        # Si soy un group y me llega len 0 es porque yo tengo
+        # que crearlo a mi nivel
+        if len(locate) > 0:
+            next_step: int = locate.pop(0)
+            next_who: GradeGroup = self.get_eval_from_id(next_step)
+            return next_who.create_grade(locate, requested_type, name)
+        # si llego aquí significa que yo tengo que crearlo
+        new: GradeSimple|GradeGroup = requested_type(
+            next(self.id_handler), name)
+        self.group_unponderated.__setitem__(new.id, new)
         return new.id
 
-
-    def remove_grade(self, id: int) -> bool:
-        if id in self.group_ponderated.keys():
-            self.group_ponderated.__delitem__(id)
+    def remove_grade(self, locate: list[int]) -> bool|None:
+        """
+        Elimina (por completo de la faz) una evaluación
+        """
+        if len(locate) > 1:
+            next_step: int = locate.pop(0)
+            next_who: GradeGroup = self.get_eval_from_id(next_step)
+            return next_who.remove_grade(locate)
+        who_to_kill: int = locate.pop(0)
+        if who_to_kill in self.group_ponderated.keys():
+            self.group_ponderated.__delitem__(who_to_kill)
+        elif who_to_kill in self.group_unponderated.keys():
+            self.group_unponderated.__delitem__(who_to_kill)
         else:
-            self.group_unponderated.__delitem__(id)
+            log.error(f"Tried to delete id:{who_to_kill} but wasn't found on"
+                      f" {self.group_ponderated} or {self.group_unponderated}")
+            raise KeyError("Id not here")
         return True
         
-    
-
-    def edit_grade(self, id: int, **kwargs) -> bool:
-        if id in self.group_ponderated.keys():
-            reference = self.group_ponderated.get(id)
-        elif id in self.group_unponderated.keys():
-            reference = self.group_unpoderated.keys()
-        else:
-            raise WtfError("GradeGroup>edit_grade")
-        reference: GradeSimple
-        reference.assign_numbers(**kwargs)
-        return True
+    def edit_grade(self, locate: list[int], **kwargs) -> bool:
+        """
+        Editar ¿? qué significa esto
+        """
 
     def assign_numbers(self, locate: list[int], **kwargs) -> None:
         this_level = locate.pop(0)

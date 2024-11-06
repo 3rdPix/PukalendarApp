@@ -1,3 +1,4 @@
+"""@private"""
 from qfluentwidgets import MSFluentWindow
 from qfluentwidgets import NavigationItemPosition
 from config import PUCalendarAppPaths as pt
