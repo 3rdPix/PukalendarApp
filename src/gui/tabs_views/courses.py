@@ -96,19 +96,17 @@ class CoursesView(QFrame):
         La tercera capa corresponde a información específica de una clase
         seleccionada
         """
-
         # Primera capa puede ser creada acá
         no_puclass_layer = QWidget()
         icon = QLabel()
-        icon.setPixmap(QPixmap(pt.Resources.VIEW_COURSES_NO_BOOK))
-        icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        icon.setPixmap(QPixmap(pt.Resources.IMAGE_EMPTY_BOX))
+        icon.setFixedSize(120, 120)
+        icon.setScaledContents(True)
         subtitle = SubtitleLabel(_("MainWindow.Courses.NoClassView.NoClass"))
-        subtitle.setWordWrap(True)
-        subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout = QVBoxLayout(no_puclass_layer)
         layout.addStretch()
-        layout.addWidget(icon)
-        layout.addWidget(subtitle)
+        layout.addWidget(icon, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(subtitle, alignment=Qt.AlignmentFlag.AlignCenter)
         layout.addStretch()
         self._stacked_area.addWidget(no_puclass_layer)
 

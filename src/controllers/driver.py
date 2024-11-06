@@ -1,4 +1,3 @@
-"""@private"""
 from PyQt6.QtCore import QRect
 from PyQt6.QtCore import QObject
 from config import PUCalendarAppPaths as pt

@@ -25,10 +25,21 @@ class PUCalendarAppPaths:
     @dataclass
     class Resources:
         """@private"""
-        APPLICATION_ICON: str = build_path("resources", "images", "logo.png")
+        APPLICATION_ICON: str = build_path("resources", "images", "pukalendar_logo.png")
         DIALOG_ABOUT_IMAGE: str = build_path("resources", "images", "campus3.png")
         VIEW_COURSES_NO_BOOK: str = build_path("resources", "images", "no_book.png")
         FOLDER_LOCALE: str = build_path("resources", "locale")
+        ICON_CALENDAR_NORMAL: str = build_path("resources", "images", "calendar_normal.png")
+        ICON_CALENDAR_SELECTED: str = build_path("resources", "images", "calendar_selected.png")
+        ICON_COURSES_NORMAL: str = build_path("resources", "images", "courses_normal.png")
+        ICON_COURSES_SELECTED: str = build_path("resources", "images", "courses_selected.png")
+        ICON_HOME_NORMAL: str = build_path("resources", "images", "home_normal.png")
+        ICON_HOME_SELECTED: str = build_path("resources", "images", "home_selected.png")
+        ICON_TODO_NORMAL: str = build_path("resources", "images", "todo_normal.png")
+        ICON_TODO_SELECTED: str = build_path("resources", "images", "todo_selected.png")
+        IMAGE_EMPTY_BOX: str = build_path("resources", "images", "empty.png")
+        ICON_ABOUT_NORMAL: str = build_path("resources", "images", "about_normal.png")
+        ICON_ABOUT_SELECTED: str = build_path("resources", "images", "about_selected.png")
 
     @dataclass
     class Qss:

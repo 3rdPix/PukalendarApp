@@ -2,7 +2,8 @@
 from qfluentwidgets import MSFluentWindow
 from qfluentwidgets import NavigationItemPosition
 from config import PUCalendarAppPaths as pt
-from PyQt6.QtGui import QCloseEvent, QIcon
+from PyQt6.QtGui import QCloseEvent
+from PyQt6.QtGui import QIcon
 from utils.i18n import _
 from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import TeachingTipTailPosition
@@ -36,9 +37,13 @@ class MainWindow(MSFluentWindow):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setObjectName('MainWindow')
-        
+        # Necesitamos sacar esto para que el slpash tenga sentido
+        # pero no podemos sacarlo de momento porque sino las
+        # señales de las sub interfaces jamás se crean
+        # --
+        # quizás crear señales a este nivel y lazy conectarlas?
         self._init_self()
-
+        
     def RQ_splash_finish(self) -> None:
         self.splash_screen.finish()
     
@@ -54,9 +59,10 @@ class MainWindow(MSFluentWindow):
         except FileNotFoundError:
             log.error(f"Loading of {pt.Qss.MAIN_WINDOW} could not be resolved")
         self.setWindowTitle(_("MainWindow.Title"))
+        icon_about_normal: QIcon = QIcon(pt.Resources.ICON_ABOUT_NORMAL)
         self.navigationInterface.addItem(
             routeKey='about_app',
-            icon=FIF.HELP,
+            icon=icon_about_normal,
             text=_("MainWindow.NavigationInterface.About"),
             onClick=self.show_about_bubble,
             selectable=False,
@@ -68,20 +74,29 @@ class MainWindow(MSFluentWindow):
         Añade las pestañas a la navegación para su posterior despliegue
         """
         self.home_view = HomeView()
-        self.addSubInterface(self.home_view, FIF.HOME,
+        icon_home_normal: QIcon = QIcon(pt.Resources.ICON_HOME_NORMAL)
+        icon_home_selected: QIcon = QIcon(pt.Resources.ICON_HOME_SELECTED)
+        self.addSubInterface(self.home_view, icon_home_normal,
                              _("MainWindow.NavigationInterface.Home"),
-                             FIF.HOME_FILL)
+                             icon_home_selected)
         self.agenda_view = AgendaView()
-        self.addSubInterface(self.agenda_view, FIF.TAG,
+        icon_todo_normal: QIcon = QIcon(pt.Resources.ICON_TODO_NORMAL)
+        icon_todo_selected: QIcon = QIcon(pt.Resources.ICON_TODO_SELECTED)
+        self.addSubInterface(self.agenda_view, icon_todo_normal,
                              _("MainWindow.NavigationInterface.Agenda"),
-                             FIF.CHECKBOX)
+                             icon_todo_selected)
         self.courses_view = CoursesView()
-        self.addSubInterface(self.courses_view, FIF.LIBRARY,
+        icon_courses_normal: QIcon = QIcon(pt.Resources.ICON_COURSES_NORMAL)
+        icon_courses_selected: QIcon = QIcon(pt.Resources.ICON_COURSES_SELECTED)
+        self.addSubInterface(self.courses_view, icon_courses_normal,
                              _("MainWindow.NavigationInterface.Courses"),
-                             FIF.LIBRARY_FILL)
+                             icon_courses_selected)
         self.calendar_view = CalendarView()
-        self.addSubInterface(self.calendar_view, FIF.CALENDAR,
-                             _("MainWindow.NavigationInterface.Calendar"))
+        icon_calendar_normal: QIcon = QIcon(pt.Resources.ICON_CALENDAR_NORMAL)
+        icon_calendar_selected: QIcon = QIcon(pt.Resources.ICON_CALENDAR_SELECTED)
+        self.addSubInterface(self.calendar_view, icon_calendar_normal,
+                             _("MainWindow.NavigationInterface.Calendar"),
+                             icon_calendar_selected)
 
     def _load_self_variables(self) -> None:
         """
