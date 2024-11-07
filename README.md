@@ -1,14 +1,26 @@
-# Rama de desarrollo para versión de escritorio
+# Pukalendar
 
-[![Static Badge](https://img.shields.io/badge/Py-Qt6-brightgreen?labelColor=blue&logo=python&logoColor=white)](https://pypi.org/project/PyQt6/)
-[![Static Badge](https://img.shields.io/badge/Qt-Documentation-gray?labelColor=brightgreen)](https://doc.qt.io/qtforpython-6/)
-[![Static Badge](https://img.shields.io/badge/PEP8-blue?logo=python&logoColor=white)](https://pep8.org/)
-![Static Badge](https://img.shields.io/badge/Windows-cyan)
-![Static Badge](https://img.shields.io/badge/Linux-gray?logo=linux)
+[![Static Badge](https://img.shields.io/badge/Framework-brightgreen?style=for-the-badge&logo=qt&logoSize=auto&labelColor=blue)](https://pypi.org/project/PyQt6/)
+[![Static Badge](https://img.shields.io/badge/Qt_for_python-green?style=for-the-badge&logo=Google%20Docs&logoColor=white&logoSize=big&labelColor=blue)](https://doc.qt.io/qtforpython-6/)
+[![Static Badge](https://img.shields.io/badge/PEP8-coding_style-yellow?style=for-the-badge&logo=python&logoColor=yellow&logoSize=big&labelColor=blue)](https://pep8.org/)
+
+![Static Badge](https://img.shields.io/badge/Windows-blue?style=flat-square&logo=windows&labelColor=blue)
+![Static Badge](https://img.shields.io/badge/Linux-lightgray?style=flat-square&logo=linux&logoColor=black&logoSize=big)
 ![Static Badge](https://img.shields.io/badge/MacOS-blue?logo=apple)
+
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-lightgrey.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html#license-text)
 
 ## Descripción
+
+Pukalendar es un programa que busca facilitar la vida universitaria al proveer múltiples herramientas de utilidad para llevar un buen registro de las actividades universitarias tales como eventos, tareas, evaluaciones, etc. Además, permite mantener un historial de cursos inscritos a través del cual se puede obtener información variada de los mismos.
+
+La aplicación también cuenta con un robusto sistema de seguimiento de calificaciones que permite modelar los requisitos de la gran mayoría de los cursos. Esto le entrega al estudiante información precisa respecto a las evaluaciones más relevantes, lo que le permite enfocarse en los estudios de forma más óptima.
+
+También cuenta con un sistema de sesiones de estudio, a través del cual el estudiante puede conocer cuántas horas semanales dedica a cada curso, lo que ayuda a lograr un mejor balance de tiempo dedicado entre sus cursos inscritos.
+
+Lamentablemente, esta aplicación se encuentra en fase de desarrollo, por lo que de momento no está disponible para el público general. Sin embargo, es posible utilizarla por medio de herramientas de desarrollo de _software_. Puedes dirigirte a la sección respectiva para conocer más detalles de cómo lanzar la aplicación en modo desarrollador. Si tienes cualquier consulta, siempre puedes dirigirte a la sección de [_issues_](https://github.com/3rdPix/PukalendarApp/issues) y publicar una entrada con tu duda.
+
+# Desarrolladores
 
 Esta aplicación de escritorio está desarrollada utilizando el framework *PyQt6*, y se apoya en paquetes externos para proporcionar una experiencia de usuario moderna y estilizada. La aplicación está diseñada para ofrecer una interfaz gráfica intuitiva y eficiente.
 
