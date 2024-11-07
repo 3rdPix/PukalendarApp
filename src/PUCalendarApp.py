@@ -53,3 +53,5 @@ class MainApp(QApplication):
             self.application_driver.RQ_start_timer)
         self.main_window.courses_view._single_class_view.SG_stop_timer.connect(
             self.application_driver.RQ_stop_timer)
+        self.application_driver.SG_update_time_infobox.connect(
+            self.main_window.home_view.RQ_update_time_infobox)

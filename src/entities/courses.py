@@ -134,7 +134,7 @@ class Course:
         self.user_dedicated_time = source.get("user_dedicated_time")
         self.user_modules = source.get("user_modules")
 
-    def start_session(self) -> None:
+    def start_session(self) -> datetime|None:
         """
         Crea una marca temporal que indica el inicio de la sesión de estudio.
         `SessionTimer` es bloqueado, de modo que no es posible iniciar otra
@@ -143,6 +143,7 @@ class Course:
         """
         if Course._sessions_timer.start_session():
             self.course_on_session = True
+            return Course._sessions_timer._session_start
     
     def stop_session(self) -> None:
         """

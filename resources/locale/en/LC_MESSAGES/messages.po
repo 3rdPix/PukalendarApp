@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-11-03 08:25-0300\n"
+"POT-Creation-Date: 2024-11-07 08:42-0300\n"
 "PO-Revision-Date: 2024-10-28 04:42-0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -18,130 +18,158 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.16.0\n"
 
-#: src/gui/main_window.py:55
+#: src/gui/main_window.py:61
 msgid "MainWindow.Title"
 msgstr "PUCalendarApp"
 
-#: src/gui/main_window.py:59
+#: src/gui/main_window.py:66
 msgid "MainWindow.NavigationInterface.About"
 msgstr "About"
 
-#: src/gui/main_window.py:71
+#: src/gui/main_window.py:80
 msgid "MainWindow.NavigationInterface.Home"
 msgstr "Home"
 
-#: src/gui/main_window.py:75
+#: src/gui/main_window.py:86
 msgid "MainWindow.NavigationInterface.Agenda"
 msgstr "Agenda"
 
-#: src/gui/main_window.py:79
+#: src/gui/main_window.py:92
 msgid "MainWindow.NavigationInterface.Courses"
 msgstr "Courses"
 
-#: src/gui/main_window.py:83
+#: src/gui/main_window.py:98
 msgid "MainWindow.NavigationInterface.Calendar"
 msgstr "Calendar"
 
-#: src/gui/main_window.py:98
+#: src/gui/main_window.py:114
 msgid "MainWindow.About.Title"
 msgstr "About"
 
-#: src/gui/main_window.py:99
+#: src/gui/main_window.py:115
 msgid "MainWindow.About.Description"
 msgstr ""
 "PUCalendarApp is an open source application designed to and by students "
 "whose purpose is to offer a helping hand in the organization and tracking"
 " of all university shenaningans."
 
-#: src/gui/tabs_views/courses.py:53
+#: src/gui/tabs_views/courses.py:59
 msgid "MainWindow.Courses.CommandBar.AddNew"
 msgstr "Add new course"
 
-#: src/gui/tabs_views/courses.py:57
+#: src/gui/tabs_views/courses.py:63
 msgid "MainWindow.Courses.CommandBar.Delete"
 msgstr "Delete course"
 
-#: src/gui/tabs_views/courses.py:61
+#: src/gui/tabs_views/courses.py:67
 msgid "MainWindow.Courses.CommandBar.Edit"
 msgstr "Edit course"
 
-#: src/gui/tabs_views/courses.py:65
+#: src/gui/tabs_views/courses.py:71
 msgid "MainWindow.Courses.CommandBar.Scale"
 msgstr "Edit grading scale"
 
-#: src/gui/tabs_views/courses.py:99
+#: src/gui/tabs_views/courses.py:105
 msgid "MainWindow.Courses.NoClassView.NoClass"
 msgstr "No courses have been created"
 
-#: src/gui/tabs_views/courses.py:213
+#: src/gui/tabs_views/courses.py:219
 msgid "MainWindow.Courses.SingleClassView.Schedule"
 msgstr "No courses have been created"
 
-#: src/gui/tabs_views/courses.py:215
+#: src/gui/tabs_views/courses.py:221
 msgid "MainWindow.Courses.SingleClassView.Grades"
 msgstr "No courses have been created"
 
-#: src/gui/tabs_views/courses.py:217
+#: src/gui/tabs_views/courses.py:231
 msgid "MainWindow.Courses.SingleClassView.Events"
 msgstr "No courses have been created"
 
-#: src/gui/tabs_views/courses.py:227
+#: src/gui/tabs_views/courses.py:232
+msgid "MainWindow.Courses.SingleClassView.ButtonStartTimer"
+msgstr "No courses have been created"
+
+#: src/gui/tabs_views/courses.py:234
+msgid "MainWindow.Courses.SingleClassView.ButtonStopTimer"
+msgstr "No courses have been created"
+
+#: src/gui/tabs_views/courses.py:258
 msgid "MainWindow.Courses.SingleClassView.General"
 msgstr "No courses have been created"
 
-#: src/gui/tabs_views/courses.py:230
+#: src/gui/tabs_views/courses.py:261
 msgid "MainWindow.Courses.SingleClassView.Indicator.NRC"
 msgstr "No courses have been created"
 
-#: src/gui/tabs_views/courses.py:233
+#: src/gui/tabs_views/courses.py:264
 msgid "MainWindow.Courses.SingleClassView.Indicator.Code"
 msgstr "No courses have been created"
 
-#: src/gui/tabs_views/courses.py:236
+#: src/gui/tabs_views/courses.py:267
 msgid "MainWindow.Courses.SingleClassView.Indicator.Professor"
 msgstr "No courses have been created"
 
-#: src/gui/tabs_views/courses.py:239
+#: src/gui/tabs_views/courses.py:270
 msgid "MainWindow.Courses.SingleClassView.Indicator.Campus"
 msgstr "No courses have been created"
 
-#: src/gui/tabs_views/courses.py:242
+#: src/gui/tabs_views/courses.py:273
 msgid "MainsWindow.Courses.SingleClassView.Indicator.Section"
 msgstr "Search"
 
-#: src/gui/tabs_views/home.py:50
+#: src/gui/tabs_views/home.py:58
 msgid "MainWindow.Home.InfoBoxAgenda.Title"
 msgstr "Upcoming events"
 
-#: src/gui/tabs_views/home.py:55
+#: src/gui/tabs_views/home.py:63
 msgid "MainWindow.Home.InfoBoxCourses.Title"
 msgstr "Courses"
 
-#: src/gui/tabs_views/home.py:61
+#: src/gui/tabs_views/home.py:68
 msgid "MainWindow.Home.InfoBoxSettings.Title"
 msgstr "Quick settings"
 
-#: src/gui/tabs_views/home.py:66
+#: src/gui/tabs_views/home.py:73
 msgid "MainWindow.Home.InfoBoxDangers.Title"
 msgstr "Dangers"
 
-#: src/gui/tabs_views/home.py:71
+#: src/gui/tabs_views/home.py:78
 msgid "MainWindow.Home.InfoBoxExternal.Title"
 msgstr "Other activities"
 
-#: src/gui/tabs_views/home.py:76
+#: src/gui/tabs_views/home.py:83
 msgid "MainWindow.Home.InfoBoxTime.Title"
 msgstr "Study sessions"
 
-#: src/gui/widgets/boxes.py:105
+#: src/gui/tabs_views/home.py:92
+msgid "MainWindow.Home.InfoBoxTime.NoClass"
+msgstr "Study sessions"
+
+#: src/gui/tabs_views/home.py:104
+msgid "MainWindow.Home.InfoBoxTime.SummaryIndicator"
+msgstr "Study sessions"
+
+#: src/gui/tabs_views/home.py:113
+msgid "MainWindow.Home.InfoBoxTime.OnSessionIndicator"
+msgstr "Study sessions"
+
+#: src/gui/tabs_views/home.py:115
+msgid "MainWindow.Home.InfoBoxTime.CourseIndicator"
+msgstr "Study sessions"
+
+#: src/gui/tabs_views/home.py:118
+msgid "MainWindow.Home.InfoBoxTime.StartedAtIndicator"
+msgstr "Study sessions"
+
+#: src/gui/widgets/boxes.py:108
 msgid "MainWindow.Courses.AllCourses.CardBox.Professor"
 msgstr "Professor"
 
-#: src/gui/widgets/boxes.py:106
+#: src/gui/widgets/boxes.py:110
 msgid "MainWindow.Courses.AllCourses.CardBox.Section"
 msgstr "Section"
 
-#: src/gui/widgets/boxes.py:108
+#: src/gui/widgets/boxes.py:114
 msgid "MainWindow.Courses.AllCourses.CardBox.CourseCode"
 msgstr "Course's code"
 

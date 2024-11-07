@@ -1,3 +1,5 @@
+from PyQt6.QtCore import pyqtBoundSignal
+from typing import Optional
 from PyQt6.QtCore import QRect
 from PyQt6.QtCore import QObject
 from config import PUCalendarAppPaths as pt
@@ -8,6 +10,7 @@ from utils import search_for_puclasses
 from entities import Course
 from typing import Any
 from collections.abc import Callable
+from PyQt6.QtCore import QThread
 import logging
 import pickle
 
@@ -72,6 +75,7 @@ class MainDriver(QObject):
     SG_window_setting = pyqtSignal(QRect)
     SG_show_main_window = pyqtSignal()
     SG_finished_loading = pyqtSignal()
+    SG_update_time_infobox = pyqtSignal(int, list)
 
     def __init__(self) -> None:
         super().__init__()
@@ -102,6 +106,26 @@ class MainDriver(QObject):
                         f" empty list...")
         for course in courses_list:
             self.courses[course.official_nrc] = course
+        if len(courses_list) > 0: self._udpate_timeinfobox(1)
+        else: self._udpate_timeinfobox(0)
+    
+    def _udpate_timeinfobox(self, to: int, which: Optional[Course]=None,
+                            starting_point: Optional[str]=None) -> None:
+        match to:
+            case 0:
+                self.SG_update_time_infobox.emit(0, [])
+            case 1:
+                times_list = list()
+                for each in self.courses.values():
+                    each: Course
+                    times_list.append([each.user_alias, each.user_dedicated_time])
+                self.SG_update_time_infobox.emit(1, times_list)
+            case 2:
+                alias_text = which.user_alias
+                color_text = which.user_color
+                start_text = str(starting_point)
+                self.SG_update_time_infobox.emit(
+                    2, [alias_text, color_text, start_text])
 
     def closeEvent(self, window_status: QRect) -> None:
         courses_list: list[Course] = list(self.courses.values())
@@ -109,10 +133,22 @@ class MainDriver(QObject):
         with open(pt.Config.USER_COURSES, 'wb') as raw_file:
             pickle.dump(courses_list, raw_file)
         Settings.setValue(Settings.Window.RECT, window_status)
+        # De momento solo cerraremos a la fuerza el tiempo de la sesión
+        for each in self.courses.values():
+            each: Course
+            if each.course_on_session:
+                each.stop_session()
+                break
 
     def RQ_search_course(self, search_pattern: str) -> None:
-        self.web_search_results = search_for_puclasses(search_pattern)
-        self.SG_web_search_results.emit(self.web_search_results)
+        class SearchThread(QThread):
+            def run(self, _caller: QObject, pattern: str,
+                    dest: pyqtBoundSignal) -> None:
+                results = search_for_puclasses(pattern)
+                _caller.web_search_results = results
+                dest.emit(results)
+        enw = SearchThread()
+        enw.run(self, search_pattern, self.SG_web_search_results)
 
     def RQ_create_course(self, index_ref: int, alias: str, color: str) -> None:
         official_info = self.web_search_results[index_ref]
@@ -121,6 +157,7 @@ class MainDriver(QObject):
         identifier = course.official_nrc
         self.courses[identifier] = course
         self.web_search_results = None
+        self._udpate_timeinfobox(1)
         log.debug(f"Successfully addded {identifier} to Courses")
 
     def RQ_load_SingleClassView_data(self, _with: str) -> None:
@@ -130,8 +167,12 @@ class MainDriver(QObject):
         log.debug(f"Received id:{course_id} to search on {self.courses}")
         which: Course = self.courses.get(course_id)
         log.debug(f"Got {which}")
-        which.start_session()
+        starting_point = which.start_session()
+        # Datos para timeinfobox
+        self._udpate_timeinfobox(2, which, starting_point)
     
     def RQ_stop_timer(self, course_id: int) -> None:
         which: Course = self.courses.get(course_id)
         which.stop_session()
+        # Datos para timeinfobox
+        self._udpate_timeinfobox(1)

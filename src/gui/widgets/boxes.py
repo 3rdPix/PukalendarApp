@@ -73,12 +73,14 @@ class _HomeViewInfoBoxManager:
     def update_all_sizes(cls):
         max_width = 0
         max_height = 0
-
+        limit_width = 200
+        limit_height = 200
         for instance in cls.instances:
             size = instance.sizeHint()
             max_width = max(max_width, size.width())
             max_height = max(max_height, size.height())
-
+        max_width = min(max_width, limit_width)
+        max_height = min(max_height, limit_height)
         for instance in cls.instances:
             instance.setMinimumSize(QSize(max_width, max_height))
 
