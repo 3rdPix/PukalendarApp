@@ -154,4 +154,8 @@ class Course:
         """
         if not self.course_on_session: return
         session_time: timedelta = Course._sessions_timer.end_session()
+        if not isinstance(session_time, timedelta):
+            log.error(f"Uncoordinated status of self.on_session with"
+                      f" sessions timer.")
+            return
         self.user_dedicated_time += session_time
