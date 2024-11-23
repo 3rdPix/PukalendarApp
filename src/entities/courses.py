@@ -104,7 +104,7 @@ class Course:
     contiene referencia a el estado del mismo en relación con `SessionTimer`
     """
     _sessions_timer: SessionTimer = SessionTimer()
-    course_on_session: bool
+    course_on_session: bool = False
 
     def __init__(self, alias: str, color: str) -> None:
         self._establish_attr(alias, color)
@@ -156,6 +156,8 @@ class Course:
         session_time: timedelta = Course._sessions_timer.end_session()
         if not isinstance(session_time, timedelta):
             log.error(f"Uncoordinated status of self.on_session with"
-                      f" sessions timer.")
+                      f" sessions timer on {self.official_name}."
+                      f" Forcefully closing session.")
+            self.course_on_session = False
             return
         self.user_dedicated_time += session_time

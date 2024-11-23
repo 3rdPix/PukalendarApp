@@ -129,16 +129,16 @@ class MainDriver(QObject):
 
     def closeEvent(self, window_status: QRect) -> None:
         courses_list: list[Course] = list(self.courses.values())
-        log.debug(f"Dumping courses into {pt.Config.USER_COURSES}")
-        with open(pt.Config.USER_COURSES, 'wb') as raw_file:
-            pickle.dump(courses_list, raw_file)
-        Settings.setValue(Settings.Window.RECT, window_status)
         # De momento solo cerraremos a la fuerza el tiempo de la sesión
-        for each in self.courses.values():
+        for each in courses_list:
             each: Course
             if each.course_on_session:
                 each.stop_session()
                 break
+        log.debug(f"Dumping courses into {pt.Config.USER_COURSES}")
+        with open(pt.Config.USER_COURSES, 'wb') as raw_file:
+            pickle.dump(courses_list, raw_file)
+        Settings.setValue(Settings.Window.RECT, window_status)
 
     def RQ_search_course(self, search_pattern: str) -> None:
         class SearchThread(QThread):
