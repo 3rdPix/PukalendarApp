@@ -1,32 +1,28 @@
 """@private"""
-from qfluentwidgets import MSFluentWindow
-from qfluentwidgets import NavigationItemPosition
+from PyQt6.QtWidgets import QHBoxLayout
+from PyQt6.QtWidgets import QStackedLayout
+from PyQt6.QtWidgets import QVBoxLayout
 from config import PUCalendarAppPaths as pt
 from PyQt6.QtGui import QCloseEvent
 from PyQt6.QtGui import QIcon
 from utils.i18n import _
-from qfluentwidgets import FluentIcon as FIF
-from qfluentwidgets import TeachingTipTailPosition
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtCore import Qt
-from qfluentwidgets import TeachingTipView
-from qfluentwidgets import PushButton
-from qfluentwidgets import TeachingTip
 from gui.tabs_views import HomeView
 from gui.tabs_views import CalendarView
 from gui.tabs_views import CoursesView
 from gui.tabs_views import AgendaView
-from qfluentwidgets import SplashScreen
 from PyQt6.QtCore import QEventLoop
 from PyQt6.QtCore import QTimer
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtCore import QRect
+from PyQt6.QtWidgets import QWidget
 import logging
 
 
 log = logging.getLogger("MainWindow")
 
-class MainWindow(MSFluentWindow):
+class MainWindow(QWidget):
     """
     Clase de la ventana principal de la aplicación sobre la
     que se despliegan todas las vistas y sub-widgets
@@ -52,6 +48,7 @@ class MainWindow(MSFluentWindow):
         Carga los contenidos propios de la ventana principal
         """
         self._load_self_variables()
+        self._create_gui()
         self.setWindowIcon(QIcon(pt.Resources.APPLICATION_ICON))
         try:
             with open(pt.Qss.MAIN_WINDOW, 'r', encoding='utf-8') as raw_file:
@@ -59,6 +56,8 @@ class MainWindow(MSFluentWindow):
         except FileNotFoundError:
             log.error(f"Loading of {pt.Qss.MAIN_WINDOW} could not be resolved")
         self.setWindowTitle(_("MainWindow.Title"))
+        
+        
         icon_about_normal: QIcon = QIcon(pt.Resources.ICON_ABOUT_NORMAL)
         self.navigationInterface.addItem(
             routeKey='about_app',
@@ -69,6 +68,13 @@ class MainWindow(MSFluentWindow):
             position=NavigationItemPosition.BOTTOM)
         self._add_subinterfaces()
         
+    def _create_gui(self) -> None:
+        window_layout: QVBoxLayout = QVBoxLayout(self)
+        self._area_widget: QStackedLayout = QStackedLayout()
+        self._navigation_bar: QHBoxLayout = QHBoxLayout()
+        window_layout.addLayout(self._area_widget)
+        window_layout.addLayout(self._navigation_bar)
+
     def _add_subinterfaces(self) -> None:
         """
         Añade las pestañas a la navegación para su posterior despliegue
