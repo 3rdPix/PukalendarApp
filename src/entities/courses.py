@@ -161,3 +161,4 @@ class Course:
             self.course_on_session = False
             return
         self.user_dedicated_time += session_time
+        self.course_on_session = False

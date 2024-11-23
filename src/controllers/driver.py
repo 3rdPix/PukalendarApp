@@ -7,6 +7,7 @@ from config import Settings
 from entities.courses import Course
 from PyQt6.QtCore import pyqtSignal
 from utils import search_for_puclasses
+from entities.courses import NRC
 from entities import Course
 from typing import Any
 from collections.abc import Callable
@@ -176,3 +177,13 @@ class MainDriver(QObject):
         which.stop_session()
         # Datos para timeinfobox
         self._udpate_timeinfobox(1)
+
+    def RQ_delete_course(self, nrc: NRC) -> None:
+        log.info(f"Deleting course:{nrc}")
+        if element := self.courses.get(nrc):
+            element: Course
+            element.stop_session()
+            del self.courses[nrc]
+            self._udpate_timeinfobox(1)
+        else:
+            log.warning(f"Couldn't delete course:{nrc} as it doesn't exists")

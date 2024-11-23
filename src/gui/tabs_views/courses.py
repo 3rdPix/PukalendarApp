@@ -22,6 +22,7 @@ from qfluentwidgets import PrimaryToolButton
 from gui.widgets.dialogs import NewClassDialog
 from gui.widgets.misc import OpacityAniStackedWidget
 from entities.courses import NRC
+from qfluentwidgets import MessageDialog
 import logging
 
 
@@ -29,6 +30,7 @@ log = logging.getLogger("CoursesTab")
 
 
 class CoursesView(QFrame):
+    SG_delete_course: pyqtSignal = pyqtSignal(NRC)
     new_class_dialog: NewClassDialog
 
     def __init__(self, parent: QWidget | None=None) -> None:
@@ -79,7 +81,17 @@ class CoursesView(QFrame):
         self.new_class_dialog.show()
 
     def _CB_del(self) -> None:
-        pass
+        new = MessageDialog(
+            _("MainWindow.Courses.SingleClassView.DeleteClassDialog.Title"),
+            _("MainWindow.Courses.SingleClassView.DeleteClassDialog.Description"),
+            self)
+        new.accepted.connect(self.TR_delete_this_course)
+        new.exec()
+
+    def TR_delete_this_course(self) -> None:
+        nrc = self._single_class_view._current_course_id
+        self.SG_delete_course.emit(nrc)
+        self.show_all_classes()
 
     def _CB_edit(self) -> None:
         pass
