@@ -8,6 +8,13 @@ from PyQt6.QtCore import QAbstractAnimation
 from PyQt6.QtWidgets import QWidget
 from PyQt6.QtWidgets import QGraphicsOpacityEffect
 from PyQt6.QtCore import QPropertyAnimation
+from PyQt6.QtWidgets import QStackedLayout
+from PyQt6.QtGui import QPainter
+from PyQt6.QtGui import QColor
+from typing import Optional
+from PyQt6.QtCore import QEvent
+from PyQt6.QtGui import QPalette
+from PyQt6.QtWidgets import QApplication
 
 
 class OpacityAniStackedWidget(QStackedWidget):
@@ -64,3 +71,36 @@ class OpacityAniStackedWidget(QStackedWidget):
 
     def setCurrentWidget(self, w: QWidget) -> None:
         self.setCurrentIndex(self.indexOf(w))
+
+
+class SlidingStackedWidget(QStackedWidget):
+    """
+    *Widget* con animaciones de desliz en la transición
+    """
+
+class LineSeparator(QWidget):
+    """
+    Una línea separadora de color personalizable
+    """
+
+    def __init__(self, parent: Optional[QWidget]=None,
+                 line_color: Optional[QColor]=QApplication.palette().highlight().color()) -> None:
+        super().__init__(parent=parent)
+        self._line_color: QColor = line_color
+        self.setFixedHeight(4)
+
+    def set_color(self, line_color: QColor) -> None:
+        """Ajustar el color de la línea"""
+        self._line_color = line_color
+
+    def paintEvent(self, event: QEvent) -> None:
+        painter = QPainter(self)
+        painter.setRenderHints(QPainter.RenderHint.Antialiasing)
+        painter.setPen(self._line_color)
+        painter.drawLine(2, 1, self.width() - 2, 1)
+
+
+class IconedButton(QWidget):
+    """
+    Botón que utiliza dos
+    """
