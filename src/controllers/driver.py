@@ -1,3 +1,4 @@
+from datetime import timedelta
 from PyQt6.QtCore import pyqtBoundSignal
 from typing import Optional
 from PyQt6.QtCore import QRect
@@ -12,6 +13,7 @@ from entities import Course
 from typing import Any
 from collections.abc import Callable
 from PyQt6.QtCore import QThread
+from controllers.data_interacter import calculate_relative_dedication
 import logging
 import pickle
 
@@ -77,6 +79,8 @@ class MainDriver(QObject):
     SG_show_main_window = pyqtSignal()
     SG_finished_loading = pyqtSignal()
     SG_update_time_infobox = pyqtSignal(int, list)
+    SG_update_SingleClassView = pyqtSignal(dict)
+    SG_update_dedication_piechart = pyqtSignal(list, list)
 
     def __init__(self) -> None:
         super().__init__()
@@ -117,10 +121,19 @@ class MainDriver(QObject):
                 self.SG_update_time_infobox.emit(0, [])
             case 1:
                 times_list = list()
+                actually_times = list()
+                colors = list()
                 for each in self.courses.values():
                     each: Course
-                    times_list.append([each.user_alias, each.user_dedicated_time])
+                    # trucheria para ahorrarnos los microsegundos
+                    cheating = timedelta(seconds=round(each.user_dedicated_time.total_seconds()))
+                    times_list.append([each.user_alias, cheating, each.user_color])
+                    actually_times.append(each.user_dedicated_time)
+                    colors.append(each.user_color)
+                percentages = calculate_relative_dedication(actually_times)
                 self.SG_update_time_infobox.emit(1, times_list)
+                # probablemente no es el mejor sitio para dejar la emisión
+                self.SG_update_dedication_piechart.emit(percentages, colors)
             case 2:
                 alias_text = which.user_alias
                 color_text = which.user_color
@@ -168,15 +181,19 @@ class MainDriver(QObject):
         log.debug(f"Received id:{course_id} to search on {self.courses}")
         which: Course = self.courses.get(course_id)
         log.debug(f"Got {which}")
-        starting_point = which.start_session()
-        # Datos para timeinfobox
-        self._udpate_timeinfobox(2, which, starting_point)
+        if starting_point := which.start_session():
+            # Datos para timeinfobox
+            self._udpate_timeinfobox(2, which, starting_point)
+        else:
+            log(f"Can't initiate session for {course_id} because other"
+                f" course is on session.")
     
     def RQ_stop_timer(self, course_id: int) -> None:
         which: Course = self.courses.get(course_id)
         which.stop_session()
         # Datos para timeinfobox
         self._udpate_timeinfobox(1)
+        self.SG_update_SingleClassView.emit(which.__dict__)
 
     def RQ_delete_course(self, nrc: NRC) -> None:
         log.info(f"Deleting course:{nrc}")

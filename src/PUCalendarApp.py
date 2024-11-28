@@ -57,3 +57,7 @@ class MainApp(QApplication):
             self.main_window.home_view.RQ_update_time_infobox)
         self.main_window.courses_view.SG_delete_course.connect(
             self.application_driver.RQ_delete_course)
+        self.application_driver.SG_update_SingleClassView.connect(
+            self.main_window.courses_view._single_class_view.RQ_update_self)
+        self.application_driver.SG_update_dedication_piechart.connect(
+            self.main_window.home_view.RQ_update_dedication_piechart)

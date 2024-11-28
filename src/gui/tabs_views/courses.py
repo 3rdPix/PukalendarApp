@@ -1,3 +1,4 @@
+from datetime import timedelta
 from qfluentwidgets import PushButton
 from PyQt6.QtCore import pyqtSignal
 from config import PUCalendarAppPaths as pt
@@ -298,6 +299,10 @@ class SingleClassView(QFrame):
         self._generic_cat_box.set_content_layout(layout_general)
         return self._generic_cat_box
 
+    def RQ_update_self(self, course_dict: dict) -> None:
+        self.load_data(course_dict)
+        self.update()
+
     def load_data(self, course_data: dict) -> None:
         self._set_stripe_color(course_data.get("user_color"))
         self._name_label.setText(course_data.get("official_name"))
@@ -319,7 +324,15 @@ class SingleClassView(QFrame):
 
         # Eventos
         distr: QVBoxLayout = self._events_cat_box.get_content_layout()
-        distr.itemAt(2).widget().setText(str(course_data.get("user_dedicated_time")))
+        # truchería para no ver los microsegundos
+        cheating = timedelta(seconds=round(course_data.get("user_dedicated_time").total_seconds()))
+        distr.itemAt(2).widget().setText(str(cheating))
+        if course_data.get("course_on_session"):
+            distr.itemAt(0).widget().setEnabled(False)
+            distr.itemAt(1).widget().setEnabled(True)
+        else:
+            distr.itemAt(0).widget().setEnabled(True)
+            distr.itemAt(1).widget().setEnabled(False)
 
     def _set_stripe_color(self, color: str) -> None:
         # Usar hexadecimal #xxxxxx
