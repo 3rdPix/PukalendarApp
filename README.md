@@ -18,6 +18,10 @@ La aplicación también cuenta con un robusto sistema de seguimiento de califica
 
 También cuenta con un sistema de sesiones de estudio, a través del cual el estudiante puede conocer cuántas horas semanales dedica a cada curso, lo que ayuda a lograr un mejor balance de tiempo dedicado entre sus cursos inscritos.
 
+<div align="center">
+<img src="resources/images/time_example.png">
+</div>
+
 Lamentablemente, esta aplicación se encuentra en fase de desarrollo, por lo que de momento no está disponible para el público general. Sin embargo, es posible utilizarla por medio de herramientas de desarrollo de _software_. Puedes dirigirte a la sección respectiva para conocer más detalles de cómo lanzar la aplicación en modo desarrollador. Si tienes cualquier consulta, siempre puedes dirigirte a la sección de [_issues_](https://github.com/3rdPix/PukalendarApp/issues) y publicar una entrada con tu duda.
 
 # Desarrolladores
