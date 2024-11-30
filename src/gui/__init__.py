@@ -1,0 +1,1 @@
+class PukalendarWidget: __pkwdgt__: bool = True

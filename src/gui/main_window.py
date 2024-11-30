@@ -1,4 +1,8 @@
 """@private"""
+from PyQt6.QtCore import pyqtBoundSignal
+import inspect
+from PyQt6.QtCore import QObject
+from PyQt6.QtWidgets import QWidget
 from qfluentwidgets import MSFluentWindow
 from qfluentwidgets import NavigationItemPosition
 from config import PUCalendarAppPaths as pt
@@ -21,18 +25,19 @@ from PyQt6.QtCore import QEventLoop
 from PyQt6.QtCore import QTimer
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtCore import QRect
+from gui import PukalendarWidget
+from collections import defaultdict
 import logging
 
 
 log = logging.getLogger("MainWindow")
-
+        
 class MainWindow(MSFluentWindow):
     """
     Clase de la ventana principal de la aplicación sobre la
     que se despliegan todas las vistas y sub-widgets
     """
-    SG_window_close_event: pyqtSignal = pyqtSignal(QRect, name="MainWindow_closing")
-
+    SG_MainWindow_closeEvent: pyqtSignal = pyqtSignal(QRect, name="SG_MainWindow_closeEvent")
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
@@ -42,9 +47,10 @@ class MainWindow(MSFluentWindow):
         # señales de las sub interfaces jamás se crean
         # --
         # quizás crear señales a este nivel y lazy conectarlas?
+        self.__pkwdgts__: dict[str, PukalendarWidget] = defaultdict()
         self._init_self()
         
-    def RQ_splash_finish(self) -> None:
+    def RQ_finished_loading(self) -> None:
         self.splash_screen.finish()
     
     def _init_self(self) -> None:
@@ -74,24 +80,28 @@ class MainWindow(MSFluentWindow):
         Añade las pestañas a la navegación para su posterior despliegue
         """
         self.home_view = HomeView()
+        self.__pkwdgts__.__setitem__(self.home_view.objectName(), self.home_view)
         icon_home_normal: QIcon = QIcon(pt.Resources.ICON_HOME_NORMAL)
         icon_home_selected: QIcon = QIcon(pt.Resources.ICON_HOME_SELECTED)
         self.addSubInterface(self.home_view, icon_home_normal,
                              _("MainWindow.NavigationInterface.Home"),
                              icon_home_selected)
         self.agenda_view = AgendaView()
+        self.__pkwdgts__.__setitem__(self.agenda_view.objectName(), self.agenda_view)
         icon_todo_normal: QIcon = QIcon(pt.Resources.ICON_TODO_NORMAL)
         icon_todo_selected: QIcon = QIcon(pt.Resources.ICON_TODO_SELECTED)
         self.addSubInterface(self.agenda_view, icon_todo_normal,
                              _("MainWindow.NavigationInterface.Agenda"),
                              icon_todo_selected)
-        self.courses_view = CoursesView()
+        self.courses_view = CoursesView(parent=self)
+        self.__pkwdgts__.__setitem__(self.courses_view.objectName(), self.courses_view)
         icon_courses_normal: QIcon = QIcon(pt.Resources.ICON_COURSES_NORMAL)
         icon_courses_selected: QIcon = QIcon(pt.Resources.ICON_COURSES_SELECTED)
         self.addSubInterface(self.courses_view, icon_courses_normal,
                              _("MainWindow.NavigationInterface.Courses"),
                              icon_courses_selected)
         self.calendar_view = CalendarView()
+        self.__pkwdgts__.__setitem__(self.calendar_view.objectName(), self.calendar_view)
         icon_calendar_normal: QIcon = QIcon(pt.Resources.ICON_CALENDAR_NORMAL)
         icon_calendar_selected: QIcon = QIcon(pt.Resources.ICON_CALENDAR_SELECTED)
         self.addSubInterface(self.calendar_view, icon_calendar_normal,
@@ -125,7 +135,7 @@ class MainWindow(MSFluentWindow):
             self.navigationInterface,
             duration=-1,
             tailPosition=tail_position,
-            parent=self)
+            parent=self)    
         bubble.closed.connect(
             lambda: self.hide_about_bubble(panel))
         
@@ -133,11 +143,11 @@ class MainWindow(MSFluentWindow):
         self.__showing_about = False
         return panel.close()
     
-    def RQ_load_settings(self, window_setting: QRect) -> None:
+    def RQ_window_setting(self, window_setting: QRect) -> None:
         self.setGeometry(window_setting)
         self.splash_screen = SplashScreen(pt.Resources.APPLICATION_ICON, self)
         self.show()
     
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.SG_window_close_event.emit(self.geometry())
+        self.SG_MainWindow_closeEvent.emit(self.geometry())
         return super().closeEvent(a0)

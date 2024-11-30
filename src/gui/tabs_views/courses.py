@@ -24,14 +24,15 @@ from gui.widgets.dialogs import NewClassDialog
 from gui.widgets.misc import OpacityAniStackedWidget
 from entities.courses import NRC
 from qfluentwidgets import MessageDialog
+from gui import PukalendarWidget
 import logging
 
 
 log = logging.getLogger("CoursesTab")
 
 
-class CoursesView(QFrame):
-    SG_delete_course: pyqtSignal = pyqtSignal(NRC)
+class CoursesView(QFrame, PukalendarWidget):
+    SG_CoursesView_delete: pyqtSignal = pyqtSignal(NRC, name="SG_CoursesView_delete")
     new_class_dialog: NewClassDialog
 
     def __init__(self, parent: QWidget | None=None) -> None:
@@ -91,7 +92,7 @@ class CoursesView(QFrame):
 
     def TR_delete_this_course(self) -> None:
         nrc = self._single_class_view._current_course_id
-        self.SG_delete_course.emit(nrc)
+        self.SG_CoursesView_delete.emit(nrc)
         self.show_all_classes()
 
     def _CB_edit(self) -> None:
@@ -129,7 +130,7 @@ class CoursesView(QFrame):
 
         # Capa 3
         self._single_class_view: SingleClassView = SingleClassView()
-        self._single_class_view.SG_request_return.connect(self.show_all_classes)
+        self._single_class_view.request_return.connect(self.show_all_classes)
         self._stacked_area.addWidget(self._single_class_view)
 
     def show_all_classes(self) -> None:
@@ -163,8 +164,8 @@ class CoursesView(QFrame):
         cb.actions()[3].setEnabled(True)
         
 
-class AllClassesView(QFrame):
-    SG_request_SingleClassView = pyqtSignal(NRC)
+class AllClassesView(QFrame, PukalendarWidget):
+    SG_CoursesView_showSingleClass = pyqtSignal(NRC, name="SG_CoursesView_showSingleClass")
 
     def __init__(self) -> None:
         super().__init__(flags=Qt.WindowType.FramelessWindowHint)
@@ -176,7 +177,7 @@ class AllClassesView(QFrame):
         new_box.set_class_color(color)
         new_box.load_data(data)
         new_box.clicked.connect(
-            lambda: self.SG_request_SingleClassView.emit(new_box.identifier))
+            lambda: self.SG_CoursesView_showSingleClass.emit(new_box.identifier))
         self._flow_container.addWidget(new_box)
     
     def read_container(self) -> bool:
@@ -187,7 +188,7 @@ class AllClassesView(QFrame):
     def clear(self) -> None:
         self._flow_container.takeAllWidgets()
 
-class SingleClassView(QFrame):
+class SingleClassView(QFrame, PukalendarWidget):
     """
     Desplegamos las categorías
      - Información general
@@ -195,9 +196,9 @@ class SingleClassView(QFrame):
      - Calificaciones
      - Eventos / Tareas / Pendientes
     """
-    SG_request_return = pyqtSignal()
-    SG_start_timer = pyqtSignal(NRC)
-    SG_stop_timer = pyqtSignal(NRC)
+    request_return = pyqtSignal()
+    SG_SingleClass_start_timer = pyqtSignal(NRC, name="SG_SingleClass_start_timer")
+    SG_SingleClass_stop_timer = pyqtSignal(NRC, name="SG_SingleClass_stop_timer")
 
     def __init__(self) -> None:
         super().__init__(flags=Qt.WindowType.FramelessWindowHint)
@@ -213,7 +214,7 @@ class SingleClassView(QFrame):
         first_layout: QVBoxLayout = QVBoxLayout(self)
         top_layout: QHBoxLayout = QHBoxLayout()
         self._return_button: PrimaryToolButton = PrimaryToolButton(FIF.RETURN, self)
-        self._return_button.clicked.connect(self.SG_request_return.emit)
+        self._return_button.clicked.connect(self.request_return.emit)
         self._left_stripe = QLabel()
         self._left_stripe.setFixedHeight(10)
         self._name_label = SubtitleLabel()
@@ -255,12 +256,12 @@ class SingleClassView(QFrame):
         return self._events_cat_box
 
     def TR_start_timer_clicked(self) -> None:
-        self.SG_start_timer.emit(self._current_course_id)
+        self.SG_SingleClass_start_timer.emit(self._current_course_id)
         self.start_timer_button.setEnabled(False)
         self.stop_timer_button.setEnabled(True)
 
     def TR_stop_timer_clicked(self) -> None:
-        self.SG_stop_timer.emit(self._current_course_id)
+        self.SG_SingleClass_stop_timer.emit(self._current_course_id)
         self.start_timer_button.setEnabled(True)
         self.stop_timer_button.setEnabled(False)
 
@@ -299,7 +300,7 @@ class SingleClassView(QFrame):
         self._generic_cat_box.set_content_layout(layout_general)
         return self._generic_cat_box
 
-    def RQ_update_self(self, course_dict: dict) -> None:
+    def RQ_update_SingleClassView(self, course_dict: dict) -> None:
         self.load_data(course_dict)
         self.update()
 

@@ -17,9 +17,10 @@ from PyQt6.QtWidgets import QStyle
 from utils.i18n import _
 from qfluentwidgets import StrongBodyLabel
 from qfluentwidgets import ElevatedCardWidget
+from gui import PukalendarWidget
 
 
-class HomeViewInfoBox(CardWidget):
+class HomeViewInfoBox(CardWidget, PukalendarWidget):
     """
     A card widget with a title, made to display the
     summarized info in the home interface.
@@ -84,7 +85,7 @@ class _HomeViewInfoBoxManager:
         for instance in cls.instances:
             instance.setMinimumSize(QSize(max_width, max_height))
 
-class AllClassesClassBox(ElevatedCardWidget):
+class AllClassesClassBox(ElevatedCardWidget, PukalendarWidget):
 
     def __init__(self):
         super().__init__()
@@ -94,7 +95,7 @@ class AllClassesClassBox(ElevatedCardWidget):
         container: QVBoxLayout = QVBoxLayout(self)
         top_container: QHBoxLayout = QHBoxLayout()
         self._color_label: QLabel = QLabel()
-        self._color_label.setMaximumSize(30, 30)
+        self._color_label.setMaximumWidth(4)
         self._alias_label: StrongBodyLabel = StrongBodyLabel()
         top_container.addWidget(self._color_label)
         top_container.addWidget(self._alias_label)
@@ -141,7 +142,7 @@ class AllClassesClassBox(ElevatedCardWidget):
         # Usar hex color #xxxxxx
         self._color_label.setStyleSheet(f'QLabel {{background: {color};}}')
 
-class SingleClassCategoryBox(CardWidget):
+class SingleClassCategoryBox(CardWidget, PukalendarWidget):
 
     def __init__(self, title: str, parent=None) -> None:
         super().__init__(parent)

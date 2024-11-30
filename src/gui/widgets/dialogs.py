@@ -12,12 +12,14 @@ from qfluentwidgets import LineEdit
 from qfluentwidgets import ListWidget
 from qfluentwidgets import ColorPickerButton
 from PyQt6.QtGui import QColor
+from random import randint
+from gui import PukalendarWidget
 from utils.i18n import _
 
 
-class NewClassDialog(QWidget):
-    SG_request_search = pyqtSignal(str)
-    SG_confirm_creation = pyqtSignal(int, str, str)
+class NewClassDialog(QWidget, PukalendarWidget):
+    SG_NewClassDialog_search = pyqtSignal(str, name="SG_NewClassDialog_search")
+    SG_NewClassDialog_create = pyqtSignal(int, str, str, name="SG_NewClassDialog_create")
 
     def __init__(self) -> None:
         super().__init__()
@@ -50,7 +52,7 @@ class NewClassDialog(QWidget):
         self.alias_linedit.setEnabled(False)
         color_label = CaptionLabel(_("Dialogs.NewClass.Color"))
         self.color_selector = ColorPickerButton(
-            QColor('#5010aaa2'), _("Dialogs.NewClass.ColorDialog.Title"))
+            QColor('#' + str(randint(100000, 999999))), _("Dialogs.NewClass.ColorDialog.Title"))
         self.color_selector.setEnabled(False)
         sub_layout2.addWidget(alias_label)
         sub_layout2.addWidget(self.alias_linedit)
@@ -105,12 +107,16 @@ class NewClassDialog(QWidget):
             return
         self.yesButton.setEnabled(True)
 
+    def show(self) -> None:
+        self.color_selector.setColor(QColor('#' + str(randint(100000, 999999))))
+        return super().show()
+
     #########################################################
     ###                     Enviar                        ###
     #########################################################
 
     def send_selection(self) -> None:
-        self.SG_confirm_creation.emit(
+        self.SG_NewClassDialog_create.emit(
             self.search_result_view.currentRow(),
             self.alias_linedit.text(),
             self.color_selector.color.name())
@@ -118,13 +124,13 @@ class NewClassDialog(QWidget):
 
     def search_for_puclass(self) -> None:
         self.search_result_view.setCurrentRow(-1)
-        self.SG_request_search.emit(self.search_linedit.text())
+        self.SG_NewClassDialog_search.emit(self.search_linedit.text())
     
     #########################################################
     ###                     Recibir                       ###
     #########################################################
         
-    def RQ_show_search_result(self, course_list: list[dict]) -> None:
+    def RQ_web_search_result(self, course_list: list[dict]) -> None:
         self.search_result_view.clear()
         results: list[str] = list()
         for course_dict in course_list:

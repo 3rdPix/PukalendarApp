@@ -14,11 +14,15 @@ from typing import Any
 from collections.abc import Callable
 from PyQt6.QtCore import QThread
 from controllers.data_interacter import calculate_relative_dedication
+import inspect
+from inspect import getmembers
 import logging
 import pickle
 
-
 log = logging.getLogger("Driver")
+
+
+
 
 class CoursesSet(dict):
     def __init__(self, *args, **kwargs) -> None:
@@ -141,7 +145,7 @@ class MainDriver(QObject):
                 self.SG_update_time_infobox.emit(
                     2, [alias_text, color_text, start_text])
 
-    def closeEvent(self, window_status: QRect) -> None:
+    def RQ_MainWindow_closeEvent(self, window_status: QRect) -> None:
         courses_list: list[Course] = list(self.courses.values())
         # De momento solo cerraremos a la fuerza el tiempo de la sesión
         for each in courses_list:
@@ -154,7 +158,7 @@ class MainDriver(QObject):
             pickle.dump(courses_list, raw_file)
         Settings.setValue(Settings.Window.RECT, window_status)
 
-    def RQ_search_course(self, search_pattern: str) -> None:
+    def RQ_NewClassDialog_search(self, search_pattern: str) -> None:
         class SearchThread(QThread):
             def run(self, _caller: QObject, pattern: str,
                     dest: pyqtBoundSignal) -> None:
@@ -164,7 +168,7 @@ class MainDriver(QObject):
         enw = SearchThread()
         enw.run(self, search_pattern, self.SG_web_search_results)
 
-    def RQ_create_course(self, index_ref: int, alias: str, color: str) -> None:
+    def RQ_NewClassDialog_create(self, index_ref: int, alias: str, color: str) -> None:
         official_info = self.web_search_results[index_ref]
         course = Course(alias, color)
         course._load_official_data(official_info)
@@ -174,10 +178,10 @@ class MainDriver(QObject):
         self._udpate_timeinfobox(1)
         log.debug(f"Successfully addded {identifier} to Courses")
 
-    def RQ_load_SingleClassView_data(self, _with: str) -> None:
+    def RQ_CoursesView_showSingleClass(self, _with: str) -> None:
         self.SG_show_SingleClassView.emit(self.courses.get(_with).__dict__)
 
-    def RQ_start_timer(self, course_id: int) -> None:
+    def RQ_SingleClass_start_timer(self, course_id: int) -> None:
         log.debug(f"Received id:{course_id} to search on {self.courses}")
         which: Course = self.courses.get(course_id)
         log.debug(f"Got {which}")
@@ -188,14 +192,14 @@ class MainDriver(QObject):
             log(f"Can't initiate session for {course_id} because other"
                 f" course is on session.")
     
-    def RQ_stop_timer(self, course_id: int) -> None:
+    def RQ_SingleClass_stop_timer(self, course_id: int) -> None:
         which: Course = self.courses.get(course_id)
         which.stop_session()
         # Datos para timeinfobox
         self._udpate_timeinfobox(1)
         self.SG_update_SingleClassView.emit(which.__dict__)
 
-    def RQ_delete_course(self, nrc: NRC) -> None:
+    def RQ_CoursesView_delete(self, nrc: NRC) -> None:
         log.info(f"Deleting course:{nrc}")
         if element := self.courses.get(nrc):
             element: Course

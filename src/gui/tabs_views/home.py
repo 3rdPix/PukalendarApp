@@ -17,6 +17,7 @@ from config import PUCalendarAppPaths as pt
 from utils.i18n import _
 from gui.widgets import TimePieChart
 from PyQt6.QtGui import QColor
+from gui import PukalendarWidget
 import logging
 
 
@@ -25,7 +26,7 @@ log = logging.getLogger("HomeView")
 
 
 
-class HomeView(QFrame):
+class HomeView(QFrame, PukalendarWidget):
     
     def __init__(self, parent: QWidget | None=None) -> None:
         super().__init__(parent)
@@ -143,9 +144,7 @@ class HomeView(QFrame):
         widget_layer_1 = stack.itemAt(1).widget()
         layout_1: QGridLayout = widget_layer_1.layout()
         pie_chart: TimePieChart = layout_1.itemAtPosition(1, 0).widget()
-        log.debug(f"Identified item {pie_chart}")
         colors_list = [QColor(str(each)) for each in colors]
-        log.debug(f"Trying to draw PieChart for {percentages}, {colors_list}")
         pie_chart.update_proportions(percentages, colors_list)
 
     def RQ_update_time_infobox(self, layer: int, data: list) -> None:
