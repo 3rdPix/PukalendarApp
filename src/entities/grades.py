@@ -38,7 +38,6 @@ from typing import Self
 from typing import TypeAlias
 from collections.abc import Iterator
 from itertools import count
-from utils import WtfError
 from math import prod
 from abc import ABC
 from abc import abstractmethod
@@ -46,7 +45,10 @@ from typing import Protocol
 from typing import overload
 from collections.abc import Callable
 import logging
-
+class WtfError(Exception):
+    """
+    xd
+    """
 
 __all__ = {"Grade", "GradeSimple", "GradeGroup", "GradingFormula",
            "MathingGrades"}
@@ -140,7 +142,7 @@ class Grade(ABC):
                        total_score: float=100.0,
                        threshold: int=DEFAULT_THRESHOLD,
                        obtained_grade: Optional[float]=None,
-                       add_base: bool=False) -> None:
+                       add_base: bool=False, **kwgs) -> None:
         if obtained_score is not None:
             condicion_1 = obtained_score >= 0
             condicion_2 = obtained_score <= total_score
@@ -217,7 +219,7 @@ class GradeSimple(Grade):
 
     def define_relation(self, ponderator: Optional[int]=None,
                         extra_points: int=0,
-                        extremist: Optional[float]=None) -> None:
+                        extremist: Optional[float]=None, **kwgs) -> None:
         if ponderator is not None: self.ponderator = ponderator
         self.extra_points = extra_points
         if extremist is not None: self.extremist = extremist
@@ -465,15 +467,38 @@ class GradeTable:
         self._table_level -= request
         return request
 
-    def create_grade(self, requested_type: Evals, **data) -> bool:
+    def create_grade(self, requested_type: Evals, locate: Optional[list]=None,
+                     **data) -> bool|tuple[bool, int]:
         if data.get("name") is None: return False
+        if locate is not None:
+            location_copy = locate.copy()
+            under_group: int = location_copy.pop(0)
+            # buscarle
+            group_0: GradeGroup = self.ponderated_groups.get(under_group)
+            if group_0 is not None:
+                ided = group_0.create_grade(location_copy,
+                                            requested_type, data.get("name"))
+                group_0.assign_numbers(location_copy, **data)
+                return True, ided
+            group_1: GradeGroup = self.unponderated_groups.get(under_group)
+            if group_1 is not None:
+                ided = group_1.create_grade(location_copy,
+                                            requested_type, data.get("name"))
+                group_1.assign_numbers(location_copy, **data)
+                return True, ided
+            group_2: GradeGroup = self.unassigned.get(under_group)
+            if group_2 is not None:
+                ided = group_2.create_grade(location_copy,
+                                            requested_type, data.get("name"))
+                group_2.assign_numbers(location_copy, **data)
+                return True, ided
         ponderation = self.try_ponderation(data.get("ponderation"))
         if requested_type == GradeSimple:
-            creation = GradeSimple(next(self._ids), data.get("name"),
-                                   ponderation=ponderation,
-                                   **{key: data.get(key) for key in \
+            creation = GradeSimple(next(self._ids), data.get("name"))
+            creation.assign_numbers(**{key: data.get(key) for key in \
                                       data.keys() if \
                                       key not in ("name", "ponderation")})
+            creation.define_relation(ponderation, **data)
         elif requested_type == GradeGroup:
             creation = GradeGroup(next(self._ids), data.get("name"),
                                   ponderation=ponderation,
@@ -481,11 +506,11 @@ class GradeTable:
                                      if key not in ("name", "ponderation")})
         else:
             raise WtfError("GradeTable>create_grade on grades.py")
-        if creation.ponderation is None:
+        if creation.ponderator is None:
             self.unponderated_groups.__setitem__(creation.id, creation)
         else:
             self.ponderated_groups.__setitem__(creation.id, creation)
-        return True
+        return True, creation.id
 
     def assign_numbers(self, locate: list[int], **kwargs) -> None:
         this_level = locate.pop(0)

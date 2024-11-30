@@ -157,6 +157,8 @@ class MainDriver(QObject):
         with open(pt.Config.USER_COURSES, 'wb') as raw_file:
             pickle.dump(courses_list, raw_file)
         Settings.setValue(Settings.Window.RECT, window_status)
+        print(courses_list[0].dump_course())
+
 
     def RQ_NewClassDialog_search(self, search_pattern: str) -> None:
         class SearchThread(QThread):

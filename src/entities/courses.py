@@ -11,6 +11,8 @@ from datetime import datetime
 from datetime import timedelta
 import logging
 from entities.grades import GradeTable
+from collections import defaultdict
+from json import dumps
 
 log = logging.getLogger("Courses")
 
@@ -77,11 +79,12 @@ class NRC(int):
         return super().__new__(cls, value) 
 
 
-class HexColor:
+class HexColor(str):
     def __init__(self, hex_value: str):
         if not self._is_valid_hex(hex_value):
             raise ValueError(f"Invalid hex color: {hex_value}")
         self.hex_value = hex_value
+        super().__init__()
 
     def _is_valid_hex(self, hex_value: str) -> bool:
         if (isinstance(hex_value, str) and len(hex_value) == 7
@@ -165,3 +168,26 @@ class Course:
             return
         self.user_dedicated_time += session_time
         self.course_on_session = False
+
+    def dump_course(self) -> dict[str, str]:
+        """
+        Retorna un diccionario con toda la información del curso en un formato
+        _jsonificable_ para ser respaldado o enviado.
+        """
+        return dumps(self.__dict__)
+        final_dict: dict[str, str] = defaultdict()
+        final_dict.__setitem__("user_alias", self.user_alias)
+        final_dict.__setitem__("user_color", str(self.user_alias))
+        total_time: list = [
+            self.user_dedicated_time.days,
+            self.user_dedicated_time.seconds,
+            self.user_dedicated_time.microseconds]
+        final_dict.__setitem__("user_dedicated_time", total_time)
+        final_dict.__setitem__("user_modules", self.user_modules)
+        final_dict.__setitem__("official_name", self.official_name)
+        final_dict.__setitem__("official_nrc", str(self.official_nrc))
+        final_dict.__setitem__("official_code", self.official_code)
+        final_dict.__setitem__("official_professor", self.official_professor)
+        final_dict.__setitem__("official_campus", self.official_campus)
+        final_dict.__setitem__("official_section", self.official_section)
+        final_dict.__setitem__("official_modules", self.official_modules)
