@@ -243,9 +243,11 @@ class SingleClassView(QFrame, PukalendarWidget):
     def __create_events_cat_box(self) -> QWidget:
         self._events_cat_box: SingleClassCategoryBox = SingleClassCategoryBox(
             _("MainWindow.Courses.SingleClassView.Events"))
-        self.start_timer_button = PushButton(FIF.PLAY, _("MainWindow.Courses.SingleClassView.ButtonStartTimer"))
+        self.start_timer_button = PushButton(FIF.PLAY, _(
+            "MainWindow.Courses.SingleClassView.ButtonStartTimer"))
         self.start_timer_button.clicked.connect(self.TR_start_timer_clicked)
-        self.stop_timer_button = PushButton(FIF.PAUSE, _("MainWindow.Courses.SingleClassView.ButtonStopTimer"))
+        self.stop_timer_button = PushButton(FIF.PAUSE, _(
+            "MainWindow.Courses.SingleClassView.ButtonStopTimer"))
         self.stop_timer_button.clicked.connect(self.TR_stop_timer_clicked)
         how_much = SubtitleLabel()
         layout_general = QVBoxLayout()
@@ -287,6 +289,8 @@ class SingleClassView(QFrame, PukalendarWidget):
             _("MainsWindow.Courses.SingleClassView.Indicator.Section"))
         information_section = QLabel()
         # De momento no es necesario parametrizar a este nivel
+        pusher_layout = QVBoxLayout()
+        pusher_layout.addStretch()
         layout_general.addWidget(indicator_nrc, 0, 0)
         layout_general.addWidget(information_nrc, 0, 1)
         layout_general.addWidget(indicator_code, 1, 0)
@@ -297,7 +301,9 @@ class SingleClassView(QFrame, PukalendarWidget):
         layout_general.addWidget(information_campus, 3, 1)
         layout_general.addWidget(indicator_section, 4, 0)
         layout_general.addWidget(information_section, 4, 1)
-        self._generic_cat_box.set_content_layout(layout_general)
+        pusher_layout.addLayout(layout_general)
+        pusher_layout.addStretch()
+        self._generic_cat_box.set_content_layout(pusher_layout)
         return self._generic_cat_box
 
     def RQ_update_SingleClassView(self, course_dict: dict) -> None:
@@ -311,7 +317,7 @@ class SingleClassView(QFrame, PukalendarWidget):
         log.debug(f"Course id:{self._current_course_id}")
         
         # Información general
-        distr: QGridLayout = self._generic_cat_box.get_content_layout()
+        distr: QGridLayout = self._generic_cat_box.get_content_layout().itemAt(1)
         distr.itemAtPosition(0, 1).widget().setText(
             str(course_data.get("official_nrc")))
         distr.itemAtPosition(1, 1).widget().setText(

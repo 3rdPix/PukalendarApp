@@ -18,6 +18,7 @@ from utils.i18n import _
 from gui.widgets import TimePieChart
 from PyQt6.QtGui import QColor
 from gui import PukalendarWidget
+from entities import Course
 import logging
 
 

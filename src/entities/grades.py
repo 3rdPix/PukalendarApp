@@ -190,7 +190,7 @@ class GradeSimple(Grade):
 
     **Lenguaje Rúnico II**
       - Interrogación 1 (40%): 7.0 * (0.4) = 2.8
-      - Interrogación 2 (40%) (+2 dećimas): 6.0 * (0.4) + 0.2 = 2.6
+      - Interrogación 2 (40%) (+2 dećimas): (6.0 + 0.2) * (0.4) = 2.6
       - Examen (20%): 5.0 * (0.2) = 1
       Nota final: 6.4
     
@@ -216,6 +216,7 @@ class GradeSimple(Grade):
         super().__init__()
         self.id: int = id
         self.name: str = name
+        self.ponderator: Optional[int] = None
 
     def define_relation(self, ponderator: Optional[int]=None,
                         extra_points: int=0,
@@ -229,7 +230,7 @@ class GradeSimple(Grade):
         if hasattr(self, "extra_points") \
            and not hasattr(self, "_obtained_grade"):
             concurrent += self.extra_points / 10
-        if hasattr(self, "ponderator"):
+        if self.ponderator is not None:
             concurrent *= (self.ponderator / 100)
         return concurrent
     value_relative = property(_get_relative_value)
@@ -395,6 +396,8 @@ class GradeGroup(GradeSimple):
                           f"at level {this_level}->{locate} which is"
                           f" {sub_location}. Payload is {kwargs}")
                 raise TypeError
+            if "ponderation" in kwargs.keys():
+                pass
         else:
             log.error(f"Asigning numbers to non-existing Grade on {this_level}"
                       f"->{locate}.")
@@ -514,8 +517,8 @@ class GradeTable:
 
     def assign_numbers(self, locate: list[int], **kwargs) -> None:
         this_level = locate.pop(0)
-        if this_level in self.group_ponderated.keys():
-            sub_location = self.group_ponderated.get(this_level)
+        if this_level in self.ponderated_groups.keys():
+            sub_location = self.ponderated_groups.get(this_level)
             if isinstance(sub_location, GradeSimple):
                 sub_location.assign_numbers(**kwargs)
             elif isinstance(sub_location, GradeGroup):
@@ -525,8 +528,8 @@ class GradeTable:
                           f"at level {this_level}->{locate} which is"
                           f" {sub_location}. Payload is {kwargs}")
                 raise TypeError
-        elif this_level in self.group_unponderated.keys():
-            sub_location = self.group_unponderated.get(this_level)
+        elif this_level in self.unponderated_groups.keys():
+            sub_location = self.unponderated_groups.get(this_level)
             if isinstance(sub_location, GradeSimple):
                 sub_location.assign_numbers(**kwargs)
             elif isinstance(sub_location, GradeGroup):
