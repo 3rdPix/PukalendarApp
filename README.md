@@ -1,9 +1,5 @@
 # Pukalendar
 
-[![Static Badge](https://img.shields.io/badge/Framework-brightgreen?style=for-the-badge&logo=qt&logoSize=auto&labelColor=blue)](https://pypi.org/project/PyQt6/)
-[![Static Badge](https://img.shields.io/badge/Qt_for_python-green?style=for-the-badge&logo=Google%20Docs&logoColor=white&logoSize=big&labelColor=blue)](https://doc.qt.io/qtforpython-6/)
-[![Static Badge](https://img.shields.io/badge/PEP8-coding_style-yellow?style=for-the-badge&logo=python&logoColor=yellow&logoSize=big&labelColor=blue)](https://pep8.org/)
-
 ![Static Badge](https://img.shields.io/badge/Windows-blue?style=flat-square&logo=windows&labelColor=blue)
 ![Static Badge](https://img.shields.io/badge/Linux-lightgray?style=flat-square&logo=linux&logoColor=black&logoSize=big)
 ![Static Badge](https://img.shields.io/badge/MacOS-blue?logo=apple)
@@ -26,34 +22,7 @@ Lamentablemente, esta aplicación se encuentra en fase de desarrollo, por lo que
 
 # Desarrolladores
 
-Esta aplicación de escritorio está desarrollada utilizando el framework *PyQt6*, y se apoya en paquetes externos para proporcionar una experiencia de usuario moderna y estilizada. La aplicación está diseñada para ofrecer una interfaz gráfica intuitiva y eficiente.
-
-## Requisitos
-
-La aplicación ha sido desarrollada con *Python 3.11.2*. Se recomienda usar esta versión de Python o versiones posteriores para garantizar la compatibilidad.
-
-## Instalación
-
-Para asegurar un correcto funcionamiento de la aplicación, sigue estos pasos:
-
-1. **Crear un entorno virtual**: Esto es esencial para gestionar las dependencias y evitar conflictos con otros proyectos. Si no estás familiarizado con la creación de entornos virtuales en Python, consulta la [documentación oficial](https://docs.python.org/3/library/venv.html).
-
-2. **Activar el entorno virtual**:
-   - **En Windows**: Ejecuta `venv\Scripts\activate`
-   - **En macOS y Linux**: Ejecuta `source venv/bin/activate`
-
-3. **Instalar las dependencias**: Con el entorno virtual activado, instala los paquetes necesarios utilizando el archivo `requirements.txt`:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-## Ejecución
-
-El archivo principal para ejecutar la aplicación es `main.py`, ubicado en el directorio `src/`. Este archivo es el punto de entrada principal para la aplicación. Asegúrate de ejecutar solo este módulo para evitar problemas de importación y funcionamiento. Puedes ejecutar la aplicación con el siguiente comando:
-
-```bash
-python src/main.py
-```
+Esta rama se construye sobre la versión nativa de Qt (en C++).
 
 ## Cómo Contribuir
 
