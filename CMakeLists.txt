@@ -23,8 +23,8 @@ add_executable(PukalendarApp ${SOURCES} ${HEADERS})
 target_link_libraries(PukalendarApp PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets)
 
 # Copiar recursos en la carpeta build
-file(COPY resources/images DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/img)
-file(COPY resources/qss DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/qss)
-file(COPY resources/locale DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/locale)
+file(COPY resources/images DESTINATION ${CMAKE_BINARY_DIR}/build/img)
+file(COPY resources/qss DESTINATION ${CMAKE_BINARY_DIR}/build/qss)
+file(COPY resources/locale DESTINATION ${CMAKE_BINARY_DIR}/build/locale)
 
 
