@@ -15,10 +15,12 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
 # Encuentra todos los archivos .cxx y .h recursivamente
 file(GLOB_RECURSE SOURCES "src/*.cxx")
 file(GLOB_RECURSE HEADERS "src/*.h")
+qt_wrap_cpp(MOC_FILES ${HEADERS})
 
 # Crear el ejecutable a partir de todos los archivos fuente
-add_executable(PukalendarApp ${SOURCES} ${HEADERS})
+add_executable(PukalendarApp ${SOURCES} ${HEADERS} ${MOC_FILES})
 
+target_include_directories(PukalendarApp PRIVATE src)
 # Enlazar las bibliotecas de Qt necesarias
 target_link_libraries(PukalendarApp PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets)
 

@@ -1,13 +1,16 @@
 #include <QApplication>
-#include <QWidget>
+#include "gui/ventana.h"
+#include "controller/logic.h"
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
-    QWidget window;
-    window.resize(400, 300);
-    window.setWindowTitle("Pukalendar App");
-    window.show();
+    Ventana ventana;
+    Logica logica;
+
+    QObject::connect(&ventana, &Ventana::botonPresionado, &logica, &Logica::manejarBotonPresionado);
+
+    ventana.show();
 
     return app.exec();
 }
