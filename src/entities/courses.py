@@ -103,6 +103,10 @@ class HexColor(str):
     def __repr__(self) -> str:
         return self.__str__()
 
+@dataclass
+class StudySession:
+    date: datetime
+    duration: timedelta
 
 class Course:
     """
