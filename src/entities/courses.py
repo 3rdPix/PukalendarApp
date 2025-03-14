@@ -16,11 +16,11 @@ from json import dumps
 
 log = logging.getLogger("Courses")
 
-__all__ = {"Course", "SessionTimer", "NRC"}
+__all__ = {"Course", "SessionTimer", "NRC", "StudySession"}
 
 CourseCode: TypeAlias = str
 Module: TypeAlias = int
-Campus: TypeAlias = int
+Campus: TypeAlias = str
 PersonName: TypeAlias = str
 GRADE_LOWEST: int = 1
 GRADE_APPROVAL: int = 4
@@ -106,7 +106,7 @@ class HexColor(str):
 @dataclass
 class StudySession:
     date: datetime
-    duration: timedelta
+    duration: timedelta = timedelta(0)
 
 class Course:
     """
@@ -125,24 +125,32 @@ class Course:
         self.user_dedicated_time = timedelta(0)
         self.user_grades = GradeTable()
         self.user_modules = list()
+        self.user_sessions = list()
 
     def _load_official_data(self, source: dict[str, str|int]) -> None:
         self.official_name = source.get("official_name")
         self.official_nrc = NRC(source.get("official_nrc"))
-        self.official_code = source.get("official_code")
-        self.official_professor = source.get("official_professor")
-        self.official_campus = source.get("official_campus")
+        self.official_code = CourseCode(source.get("official_code"))
+        self.official_professor = PersonName(source.get("official_professor"))
+        self.official_campus = Campus(source.get("official_campus"))
         self.official_section = source.get("official_section")
+        # Recordar que estó está por definirse
         self.official_modules = source.get("official_modules")
 
     def _load_gradeTable(self, data=None) -> None:
         self.user_grades = GradeTable.from_data(data) if data else GradeTable()
 
-    def _load_user_data(self, source: dict[str, str|int|list]) -> None:
+    def _load_user_data(self, source: dict[str, str|int|list|set]) -> None:
         self.user_alias = source.get("user_alias")
-        self.user_color = source.get("user_color")
-        self.user_dedicated_time = source.get("user_dedicated_time")
+        self.user_color = HexColor(source.get("user_color"))
+        # deprecado
+        # self.user_dedicated_time = source.get("user_dedicated_time")
         self.user_modules = source.get("user_modules")
+        self.user_sessions = source.get("user_sessions")
+
+    def restore_data(self, source: dict[str, str|int|list|set]) -> None:
+        self._load_official_data(source)
+        self._load_user_data(source)
 
     def start_session(self) -> datetime|None:
         """
@@ -152,9 +160,10 @@ class Course:
         una sesión de estudio en el curso que ya inició una.
         """
         if Course._sessions_timer.start_session():
+            self._current_session = StudySession(datetime.now().date())
             self.course_on_session = True
             return Course._sessions_timer._session_start
-    
+
     def stop_session(self) -> None:
         """
         Utiliza la marca temporal creada anteriormente para calcular el tiempo
@@ -170,28 +179,16 @@ class Course:
                       f" Forcefully closing session.")
             self.course_on_session = False
             return
-        self.user_dedicated_time += session_time
+        self._current_session.duration = session_time
+        self.user_sessions.append(self._current_session)
+        # deprecado
+        # self.user_dedicated_time += session_time
         self.course_on_session = False
 
-    def dump_course(self) -> dict[str, str]:
+    def get_dedicated_time(self) -> timedelta:
         """
-        Retorna un diccionario con toda la información del curso en un formato
-        _jsonificable_ para ser respaldado o enviado.
+        Retorna el tiempo total dedicato al curso sumando todas las sesiones
+        de estudio
         """
-        return dumps(self.__dict__)
-        final_dict: dict[str, str] = defaultdict()
-        final_dict.__setitem__("user_alias", self.user_alias)
-        final_dict.__setitem__("user_color", str(self.user_alias))
-        total_time: list = [
-            self.user_dedicated_time.days,
-            self.user_dedicated_time.seconds,
-            self.user_dedicated_time.microseconds]
-        final_dict.__setitem__("user_dedicated_time", total_time)
-        final_dict.__setitem__("user_modules", self.user_modules)
-        final_dict.__setitem__("official_name", self.official_name)
-        final_dict.__setitem__("official_nrc", str(self.official_nrc))
-        final_dict.__setitem__("official_code", self.official_code)
-        final_dict.__setitem__("official_professor", self.official_professor)
-        final_dict.__setitem__("official_campus", self.official_campus)
-        final_dict.__setitem__("official_section", self.official_section)
-        final_dict.__setitem__("official_modules", self.official_modules)
+        return sum((session.duration for session in self.user_sessions),
+                   start=timedelta(0))

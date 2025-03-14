@@ -51,4 +51,5 @@ class PUCalendarAppPaths:
     class Config:
         """@private"""
         DEFAULTS: str = build_path("src", "config", "defaults.ini")
-        USER_COURSES: str = build_path("usr", "courses.pkl")
+        USER_COURSES: str = build_path("usr", "courses.csv")
+        BASE_COURSE_SESSIONS: str = build_path("usr", "")
