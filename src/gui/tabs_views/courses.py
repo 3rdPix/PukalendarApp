@@ -331,8 +331,11 @@ class SingleClassView(QFrame, PukalendarWidget):
 
         # Eventos
         distr: QVBoxLayout = self._events_cat_box.get_content_layout()
-        # truchería para no ver los microsegundos
-        cheating = timedelta(seconds=round(course_data.get("user_dedicated_time").total_seconds()))
+        
+        cheating = sum(
+            (session.duration for session in course_data.get("user_sessions")),
+            start=timedelta(0))
+        
         distr.itemAt(2).widget().setText(str(cheating))
         if course_data.get("course_on_session"):
             distr.itemAt(0).widget().setEnabled(False)

@@ -179,7 +179,7 @@ class Course:
                       f" Forcefully closing session.")
             self.course_on_session = False
             return
-        self._current_session.duration = session_time
+        self._current_session.duration = session_time.total_seconds() // 1
         self.user_sessions.append(self._current_session)
         # deprecado
         # self.user_dedicated_time += session_time

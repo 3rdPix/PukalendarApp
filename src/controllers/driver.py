@@ -231,7 +231,7 @@ class MainDriver(QObject):
                     registry.write(
                         str(session.date)
                         + ';'
-                        + str(session.duration.total_seconds())
+                        + str(session.duration.total_seconds() // 1)
                         + '\n')
 
         # log.debug(f"Dumping courses into {pt.Config.USER_COURSES}")
