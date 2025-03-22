@@ -13,6 +13,8 @@ import logging
 from entities.grades import GradeTable
 from collections import defaultdict
 from json import dumps
+from entities.tasks import BulletTaskTable
+from threading import Lock
 
 log = logging.getLogger("Courses")
 
@@ -126,6 +128,8 @@ class Course:
         self.user_grades = GradeTable()
         self.user_modules = list()
         self.user_sessions = list()
+        self.bullet_table = BulletTaskTable()
+        self.safespot = Lock()
 
     def _load_official_data(self, source: dict[str, str|int]) -> None:
         self.official_name = source.get("official_name")
@@ -179,7 +183,9 @@ class Course:
                       f" Forcefully closing session.")
             self.course_on_session = False
             return
-        self._current_session.duration = session_time.total_seconds() // 1
+
+        self._current_session.duration = timedelta(
+            seconds=session_time.total_seconds() // 1)
         self.user_sessions.append(self._current_session)
         # deprecado
         # self.user_dedicated_time += session_time
@@ -192,3 +198,18 @@ class Course:
         """
         return sum((session.duration for session in self.user_sessions),
                    start=timedelta(0))
+    
+    def get_last_week_sessions(self) -> list[StudySession]:
+        """
+        Retorna una lista con todas las sesiones que han tenido lugar
+        en la última semana
+        """
+        one_week_ago = datetime.now() - timedelta(weeks=1)
+        return [session for session in self.user_sessions
+                if session.date >= one_week_ago]
+    
+    def add_bullet_task(self, description: str, done: bool) -> int:
+        """
+        Crea una nueva tarea rápida y retorna el id
+        """
+        return self.bullet_table.create_bullet(description, done)

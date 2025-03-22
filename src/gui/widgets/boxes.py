@@ -3,6 +3,11 @@ Widgets personalizados
 -----------------------
 Contenedores para diferentes propósitos específicos
 """
+from qfluentwidgets import SmoothScrollArea
+from qfluentwidgets import CheckBox
+from PyQt6.QtWidgets import QCheckBox
+from PyQt6.QtWidgets import QFrame
+from PyQt6.QtWidgets import QScrollArea
 from qfluentwidgets import CardWidget
 from qfluentwidgets import CaptionLabel
 from PyQt6.QtWidgets import QLabel
@@ -18,6 +23,11 @@ from utils.i18n import _
 from qfluentwidgets import StrongBodyLabel
 from qfluentwidgets import ElevatedCardWidget
 from gui import PukalendarWidget
+from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import Qt
+from logging import getLogger
+
+log = getLogger("Boxes")
 
 
 class HomeViewInfoBox(CardWidget, PukalendarWidget):
@@ -160,3 +170,68 @@ class SingleClassCategoryBox(CardWidget, PukalendarWidget):
 
     def get_content_layout(self) -> QLayout:
         return self.layout_vertical.itemAt(2)
+    
+class BulletTaskLabel(QFrame, PukalendarWidget):
+    """
+    Para la vista de una clase singular
+    """
+    SG_bullettask_status_changed = pyqtSignal(int, bool)
+
+    def __init__(self, description: str, done: bool, bullet_id: int) -> None:
+        super().__init__()
+        self.bullet_id = bullet_id
+        self.horizontal_set = QHBoxLayout(self)
+        self.horizontal_set.setContentsMargins(5, 1, 0, 0)
+        self.check_box = QCheckBox(description)
+        self.check_box.setChecked(done)
+        self.check_box.checkStateChanged.connect(self.status_changed)
+        self.horizontal_set.addWidget(self.check_box)
+
+    def status_changed(self, status) -> None:
+        
+        if status == Qt.CheckState.Checked:
+            checked = True
+        elif status == Qt.CheckState.Unchecked:
+            checked = False
+        else:
+            log.error("A checkbox has an unkwown state")
+        log.debug(f"Bullet marked as {checked}")
+        self.SG_bullettask_status_changed.emit(self.bullet_id, checked)
+
+class BulletTaskLabelStripe(QFrame):
+    """
+    Para la vista de más de una clase
+    """
+
+
+class BulletTaskListBox(SmoothScrollArea, PukalendarWidget):
+
+    SG_bullettask_status_changed = pyqtSignal(int, bool)
+
+    def __init__(self):
+        super().__init__()
+        self.main_widget = QFrame()
+        self.vertical_layout = QVBoxLayout(self.main_widget)
+        # self.vertical_layout.setContentsMargins(3, 0, 3, 0)
+        self.vertical_layout.addStretch(1)
+        self.setWidget(self.main_widget)
+        self.setWidgetResizable(True)
+
+    def add_bullet(self, description: str, done: bool, bullet_id: int) -> None:
+        new_bullet = BulletTaskLabel(description, done, bullet_id)
+        new_bullet.SG_bullettask_status_changed.connect(
+            self.TR_bullettask_status_changed)
+        self.vertical_layout.insertWidget(0, new_bullet, stretch=0)
+
+    def TR_bullettask_status_changed(self, bid: int, ckd: bool) -> None:
+        self.SG_bullettask_status_changed.emit(bid, ckd)
+
+    def clear_all_bullets(self) -> None:
+        count = self.vertical_layout.count()
+        for i in reversed(range(count - 1)):
+            item = self.vertical_layout.itemAt(i)
+            if item:
+                widget = item.widget()
+                if widget:
+                    self.vertical_layout.removeWidget(widget)  # Elimina la referencia en el layout
+                    widget.deleteLater()  # Marca el widget para ser eliminado correctamente

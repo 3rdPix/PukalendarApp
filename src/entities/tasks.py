@@ -6,6 +6,8 @@ En este módulo se definen las estructuras de eventos y tareas independientes
 """
 from datetime import datetime
 from dataclasses import dataclass
+from collections import defaultdict
+from itertools import count
 
 __all__ = {"Task", "Event", "BulletTask"}
 
@@ -20,7 +22,8 @@ class Task:
     name: str = None
     expiration_datetime: datetime = None
     graded: bool = False
-    description: str = None
+    description: str = ""
+    # hacer de estas dos siguientes, propiedades
     completed: bool = False
     progress: Progression = Progression(0)
 
@@ -52,7 +55,7 @@ class EventTable:
 
 @dataclass
 class BulletTask:
-    name: str = None
+    description: str = ""
     done: bool = False
 
 
@@ -60,6 +63,25 @@ class BulletTaskTable:
     """
     Definición de estructura de bullet task
     """
-    @classmethod
-    def from_data(cls, data) -> None:
-        raise NotImplementedError
+    id_generator = count()
+    vault: dict[int, BulletTask] = defaultdict()
+
+    def __init__(self):
+        self.id_generator = count()
+        self.vault: dict[int, BulletTask] = defaultdict()
+
+    def create_bullet(self, description: str, done: bool) -> int:
+        """
+        Crea una tarea rápida con la descripción y retorna su identificador
+        """
+        new_bullet = BulletTask(description, done)
+        bullet_id = next(self.id_generator)
+        self.vault.__setitem__(bullet_id, new_bullet)
+        return bullet_id
+
+    def get_bullet(self, bullet_id: int) -> BulletTask|None:
+        return self.vault.get(bullet_id)
+    
+    def get_all_bullets(self) -> list[BulletTask]:
+        return self.vault.values()
+    

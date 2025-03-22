@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-11-07 08:42-0300\n"
+"POT-Creation-Date: 2025-03-22 08:05-0300\n"
 "PO-Revision-Date: 2024-10-28 04:42-0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: es\n"
@@ -18,190 +18,222 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.16.0\n"
 
-#: src/gui/main_window.py:61
+#: src/controllers/driver.py:365
+msgid "Driver.Error.Bullet.NoContent.Title"
+msgstr "Descripción vacía"
+
+#: src/controllers/driver.py:366
+msgid "Driver.Error.Bullet.NoContent.Content"
+msgstr "¡Estás intentando crear una tarea vacía!"
+
+#: src/controllers/driver.py:370
+msgid "Driver.Error.Bullet.InvalidChar.Title"
+msgstr "Carácter inválido"
+
+#: src/controllers/driver.py:371
+msgid "Driver.Error.Bullet.InvalidChar.Content"
+msgstr "El carácter ';' no está permitido en la descripción de una tarea rápida"
+
+#: src/gui/main_window.py:76
 msgid "MainWindow.Title"
 msgstr "PUCalendarApp"
 
-#: src/gui/main_window.py:66
+#: src/gui/main_window.py:81
 msgid "MainWindow.NavigationInterface.About"
 msgstr "Acerca de"
 
-#: src/gui/main_window.py:80
+#: src/gui/main_window.py:96
 msgid "MainWindow.NavigationInterface.Home"
 msgstr "Inicio"
 
-#: src/gui/main_window.py:86
+#: src/gui/main_window.py:103
 msgid "MainWindow.NavigationInterface.Agenda"
 msgstr "Agenda"
 
-#: src/gui/main_window.py:92
+#: src/gui/main_window.py:110
 msgid "MainWindow.NavigationInterface.Courses"
 msgstr "Cursos"
 
-#: src/gui/main_window.py:98
+#: src/gui/main_window.py:117
 msgid "MainWindow.NavigationInterface.Calendar"
 msgstr "Calendario"
 
-#: src/gui/main_window.py:114
+#: src/gui/main_window.py:134
 msgid "MainWindow.About.Title"
 msgstr "Acerca de"
 
-#: src/gui/main_window.py:115
+#: src/gui/main_window.py:135
 msgid "MainWindow.About.Description"
 msgstr ""
 "PUCalendarApp es una aplicación de código abierto diseñada por y para "
 "estudiantes con la finalidad de otorgar una ayuda en la organización y "
 "registro de todos los quehaceres universitarios."
 
-#: src/gui/tabs_views/courses.py:59
+#: src/gui/tabs_views/courses.py:69
 msgid "MainWindow.Courses.CommandBar.AddNew"
 msgstr "Agregar curso"
 
-#: src/gui/tabs_views/courses.py:63
+#: src/gui/tabs_views/courses.py:73
 msgid "MainWindow.Courses.CommandBar.Delete"
 msgstr "Eliminar curso"
 
-#: src/gui/tabs_views/courses.py:67
+#: src/gui/tabs_views/courses.py:77
 msgid "MainWindow.Courses.CommandBar.Edit"
 msgstr "Editar curso"
 
-#: src/gui/tabs_views/courses.py:71
+#: src/gui/tabs_views/courses.py:81
 msgid "MainWindow.Courses.CommandBar.Scale"
 msgstr "Editar escala de calificaciones"
 
-#: src/gui/tabs_views/courses.py:105
+#: src/gui/tabs_views/courses.py:93
+msgid "MainWindow.Courses.SingleClassView.DeleteClassDialog.Title"
+msgstr "Eventos"
+
+#: src/gui/tabs_views/courses.py:94
+msgid "MainWindow.Courses.SingleClassView.DeleteClassDialog.Description"
+msgstr "Sigla del curso"
+
+#: src/gui/tabs_views/courses.py:125
 msgid "MainWindow.Courses.NoClassView.NoClass"
 msgstr "No se han agregado clases"
 
-#: src/gui/tabs_views/courses.py:219
-msgid "MainWindow.Courses.SingleClassView.Schedule"
-msgstr "Pendientes"
-
-#: src/gui/tabs_views/courses.py:221
+#: src/gui/tabs_views/courses.py:248
 msgid "MainWindow.Courses.SingleClassView.Grades"
 msgstr "Calificaciones"
 
-#: src/gui/tabs_views/courses.py:231
+#: src/gui/tabs_views/courses.py:258
+msgid "MainWindow.Courses.SingleClassView.Schedule"
+msgstr "Pendientes"
+
+#: src/gui/tabs_views/courses.py:276
 msgid "MainWindow.Courses.SingleClassView.Events"
 msgstr "Eventos"
 
-#: src/gui/tabs_views/courses.py:232
+#: src/gui/tabs_views/courses.py:277
 msgid "MainWindow.Courses.SingleClassView.ButtonStartTimer"
 msgstr "Comenzar sesión de estudio"
 
-#: src/gui/tabs_views/courses.py:234
+#: src/gui/tabs_views/courses.py:280
 msgid "MainWindow.Courses.SingleClassView.ButtonStopTimer"
 msgstr "Terminar sesión de estudio"
 
-#: src/gui/tabs_views/courses.py:258
+#: src/gui/tabs_views/courses.py:305
 msgid "MainWindow.Courses.SingleClassView.General"
 msgstr "Información general"
 
-#: src/gui/tabs_views/courses.py:261
+#: src/gui/tabs_views/courses.py:308
 msgid "MainWindow.Courses.SingleClassView.Indicator.NRC"
 msgstr "NRC"
 
-#: src/gui/tabs_views/courses.py:264
+#: src/gui/tabs_views/courses.py:311
 msgid "MainWindow.Courses.SingleClassView.Indicator.Code"
 msgstr "Sigla del curso"
 
-#: src/gui/tabs_views/courses.py:267
+#: src/gui/tabs_views/courses.py:314
 msgid "MainWindow.Courses.SingleClassView.Indicator.Professor"
 msgstr "Profesor"
 
-#: src/gui/tabs_views/courses.py:270
+#: src/gui/tabs_views/courses.py:317
 msgid "MainWindow.Courses.SingleClassView.Indicator.Campus"
 msgstr "Campus"
 
-#: src/gui/tabs_views/courses.py:273
+#: src/gui/tabs_views/courses.py:320
 msgid "MainsWindow.Courses.SingleClassView.Indicator.Section"
 msgstr "Sección"
 
-#: src/gui/tabs_views/home.py:58
+#: src/gui/tabs_views/courses.py:398
+msgid "MainWindow.Courses.SingleClassView.Menu.CreateBullet.Title"
+msgstr "Crear nueva tarea rápida"
+
+#: src/gui/tabs_views/courses.py:403
+msgid "MainWindow.Courses.SingleClassView.Menu.CreateBullet.Accept"
+msgstr "Agregar a la lista"
+
+#: src/gui/tabs_views/courses.py:411
+msgid "MainWindow.Courses.SingleClassView.Menu.CreateBullet.Cancel"
+msgstr "Cancelar la creación"
+
+#: src/gui/tabs_views/home.py:62
 msgid "MainWindow.Home.InfoBoxAgenda.Title"
 msgstr "Próximos eventos"
 
-#: src/gui/tabs_views/home.py:63
+#: src/gui/tabs_views/home.py:67
 msgid "MainWindow.Home.InfoBoxCourses.Title"
 msgstr "Cursos"
 
-#: src/gui/tabs_views/home.py:68
+#: src/gui/tabs_views/home.py:72
 msgid "MainWindow.Home.InfoBoxSettings.Title"
 msgstr "Configuraciones rápidas"
 
-#: src/gui/tabs_views/home.py:73
+#: src/gui/tabs_views/home.py:77
 msgid "MainWindow.Home.InfoBoxDangers.Title"
 msgstr "Peligros"
 
-#: src/gui/tabs_views/home.py:78
+#: src/gui/tabs_views/home.py:82
 msgid "MainWindow.Home.InfoBoxExternal.Title"
 msgstr "Actividades externas"
 
-#: src/gui/tabs_views/home.py:83
+#: src/gui/tabs_views/home.py:87
 msgid "MainWindow.Home.InfoBoxTime.Title"
 msgstr "Sesiones de estudio"
 
-#: src/gui/tabs_views/home.py:92
+#: src/gui/tabs_views/home.py:96
 msgid "MainWindow.Home.InfoBoxTime.NoClass"
 msgstr "Sin clases agregadas"
 
-#: src/gui/tabs_views/home.py:104
-msgid "MainWindow.Home.InfoBoxTime.SummaryIndicator"
-msgstr "Resumen de tiempo"
-
-#: src/gui/tabs_views/home.py:113
+#: src/gui/tabs_views/home.py:121
 msgid "MainWindow.Home.InfoBoxTime.OnSessionIndicator"
 msgstr "En sesión de estudio"
 
-#: src/gui/tabs_views/home.py:115
+#: src/gui/tabs_views/home.py:123
 msgid "MainWindow.Home.InfoBoxTime.CourseIndicator"
 msgstr "Curso"
 
-#: src/gui/tabs_views/home.py:118
+#: src/gui/tabs_views/home.py:126
 msgid "MainWindow.Home.InfoBoxTime.StartedAtIndicator"
 msgstr "Comenzada en"
 
-#: src/gui/widgets/boxes.py:108
+#: src/gui/widgets/boxes.py:119
 msgid "MainWindow.Courses.AllCourses.CardBox.Professor"
 msgstr "Profesor"
 
-#: src/gui/widgets/boxes.py:110
+#: src/gui/widgets/boxes.py:121
 msgid "MainWindow.Courses.AllCourses.CardBox.Section"
 msgstr "Sección"
 
-#: src/gui/widgets/boxes.py:114
+#: src/gui/widgets/boxes.py:125
 msgid "MainWindow.Courses.AllCourses.CardBox.CourseCode"
 msgstr "Sigla del curso"
 
-#: src/gui/widgets/dialogs.py:32
+#: src/gui/widgets/dialogs.py:34
 msgid "Dialogs.NewClass.Search"
 msgstr "Buscar"
 
-#: src/gui/widgets/dialogs.py:35
+#: src/gui/widgets/dialogs.py:37
 msgid "Dialogs.NewClass.SearchPlaceholder"
 msgstr "Ingresa el patrón de búsqueda"
 
-#: src/gui/widgets/dialogs.py:46
+#: src/gui/widgets/dialogs.py:48
 msgid "Dialogs.NewClass.Alias"
 msgstr "Alias"
 
-#: src/gui/widgets/dialogs.py:49
+#: src/gui/widgets/dialogs.py:51
 msgid "Dialogs.NewClass.AliasPlaceholder"
 msgstr "Ingresa un apodo para el curso"
 
-#: src/gui/widgets/dialogs.py:51
+#: src/gui/widgets/dialogs.py:53
 msgid "Dialogs.NewClass.Color"
 msgstr "Color"
 
-#: src/gui/widgets/dialogs.py:53
+#: src/gui/widgets/dialogs.py:55
 msgid "Dialogs.NewClass.ColorDialog.Title"
 msgstr "Asigna un color al curso"
 
-#: src/gui/widgets/dialogs.py:63
+#: src/gui/widgets/dialogs.py:65
 msgid "Dialogs.NewClass.Confirm"
 msgstr "Confirmar"
 
-#: src/gui/widgets/dialogs.py:66
+#: src/gui/widgets/dialogs.py:68
 msgid "Dialogs.NewClass.Cancel"
 msgstr "Cancelar"
 
@@ -216,4 +248,7 @@ msgstr "Cancelar"
 
 #~ msgid "MainWindow.Courses.NewClassDialog.Color"
 #~ msgstr "Color"
+
+#~ msgid "MainWindow.Home.InfoBoxTime.SummaryIndicator"
+#~ msgstr "Resumen de tiempo"
 

@@ -53,3 +53,4 @@ class PUCalendarAppPaths:
         DEFAULTS: str = build_path("src", "config", "defaults.ini")
         USER_COURSES: str = build_path("usr", "courses.csv")
         BASE_COURSE_SESSIONS: str = build_path("usr", "")
+        BASE_COURSE_BULLETS: str = build_path("usr", "")

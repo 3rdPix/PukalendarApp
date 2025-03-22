@@ -1,3 +1,8 @@
+from entities.tasks import BulletTaskTable
+from qfluentwidgets import LineEdit
+from qfluentwidgets import RoundMenu
+from PyQt6.QtCore import QPoint
+from gui.widgets.boxes import BulletTaskListBox
 from datetime import timedelta
 from qfluentwidgets import PushButton
 from PyQt6.QtCore import pyqtSignal
@@ -26,6 +31,7 @@ from entities.courses import NRC
 from qfluentwidgets import MessageDialog
 from gui import PukalendarWidget
 import logging
+from PyQt6.QtGui import QResizeEvent
 
 
 log = logging.getLogger("CoursesTab")
@@ -199,10 +205,18 @@ class SingleClassView(QFrame, PukalendarWidget):
     request_return = pyqtSignal()
     SG_SingleClass_start_timer = pyqtSignal(NRC, name="SG_SingleClass_start_timer")
     SG_SingleClass_stop_timer = pyqtSignal(NRC, name="SG_SingleClass_stop_timer")
+    SG_SingleClass_accept_bullet = pyqtSignal(
+        str, name="SG_SingleClass_accept_bullet")
 
     def __init__(self) -> None:
         super().__init__(flags=Qt.WindowType.FramelessWindowHint)
         self._load_view()
+
+    def resizeEvent(self, a0: QResizeEvent):
+        self.bullets_list.setMaximumWidth(round(a0.size().width() * 0.3))
+        self.create_bullet_btn.setFixedWidth(round(
+            self.bullets_list.width() * 0.4))
+        return super().resizeEvent(a0)
 
     def _load_view(self) -> None:
         """
@@ -229,16 +243,33 @@ class SingleClassView(QFrame, PukalendarWidget):
 
         bottom_layout: QGridLayout = QGridLayout()
         generic = self.__create_generic_box()
-        self._schedule_cat_box: SingleClassCategoryBox = SingleClassCategoryBox(
-            _("MainWindow.Courses.SingleClassView.Schedule"))
+        schedule = self.__create_schedule_cat_box()
         self._grades_cat_box: SingleClassCategoryBox = SingleClassCategoryBox(
             _("MainWindow.Courses.SingleClassView.Grades"))
         events = self.__create_events_cat_box()
         bottom_layout.addWidget(generic, 0, 0)
-        bottom_layout.addWidget(self._schedule_cat_box, 0, 1)
-        bottom_layout.addWidget(self._grades_cat_box, 1, 0)
+        bottom_layout.addWidget(schedule, 1, 0)
+        bottom_layout.addWidget(self._grades_cat_box, 0, 1)
         bottom_layout.addWidget(events, 1, 1)
         first_layout.addLayout(bottom_layout, 1)
+
+    def __create_schedule_cat_box(self) -> QWidget:
+        self._schedule_cat_box: SingleClassCategoryBox = SingleClassCategoryBox(
+            _("MainWindow.Courses.SingleClassView.Schedule"))
+        self.bullets_list = BulletTaskListBox()
+        self.create_bullet_btn = PushButton(text='+')
+        self.create_bullet_btn.clicked.connect(self.__show_new_bullet_menu)
+        self.complex_tasks = QFrame()
+        self.complex_tasks.setMinimumWidth(80)
+        self.create_complex_btn = PushButton(text='+')
+        some_container = QGridLayout()
+        some_container.addWidget(self.bullets_list, 0, 0)
+        some_container.addWidget(self.complex_tasks, 0, 1)
+        some_container.addWidget(CardSeparator(), 1, 0, 1, 2)
+        some_container.addWidget(self.create_bullet_btn, 2, 0, alignment=Qt.AlignmentFlag.AlignCenter)
+        some_container.addWidget(self.create_complex_btn, 2, 1)
+        self._schedule_cat_box.set_content_layout(some_container)
+        return self._schedule_cat_box
 
     def __create_events_cat_box(self) -> QWidget:
         self._events_cat_box: SingleClassCategoryBox = SingleClassCategoryBox(
@@ -316,6 +347,14 @@ class SingleClassView(QFrame, PukalendarWidget):
         self._current_course_id = course_data.get("official_nrc")
         log.debug(f"Course id:{self._current_course_id}")
         
+        # Pendientes
+        self.bullets_list.clear_all_bullets()
+        table: BulletTaskTable = course_data.get("bullet_table")
+        for identifier, bullet in table.vault.items():
+            self.bullets_list.add_bullet(bullet.description,
+                                         bullet.done,
+                                         identifier)
+
         # Información general
         distr: QGridLayout = self._generic_cat_box.get_content_layout().itemAt(1)
         distr.itemAtPosition(0, 1).widget().setText(
@@ -348,3 +387,27 @@ class SingleClassView(QFrame, PukalendarWidget):
         # Usar hexadecimal #xxxxxx
         self._left_stripe.setStyleSheet(f'QLabel {{background: {color};}}')
         self._right_stripe.setStyleSheet(f'QLabel {{background: {color};}}')
+
+    def RQ_add_new_bullet(self, content: str, identifier: int) -> None:
+        self.bullets_list.add_bullet(content, False, identifier)
+
+    def __show_new_bullet_menu(self) -> None:
+        where = self.create_bullet_btn.mapToGlobal(
+            QPoint(int(self.create_bullet_btn.width() / 3),
+                   -self.create_bullet_btn.height()))
+        the_dialog = RoundMenu(title=_(
+            "MainWindow.Courses.SingleClassView.Menu.CreateBullet.Title"))
+        bullet_name_edit = LineEdit()
+        the_dialog.addWidget(bullet_name_edit)
+        the_dialog.addSeparator()
+        accept_action = Action(_(
+            "MainWindow.Courses.SingleClassView.Menu.CreateBullet.Accept"))
+        # para referencia futura xd
+        whats = the_dialog.view.itemWidget(the_dialog.view.item(0))
+        accept_action.triggered.connect(
+            lambda: self.SG_SingleClass_accept_bullet.emit(
+                bullet_name_edit.text()))
+        the_dialog.addAction(accept_action)
+        the_dialog.addAction(Action(_(
+            "MainWindow.Courses.SingleClassView.Menu.CreateBullet.Cancel")))
+        the_dialog.exec(where)

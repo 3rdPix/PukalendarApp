@@ -17,10 +17,13 @@ from controllers.data_interacter import calculate_relative_dedication
 import inspect
 from inspect import getmembers
 import logging
+from entities.tasks import BulletTask
 import pickle
 from collections import defaultdict
 from entities import StudySession
 from datetime import datetime
+from utils.i18n import _
+
 
 log = logging.getLogger("Driver")
 
@@ -88,6 +91,8 @@ class MainDriver(QObject):
     SG_update_time_infobox = pyqtSignal(int, list)
     SG_update_SingleClassView = pyqtSignal(dict)
     SG_update_dedication_piechart = pyqtSignal(list, list)
+    SG_show_error_bar = pyqtSignal(str, str)
+    SG_add_to_bullet_list = pyqtSignal(str, int)
 
     def __init__(self) -> None:
         super().__init__()
@@ -147,10 +152,33 @@ class MainDriver(QObject):
                     new = StudySession(session_date, session_time)
                     container.append(new)
             single_dict.__setitem__("user_sessions", container)
-            log.debug("All data from the course extracted. Attempting to "
+
+            # recuperación de bullettasks
+            point_bullet_path = (pt.Config.BASE_COURSE_BULLETS
+                                 + str(separated_data[0])
+                                 + "_BulletList.csv")
+            bullets_container = list()
+            try:
+                with open(point_bullet_path, 'r') as bullets_data:
+                    bullets_container: list[str] = bullets_data.readlines()
+            except FileNotFoundError: pass
+            
+            log.info("All data from the course extracted. Attempting to "
                       "create object")
+            
             current_course = Course('', '#000000')
             current_course.restore_data(single_dict)
+            for bullet_task in bullets_container:
+                if not bullet_task: continue
+                description, done = bullet_task.split(';')
+                log.debug(f" Reads bullet as originally {done}")
+                log.debug(f" Done is {type(done)}")
+                done = done.strip()
+                done = True if done == "True" else False
+                log.debug(f" Done is {type(done)}")
+                current_course.add_bullet_task(description, done)
+
+            
             self.courses[current_course.official_nrc] = current_course
             log.debug("Succesfully added course")
         if len(courses_list) > 0: self._udpate_timeinfobox(1)
@@ -193,8 +221,7 @@ class MainDriver(QObject):
                 break
         # de momento se guarda elemento a elemento de  cada curso
         # es casi una copia del transformador de versiones
-        with open(pt.Config.USER_COURSES, 'w') as blanking:
-            pass
+        with open(pt.Config.USER_COURSES, 'w') as blanking: pass
         for course in self.courses.values():
             official_name = course.official_name
             official_nrc = course.official_nrc
@@ -222,6 +249,7 @@ class MainDriver(QObject):
             with open(pt.Config.USER_COURSES, 'a') as courses_file:
                 courses_file.write(single_entry)
 
+            # sesiones
             point_session_path = (pt.Config.BASE_COURSE_SESSIONS
                                   + str(official_nrc)
                                   + "_Sessions.csv")
@@ -233,6 +261,18 @@ class MainDriver(QObject):
                         + ';'
                         + str(session.duration.total_seconds() // 1)
                         + '\n')
+
+            # bullettasks
+            point_bullet_path = (pt.Config.BASE_COURSE_BULLETS
+                                 + str(official_nrc)
+                                 + "_BulletList.csv")
+            with open(point_bullet_path, 'w') as blanking: pass
+            for bullet_task in course.bullet_table.get_all_bullets():
+                bullet_task: BulletTask
+                line = bullet_task.description + ';' + str(bullet_task.done) + '\n'
+                with open(point_bullet_path, 'a') as registry:
+                    registry.write(line)
+            
 
         # log.debug(f"Dumping courses into {pt.Config.USER_COURSES}")
         # with open(pt.Config.USER_COURSES, 'wb') as raw_file:
@@ -268,7 +308,10 @@ class MainDriver(QObject):
         # manejables por diferentes vistas ahora que separamos el tiempo
         # dedicado en sesiones de estudio. no hace daño dejarlo así como está
         # ahora pero tampoco mostrará la información adecuada.
-        self.SG_show_SingleClassView.emit(self.courses.get(_with).__dict__)
+        course_to_be_shown = self.courses.get(_with)
+        self.SG_show_SingleClassView.emit(course_to_be_shown.__dict__)
+        # also this es para que el driver recuerde a quién estamos viendo
+        self.current_shown_course: Course = course_to_be_shown
 
     def RQ_SingleClass_start_timer(self, course_id: int) -> None:
         log.debug(f"Received id:{course_id} to search on {self.courses}")
@@ -297,3 +340,35 @@ class MainDriver(QObject):
             self._udpate_timeinfobox(1)
         else:
             log.warning(f"Couldn't delete course:{nrc} as it doesn't exists")
+
+    def RQ_bullettask_status_changed(self, bullet_id: int, checked: bool) -> None:
+        # hay algo extraño con walrus acá? quizás tenga que ver con el
+        # IF statement? no está claro pero no modifica el objeto
+        # quizás no es referencia?
+        # verificar
+        #
+        # if bullet := self.current_shown_course.bullet_table.get_bullet(bullet_id):
+        #     bullet.done = checked
+        #
+        bullet = self.current_shown_course.bullet_table.get_bullet(bullet_id)
+        if bullet is not None:
+            log.debug(f"Checking bullet {bullet_id} as {checked}")
+            bullet.done = checked
+        else:
+            log.warning("Tried to check an unexisting bullet")
+
+    def RQ_SingleClass_accept_bullet(self, content: str) -> None:
+        log.debug(f"User trying to add bullet with content\n\t{content}")
+        # no puede estar vacío
+        if content == '':
+            self.SG_show_error_bar.emit(
+                _("Driver.Error.Bullet.NoContent.Title"),
+                _("Driver.Error.Bullet.NoContent.Content"))
+            return
+        elif ';' in content:
+            self.SG_show_error_bar.emit(
+                _("Driver.Error.Bullet.InvalidChar.Title"),
+                _("Driver.Error.Bullet.InvalidChar.Content"))
+            return
+        bullet_id = self.current_shown_course.add_bullet_task(content, False)
+        self.SG_add_to_bullet_list.emit(content, bullet_id)

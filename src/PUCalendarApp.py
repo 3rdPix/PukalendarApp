@@ -30,12 +30,11 @@ class MainApp(QApplication):
     def __init__(self, argv: List[str]) -> None:
         super().__init__(argv)
 
-
         ############################
         #      ZONA DE BORRADO     #
         #                          #
-        self.application_driver = MainDriver()
         self.main_window = MainWindow()
+        self.application_driver = MainDriver()
 
         #                           #
         #                           #
@@ -43,16 +42,12 @@ class MainApp(QApplication):
         
         __trsg__(self.main_window)
         self.connect_signals()
-
-
-    
         self.application_driver.drive()
-
-    def pporqye():
-        pass
 
     def connect_signals(self) -> None:
         # esto se hará con introspección dinámica a futuro
+        ## btw este es el futuro, y se hace con introspección dinámica xd
+        ### also debería confesar que estoy arrepentido
         for signal_atr_name, signal in getmembers(
              self.main_window,
              predicate=lambda x: isinstance(x, pyqtBoundSignal)):
@@ -60,9 +55,13 @@ class MainApp(QApplication):
             log.debug(f"Got member {signal_atr_name}")
             signal: pyqtSignal
             target_name = "RQ_" + signal_atr_name[3:]
-            target_fun = getattr(self.application_driver, target_name)
-            signal.connect(target_fun)
-            log.debug(f"Successfully connected {signal_atr_name} into {target_name}")
+            try:
+                target_fun = getattr(self.application_driver, target_name)
+                signal.connect(target_fun)
+                log.debug(f"Successfully connected {signal_atr_name} into {target_name}")
+            except AttributeError:
+                log.error(f"Signal «{signal_atr_name}» exists but has no "
+                          f"receiver in driver")
 
         self.application_driver.SG_show_SingleClassView.connect(
             self.main_window.courses_view.RQ_show_SingleClassView)
@@ -80,4 +79,8 @@ class MainApp(QApplication):
             self.main_window.courses_view.RQ_update_courses)
         self.application_driver.SG_web_search_results.connect(
             self.main_window.courses_view.new_class_dialog.RQ_web_search_result)
+        self.application_driver.SG_show_error_bar.connect(
+            self.main_window.RQ_show_error_bar)
+        self.application_driver.SG_add_to_bullet_list.connect(
+            self.main_window.courses_view._single_class_view.RQ_add_new_bullet)
         

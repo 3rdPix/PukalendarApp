@@ -1,5 +1,8 @@
 """@private"""
+from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import pyqtBoundSignal
+from qfluentwidgets import InfoBar
+from qfluentwidgets import InfoBarPosition
 import inspect
 from PyQt6.QtCore import QObject
 from PyQt6.QtWidgets import QWidget
@@ -28,6 +31,8 @@ from PyQt6.QtCore import QRect
 from gui import PukalendarWidget
 from collections import defaultdict
 import logging
+from PyQt6.QtWidgets import QApplication
+
 
 
 log = logging.getLogger("MainWindow")
@@ -47,11 +52,15 @@ class MainWindow(MSFluentWindow):
         # señales de las sub interfaces jamás se crean
         # --
         # quizás crear señales a este nivel y lazy conectarlas?
-        self.__pkwdgts__: dict[str, PukalendarWidget] = defaultdict()
+        self.splash_screen = SplashScreen(pt.Resources.APPLICATION_ICON, self)
+        self.splash_screen.raise_()
+        self.show()
         self._init_self()
+
         
     def RQ_finished_loading(self) -> None:
         self.splash_screen.finish()
+        pass
     
     def _init_self(self) -> None:
         """
@@ -112,6 +121,7 @@ class MainWindow(MSFluentWindow):
         """
         Inicializa las variables propias de la instancia de la ventana
         """
+        self.__pkwdgts__: dict[str, PukalendarWidget] = defaultdict()
         self.__showing_about: bool = False
 
     # Feo pero hace el trabajo por ahora
@@ -145,9 +155,14 @@ class MainWindow(MSFluentWindow):
     
     def RQ_window_setting(self, window_setting: QRect) -> None:
         self.setGeometry(window_setting)
-        self.splash_screen = SplashScreen(pt.Resources.APPLICATION_ICON, self)
-        self.show()
+        # QApplication.processEvents()
     
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.SG_MainWindow_closeEvent.emit(self.geometry())
         return super().closeEvent(a0)
+    
+    def RQ_show_error_bar(self, title: str, content: str = '') -> None:
+        InfoBar.error(title=title, content=content,
+                      orient=Qt.Orientation.Horizontal, isClosable=True,
+                      position=InfoBarPosition.TOP_RIGHT, duration=-1,
+                      parent=self)
