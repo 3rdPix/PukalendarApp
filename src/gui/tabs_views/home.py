@@ -60,6 +60,7 @@ class HomeView(QFrame, PukalendarWidget):
     def _create_agenda_infobox(self) -> HomeViewInfoBox:
         self.agenda_infobox: HomeViewInfoBox = HomeViewInfoBox()
         self.agenda_infobox.setTitle(_("MainWindow.Home.InfoBoxAgenda.Title"))
+        
         return self.agenda_infobox
 
     def _create_courses_infobox(self) -> HomeViewInfoBox:

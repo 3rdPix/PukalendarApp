@@ -132,7 +132,7 @@ class MainDriver(QObject):
             single_dict.__setitem__("official_professor", separated_data[3])
             single_dict.__setitem__("official_campus", separated_data[4])
             single_dict.__setitem__("official_section", separated_data[5])
-            single_dict.__setitem__("offficial_modules", separated_data[6])
+            single_dict.__setitem__("official_modules", separated_data[6])
             single_dict.__setitem__("user_alias", separated_data[7])
             single_dict.__setitem__("user_color", separated_data[8])
             single_dict.__setitem__("user_modules", separated_data[9])
@@ -171,11 +171,8 @@ class MainDriver(QObject):
             for bullet_task in bullets_container:
                 if not bullet_task: continue
                 description, done = bullet_task.split(';')
-                log.debug(f" Reads bullet as originally {done}")
-                log.debug(f" Done is {type(done)}")
                 done = done.strip()
                 done = True if done == "True" else False
-                log.debug(f" Done is {type(done)}")
                 current_course.add_bullet_task(description, done)
 
             
