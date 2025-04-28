@@ -26,6 +26,7 @@ from gui import PukalendarWidget
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtCore import Qt
 from logging import getLogger
+from qfluentwidgets import PopUpAniStackedWidget
 
 log = getLogger("Boxes")
 
@@ -235,3 +236,19 @@ class BulletTaskListBox(SmoothScrollArea, PukalendarWidget):
                 if widget:
                     self.vertical_layout.removeWidget(widget)  # Elimina la referencia en el layout
                     widget.deleteLater()  # Marca el widget para ser eliminado correctamente
+
+
+class SlideNavigator(QWidget, PukalendarWidget):
+
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent)
+        self.setLayout(QHBoxLayout(self))
+        self.content_container = PopUpAniStackedWidget(self)
+        self.layout().addWidget(self.content_container)
+        self.navigation_bar = QFrame(self, Qt.WindowType.Tool)
+        self.layout().addWidget(self.navigation_bar)
+
+        # Setup navigation bar
+        self.navigation_bar.setLayout(QVBoxLayout(self.navigation_bar))
+        self.navigation_bar.first_layout = QVBoxLayout(self.navigation_bar)
+        self.navigation_bar.second_layout = QScrollArea(self.navigation_bar)

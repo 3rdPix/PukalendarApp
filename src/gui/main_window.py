@@ -32,36 +32,77 @@ from gui import PukalendarWidget
 from collections import defaultdict
 import logging
 from PyQt6.QtWidgets import QApplication
-
+from PyQt6.QtWidgets import QMainWindow
+from PyQt6.QtWidgets import QHBoxLayout
+from PyQt6.QtWidgets import QFrame
+from PyQt6.QtWidgets import QVBoxLayout
+from qfluentwidgets import PopUpAniStackedWidget
+from PyQt6.QtWidgets import QLayout
+from PyQt6.QtWidgets import QScrollArea
+from qfluentwidgets.components.widgets.card_widget import CardSeparator
+from qfluentwidgets import NavigationBar
 
 
 log = logging.getLogger("MainWindow")
-        
-class MainWindow(MSFluentWindow):
-    """
-    Clase de la ventana principal de la aplicación sobre la
-    que se despliegan todas las vistas y sub-widgets
-    """
+
+class MainWindow(QMainWindow):
     SG_MainWindow_closeEvent: pyqtSignal = pyqtSignal(QRect, name="SG_MainWindow_closeEvent")
 
-    def __init__(self, parent=None) -> None:
-        super().__init__(parent)
-        self.setObjectName('MainWindow')
-        # Necesitamos sacar esto para que el slpash tenga sentido
-        # pero no podemos sacarlo de momento porque sino las
-        # señales de las sub interfaces jamás se crean
-        # --
-        # quizás crear señales a este nivel y lazy conectarlas?
-        self.splash_screen = SplashScreen(pt.Resources.APPLICATION_ICON, self)
-        self.splash_screen.raise_()
-        self.show()
+    def __init__(self) -> None:
+        super().__init__()
+        self.setObjectName("MainWindow")
+        self.initialize_user_interface()
         self._init_self()
+        self.show()
 
+    def initialize_user_interface(self) -> None:
+        blind_widget = QWidget(); self.setCentralWidget(blind_widget)
+        self.window_layout = QHBoxLayout(blind_widget)
+        self.content_container = PopUpAniStackedWidget(self)
+        self.window_layout.addWidget(self.content_container, stretch=1)
+        # self.navigation_bar = QFrame(self, Qt.WindowType.Tool)
+        self.navigation_bar = NavigationBar(self)
+        self.window_layout.addWidget(self.navigation_bar, stretch=0)
+
+        # Setup navigation bar
+        # self.navigation_bar.setLayout(QVBoxLayout(self.navigation_bar))
+        # self.navigation_bar.first_sector = QVBoxLayout(self.navigation_bar)
+        # self.navigation_bar.second_sector = QScrollArea(self.navigation_bar)
+        # self.navigation_bar.third_sector = QVBoxLayout(self.navigation_bar)
+        # self.navigation_bar.layout().addChildLayout(self.navigation_bar.first_sector)
+        # self.navigation_bar.layout().addWidget(CardSeparator())
+        # self.navigation_bar.layout().addWidget(self.navigation_bar.second_sector)
+        # self.navigation_bar.layout().addWidget(CardSeparator())
+        # self.navigation_bar.layout().addChildLayout(self.navigation_bar.third_sector)
+
+    def insert_section(self, content: QWidget|QLayout, name: str,
+                       icon: QIcon|None=None, sector: int=1) -> None:
+        blind_widget = content
+        if isinstance(content, QLayout):
+            blind_widget = QWidget(); blind_widget.setLayout(content)
+        self.content_container.addWidget(blind_widget)
+        match sector:
+            case 1: button_position = NavigationItemPosition.TOP
+            case 2: button_position = NavigationItemPosition.SCROLL
+            case 3: button_position = NavigationItemPosition.BOTTOM
+            case _: raise ValueError("Not a valid NavigationItemPosition")
+        self.navigation_bar.addItem(
+            routeKey=content.objectName(),
+            icon=icon,
+            text=name,
+            position=button_position,
+            onClick=lambda: self.content_container.setCurrentWidget(blind_widget))
         
     def RQ_finished_loading(self) -> None:
-        self.splash_screen.finish()
         pass
     
+    def _load_self_variables(self) -> None:
+        """
+        Inicializa las variables propias de la instancia de la ventana
+        """
+        self.__pkwdgts__: dict[str, PukalendarWidget] = defaultdict()
+        self.__showing_about: bool = False
+
     def _init_self(self) -> None:
         """
         Carga los contenidos propios de la ventana principal
@@ -75,7 +116,7 @@ class MainWindow(MSFluentWindow):
             log.error(f"Loading of {pt.Qss.MAIN_WINDOW} could not be resolved")
         self.setWindowTitle(_("MainWindow.Title"))
         icon_about_normal: QIcon = QIcon(pt.Resources.ICON_ABOUT_NORMAL)
-        self.navigationInterface.addItem(
+        self.navigation_bar.addItem(
             routeKey='about_app',
             icon=icon_about_normal,
             text=_("MainWindow.NavigationInterface.About"),
@@ -83,7 +124,7 @@ class MainWindow(MSFluentWindow):
             selectable=False,
             position=NavigationItemPosition.BOTTOM)
         self._add_subinterfaces()
-        
+
     def _add_subinterfaces(self) -> None:
         """
         Añade las pestañas a la navegación para su posterior despliegue
@@ -92,38 +133,31 @@ class MainWindow(MSFluentWindow):
         self.__pkwdgts__.__setitem__(self.home_view.objectName(), self.home_view)
         icon_home_normal: QIcon = QIcon(pt.Resources.ICON_HOME_NORMAL)
         icon_home_selected: QIcon = QIcon(pt.Resources.ICON_HOME_SELECTED)
-        self.addSubInterface(self.home_view, icon_home_normal,
-                             _("MainWindow.NavigationInterface.Home"),
-                             icon_home_selected)
+        self.insert_section(self.home_view,
+                            _("MainWindow.NavigationInterface.Home"),
+                            icon_home_normal)
         self.agenda_view = AgendaView()
         self.__pkwdgts__.__setitem__(self.agenda_view.objectName(), self.agenda_view)
         icon_todo_normal: QIcon = QIcon(pt.Resources.ICON_TODO_NORMAL)
         icon_todo_selected: QIcon = QIcon(pt.Resources.ICON_TODO_SELECTED)
-        self.addSubInterface(self.agenda_view, icon_todo_normal,
-                             _("MainWindow.NavigationInterface.Agenda"),
-                             icon_todo_selected)
+        self.insert_section(self.agenda_view,
+                            _("MainWindow.NavigationInterface.Agenda"),
+                            icon_todo_normal)
         self.courses_view = CoursesView(parent=self)
         self.__pkwdgts__.__setitem__(self.courses_view.objectName(), self.courses_view)
         icon_courses_normal: QIcon = QIcon(pt.Resources.ICON_COURSES_NORMAL)
         icon_courses_selected: QIcon = QIcon(pt.Resources.ICON_COURSES_SELECTED)
-        self.addSubInterface(self.courses_view, icon_courses_normal,
-                             _("MainWindow.NavigationInterface.Courses"),
-                             icon_courses_selected)
+        self.insert_section(self.courses_view,
+                            _("MainWindow.NavigationInterface.Courses"),
+                            icon_courses_normal)
         self.calendar_view = CalendarView()
         self.__pkwdgts__.__setitem__(self.calendar_view.objectName(), self.calendar_view)
         icon_calendar_normal: QIcon = QIcon(pt.Resources.ICON_CALENDAR_NORMAL)
         icon_calendar_selected: QIcon = QIcon(pt.Resources.ICON_CALENDAR_SELECTED)
-        self.addSubInterface(self.calendar_view, icon_calendar_normal,
-                             _("MainWindow.NavigationInterface.Calendar"),
-                             icon_calendar_selected)
-
-    def _load_self_variables(self) -> None:
-        """
-        Inicializa las variables propias de la instancia de la ventana
-        """
-        self.__pkwdgts__: dict[str, PukalendarWidget] = defaultdict()
-        self.__showing_about: bool = False
-
+        self.insert_section(self.calendar_view,
+                            _("MainWindow.NavigationInterface.Calendar"),
+                            icon_calendar_normal)
+    
     # Feo pero hace el trabajo por ahora
     def show_about_bubble(self) -> None:
         if self.__showing_about: return

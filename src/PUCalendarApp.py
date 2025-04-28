@@ -2,6 +2,7 @@
 from typing import List
 from PyQt6.QtWidgets import QApplication
 from gui.main_window import MainWindow
+from gui.main_window import MainWindow
 from controllers.driver import MainDriver
 from inspect import getmembers
 from logging import getLogger
