@@ -1,0 +1,8 @@
+[submodule "FluentWidgets"]
+	path = PyQt-Frameless-Window
+	url = https://github.com/zhiyiYo/PyQt-Frameless-Window.git
+	branch = PyQt6
+[submodule "PyQt-Fluent-Widgets"]
+	path = PyQt-Fluent-Widgets
+	url = https://github.com/zhiyiYo/PyQt-Fluent-Widgets.git
+	branch = PyQt6
