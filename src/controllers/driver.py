@@ -119,6 +119,7 @@ class MainDriver(QObject):
                 pass
             log.warning(f"Failed to load {pt.Config.USER_COURSES}. Creating"
                         f" empty list...")
+            courses_list = []
         log.debug(f"Courses files found. Attempting to build from that...")
         for course_string in courses_list:
             separated_data = course_string.split(';')
