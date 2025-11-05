@@ -20,6 +20,19 @@ let
       urllib3
       requests
   ]);
+  pyqt6StubsSrc = pkgs.fetchFromGitHub {
+    owner = "TilmanK";
+    repo = "PyQt6-stubs";
+    rev = "86d119ed202c1f9f86923563c2754cf93c1ec303";
+    sha256 = "0yg7bj969i83zac450bc09m8qf8jkpq4i0yzwlablzrjq3wz4xpv";
+  };
+  pyqt6Stubs = pkgs.python3.pkgs.buildPythonPackage rec {
+    pname = "pyqt6-stubs-custom";
+    version = "6.2.3"; 
+    src = pyqt6StubsSrc;
+
+    doCheck = false; 
+  };
 in 
 
 mkShell {
@@ -27,6 +40,7 @@ mkShell {
   description = "NixEnvironment to use with the Pukalendar project";
   buildInputs = [
     pythonEnv
+    pyqt6Stubs
     libGL
     qt6.wrapQtAppsHook
     qt6.qtbase
