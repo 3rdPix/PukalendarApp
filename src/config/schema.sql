@@ -31,7 +31,7 @@ CREATE TABLE Inscripciones (
     nrc VARCHAR(15) NOT NULL,
     profesor VARCHAR(150),
     campus VARCHAR(100),
-    seccion INTEGER,
+    seccion INTEGER NOT NULL,
     alias VARCHAR(50) NOT NULL,
     color CHAR(7) NOT NULL,
     nota_final DECIMAL(4,2),
@@ -172,5 +172,5 @@ CREATE TABLE Modulos_Oficiales (
     modulo_id INTEGER PRIMARY KEY AUTOINCREMENT,
     dia_semana TEXT NOT NULL CHECK(dia_semana IN ('Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom')),
     hora_inicio TIME NOT NULL,
-    hora_fin TIME NOT NULL,
+    hora_fin TIME NOT NULL
 );
