@@ -3,7 +3,7 @@
 -----------------------------------------------------------
 
 -- Insertar el curso fantasma "Actividades Personales y Eventos"
-INSERT INTO Cursos_Maestros (codigo, nombre, creditos)
+INSERT INTO Cursos_Maestros (sigla, nombre, creditos)
 VALUES ('GENERAL', 'Actividades Personales y Eventos', 0);
 
 -- Insertar módulos horarios oficiales
