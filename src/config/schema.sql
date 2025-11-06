@@ -16,7 +16,7 @@
 -----------------------------------------------------------
 CREATE TABLE Cursos_Maestros (
     curso_maestro_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    codigo VARCHAR(20) NOT NULL UNIQUE,
+    sigla VARCHAR(20) NOT NULL UNIQUE,
     nombre VARCHAR(150) NOT NULL,
     creditos INTEGER NOT NULL
 );
@@ -26,21 +26,16 @@ CREATE TABLE Cursos_Maestros (
 -----------------------------------------------------------
 CREATE TABLE Inscripciones (
     inscripcion_id INTEGER PRIMARY KEY AUTOINCREMENT,
---    estudiante_id INTEGER NOT NULL,
     curso_maestro_id INTEGER NOT NULL,
     periodo VARCHAR(10) NOT NULL,
     nrc VARCHAR(15) NOT NULL,
-    sigla VARCHAR(20),
     profesor VARCHAR(150),
     campus VARCHAR(100),
     seccion INTEGER,
     alias VARCHAR(50) NOT NULL,
     color CHAR(7) NOT NULL,
     nota_final DECIMAL(4,2),
-
---    FOREIGN KEY (estudiante_id) REFERENCES Estudiantes(estudiante_id),
     FOREIGN KEY (curso_maestro_id) REFERENCES Cursos_Maestros(curso_maestro_id)
---    UNIQUE (estudiante_id, nrc, periodo)
 );
 
 -----------------------------------------------------------
@@ -49,12 +44,10 @@ CREATE TABLE Inscripciones (
 CREATE TABLE Modulos_Horarios (
     modulo_id INTEGER PRIMARY KEY AUTOINCREMENT,
     inscripcion_id INTEGER NOT NULL,
-    tipo_modulo TEXT NOT NULL CHECK(tipo_modulo IN ('Oficial', 'Personalizado')),
     dia_semana TEXT NOT NULL CHECK(dia_semana IN ('Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom')),
     hora_inicio TIME NOT NULL,
     hora_fin TIME NOT NULL,
     sala VARCHAR(50),
-
     FOREIGN KEY (inscripcion_id) REFERENCES Inscripciones(inscripcion_id)
 );
 
@@ -71,7 +64,6 @@ CREATE TABLE Calificaciones_Estructura (
     es_eliminable BOOLEAN NOT NULL DEFAULT 0,
     es_extremista BOOLEAN NOT NULL DEFAULT 0,
     expresion_calculo TEXT,
-
     FOREIGN KEY (inscripcion_id) REFERENCES Inscripciones(inscripcion_id),
     FOREIGN KEY (padre_id) REFERENCES Calificaciones_Estructura(estructura_id)
 );
@@ -86,7 +78,6 @@ CREATE TABLE Metodo_Calculo_Nota (
     exigencia_porcentaje DECIMAL(5,2),
     puntaje_maximo_esperado DECIMAL(10,2),
     puntaje_total_posible DECIMAL(10,2),
-
     FOREIGN KEY (estructura_id) REFERENCES Calificaciones_Estructura(estructura_id)
 );
 
@@ -104,7 +95,6 @@ CREATE TABLE Actividades (
     es_horario_fijo BOOLEAN NOT NULL,
     fecha_arbitraria DATETIME,
     duracion_minutos INTEGER,
-
     FOREIGN KEY (inscripcion_id) REFERENCES Inscripciones(inscripcion_id),
     FOREIGN KEY (estructura_id_asociada) REFERENCES Calificaciones_Estructura(estructura_id)
 );
@@ -118,7 +108,6 @@ CREATE TABLE Actividades_Modulos (
     modulo_id INTEGER,
     fecha_instancia DATE NOT NULL,
     estado TEXT CHECK(estado IN ('Pendiente', 'Cancelado', 'Asistido')),
-
     FOREIGN KEY (actividad_id) REFERENCES Actividades(actividad_id),
     FOREIGN KEY (modulo_id) REFERENCES Modulos_Horarios(modulo_id),
     UNIQUE (actividad_id, fecha_instancia)
@@ -137,7 +126,6 @@ CREATE TABLE Calificaciones_Valores (
     usar_nota_manual BOOLEAN NOT NULL DEFAULT 0,
     puntos_extra DECIMAL(4,2) NOT NULL DEFAULT 0.0,
     puntaje_maximo DECIMAL(10,2),
-
     FOREIGN KEY (estructura_id) REFERENCES Calificaciones_Estructura(estructura_id),
     FOREIGN KEY (actividad_id) REFERENCES Actividades(actividad_id)
 );
@@ -152,7 +140,6 @@ CREATE TABLE Sesiones_Estudio (
     fecha_fin DATETIME NOT NULL,
     objetivo VARCHAR(255),
     es_manual BOOLEAN NOT NULL DEFAULT 0,
-
     FOREIGN KEY (inscripcion_id) REFERENCES Inscripciones(inscripcion_id)
 );
 
@@ -173,16 +160,17 @@ CREATE TABLE Tareas_Pendientes (
     es_recurrente BOOLEAN NOT NULL DEFAULT 0,
     fecha_fin_recurrencia DATE,
     fecha_creacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
     FOREIGN KEY (padre_tarea_id) REFERENCES Tareas_Pendientes(tarea_id),
     FOREIGN KEY (inscripcion_id) REFERENCES Inscripciones(inscripcion_id),
     FOREIGN KEY (actividad_id) REFERENCES Actividades(actividad_id)
 );
 
 -----------------------------------------------------------
--- CONSULTAS BASE (SETUP INICIAL)
+-- 12. Módulos oficiales
 -----------------------------------------------------------
-
--- Insertar el curso fantasma "Actividades Personales y Eventos"
-INSERT INTO Cursos_Maestros (codigo, nombre, creditos)
-VALUES ('GENERAL', 'Actividades Personales y Eventos', 0);
+CREATE TABLE Modulos_Oficiales (
+    modulo_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    dia_semana TEXT NOT NULL CHECK(dia_semana IN ('Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom')),
+    hora_inicio TIME NOT NULL,
+    hora_fin TIME NOT NULL,
+);
