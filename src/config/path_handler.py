@@ -8,11 +8,11 @@ from os.path import join
 from os.path import abspath
 from os.path import dirname
 
-__all__ = {"PUCalendarAppPaths"}
+__all__ = ["PUCalendarAppPaths"]
 
 # Start from /
 base_directory: str = abspath(join(dirname(__file__), "..", ".."))
-def build_path(*args) -> str: return join(base_directory, *args)
+def build_path(*args: str) -> str: return join(base_directory, *args)
 
 class PUCalendarAppPaths:
     """
