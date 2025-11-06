@@ -18,7 +18,8 @@ CREATE TABLE Cursos_Maestros (
     curso_maestro_id INTEGER PRIMARY KEY AUTOINCREMENT,
     sigla VARCHAR(20) NOT NULL UNIQUE,
     nombre VARCHAR(150) NOT NULL,
-    creditos INTEGER NOT NULL
+    creditos INTEGER NOT NULL,
+    UNIQUE (sigla, nombre, creditos)
 );
 
 -----------------------------------------------------------
@@ -27,15 +28,17 @@ CREATE TABLE Cursos_Maestros (
 CREATE TABLE Inscripciones (
     inscripcion_id INTEGER PRIMARY KEY AUTOINCREMENT,
     curso_maestro_id INTEGER NOT NULL,
-    periodo VARCHAR(10) NOT NULL,
-    nrc VARCHAR(15) NOT NULL,
+    periodo INTEGER NOT NULL,
+    nrc INTEGER NOT NULL,
     profesor VARCHAR(150),
     campus VARCHAR(100),
     seccion INTEGER NOT NULL,
     alias VARCHAR(50) NOT NULL,
     color CHAR(7) NOT NULL,
     nota_final DECIMAL(4,2),
-    FOREIGN KEY (curso_maestro_id) REFERENCES Cursos_Maestros(curso_maestro_id)
+    UNIQUE (nrc, periodo),
+    FOREIGN KEY (curso_maestro_id) REFERENCES Cursos_Maestros(curso_maestro_id),
+    FOREIGN KEY (periodo) REFERENCES Semestres(semestre_id)
 );
 
 -----------------------------------------------------------
@@ -48,6 +51,7 @@ CREATE TABLE Modulos_Horarios (
     hora_inicio TIME NOT NULL,
     hora_fin TIME NOT NULL,
     sala VARCHAR(50),
+    UNIQUE (inscripcion_id, dia_semana, hora_inicio, hora_fin, sala)
     FOREIGN KEY (inscripcion_id) REFERENCES Inscripciones(inscripcion_id)
 );
 
@@ -107,7 +111,7 @@ CREATE TABLE Actividades_Modulos (
     actividad_id INTEGER NOT NULL,
     modulo_id INTEGER,
     fecha_instancia DATE NOT NULL,
-    estado TEXT CHECK(estado IN ('Pendiente', 'Cancelado', 'Asistido')),
+    estado TEXT CHECK(estado IN ('Pendiente', 'Cancelado', 'Asistido', 'Prioritario')),
     FOREIGN KEY (actividad_id) REFERENCES Actividades(actividad_id),
     FOREIGN KEY (modulo_id) REFERENCES Modulos_Horarios(modulo_id),
     UNIQUE (actividad_id, fecha_instancia)
@@ -174,3 +178,13 @@ CREATE TABLE Modulos_Oficiales (
     hora_inicio TIME NOT NULL,
     hora_fin TIME NOT NULL
 );
+-----------------------------------------------------------
+-- 13. Semestres
+-----------------------------------------------------------
+CREATE TABLE Semestres (
+    semestre_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    anio INTEGER
+    etapa BOOLEAN -- primer semestre = 0, segundo semestre = 1
+    fecha_inicio DATE
+    fecha_fin DATE
+)

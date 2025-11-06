@@ -1,4 +1,5 @@
-from typing import Iterable
+from datetime import datetime
+from typing import Literal
 from config import PUCalendarAppPaths
 from os.path import exists
 import sqlite3
@@ -23,14 +24,18 @@ class CourseAlreadyExists(Exception):
     self.alias, self.color = args
     super().__init__()
 
-
+weekDay = Literal["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"]
+gradeType = Literal["Hoja", "Ponderado", "Media_Simple", "Media_Geométrica",
+                    "Media_Harmónica", "Granulado", "Fórmula_personalizada"]
+calcType = Literal["Exigencia_Lineal", "Puntaje_Directo", "Fórmula_Granulada"]
+completionStatus = Literal["Pendiente", "Cancelado", "Asistido", "Prioritario"]
 class DatabaseManager:
   def __init__(self) -> None:
     self.database_connection = sqlite3.connect(
       PUCalendarAppPaths.Config.DATABASE)
     self.database_cursor = self.database_connection.cursor()
 
-  def create_course(self, sigla: str, nombre: str, creditos: int, periodo: str,
+  def create_course(self, sigla: str, nombre: str, creditos: int, periodo: int,
                     nrc: int, seccion: int, alias: str, color: str,
                     profesor: str|None=None, campus: str|None=None,
                     ) -> int:
@@ -67,11 +72,28 @@ class DatabaseManager:
         (master_id, periodo, nrc, profesor, campus, seccion, alias, color))
       return self.database_cursor.lastrowid or -1
 
-
-
-
-algo = DatabaseManager()
-try:
-  print(algo.create_course("TEST8", "nombre", 1, "periods", 1, 1, "alias", "color"))
-except CourseAlreadyExists as existente:
-  print(existente.alias, existente.color)
+  def create_hour_module(self, inscripcion_id: int, dia_semana: weekDay,
+                         hora_inicio: str, hora_fin: str,
+                         sala: str|None=None
+                         ) -> None:
+    with self.database_connection:
+      self.database_cursor.execute(
+        """
+        INSERT INTO Modulos_Horarios (inscripcion_id, dia_semana, hora_inicio,
+        hora_fin, sala)
+        VALUES (?, ?, ?, ?, ?);
+        """,
+        (inscripcion_id, dia_semana, hora_inicio, hora_fin, sala))
+      
+  def create_study_session(self, inscripcion_id: int, fecha_inicio: datetime,
+                           fecha_fin: datetime, objetivo: str='',
+                           es_manual: bool=False
+                           ) -> None:
+    with self.database_connection:
+      self.database_cursor.execute(
+        """
+        INSERT INTO Sesiones_Estudio (inscripcion_id, fecha_inicio, fecha_fin,
+        objetivo, es_manual)
+        VALUES (?, ?, ?, ?, ?);
+        """,
+        (inscripcion_id, fecha_inicio, fecha_fin, objetivo, es_manual))
