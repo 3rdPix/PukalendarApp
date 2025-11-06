@@ -60,5 +60,3 @@ PUCalendarAppPaths.Config.USER_DIRECTORY = str(Path(Settings.fileName()).parent)
 PUCalendarAppPaths.Config.DATABASE = str(
     Path(Settings.fileName()).parent
     / Settings.value(Settings.General.DATABASE_NAME))
-print(Settings.General.DATABASE_NAME)
-print(PUCalendarAppPaths.Config.DATABASE)
