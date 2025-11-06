@@ -39,7 +39,7 @@ CREATE TABLE Inscripciones (
     nota_final DECIMAL(4,2),
 
 --    FOREIGN KEY (estudiante_id) REFERENCES Estudiantes(estudiante_id),
-    FOREIGN KEY (curso_maestro_id) REFERENCES Cursos_Maestros(curso_maestro_id),
+    FOREIGN KEY (curso_maestro_id) REFERENCES Cursos_Maestros(curso_maestro_id)
 --    UNIQUE (estudiante_id, nrc, periodo)
 );
 

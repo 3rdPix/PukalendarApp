@@ -50,6 +50,9 @@ class PUCalendarAppPaths:
     @dataclass
     class Config:
         """@private"""
+        USER_DIRECTORY: str
+        DATABASE: str
+        DATABASE_SCHEMA: str = build_path("src", "config", "schema.sql")
         DEFAULTS: str = build_path("src", "config", "defaults.ini")
         USER_COURSES: str = build_path("usr", "courses.csv")
         BASE_COURSE_SESSIONS: str = build_path("usr", "")
