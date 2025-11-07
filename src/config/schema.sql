@@ -184,7 +184,7 @@ CREATE TABLE Modulos_Oficiales (
 CREATE TABLE Semestres (
     semestre_id INTEGER PRIMARY KEY AUTOINCREMENT,
     anio INTEGER
-    etapa BOOLEAN -- primer semestre = 0, segundo semestre = 1
+    etapa INTEGER -- Tav = 0. primer semestre = 1, segundo semestre = 2
     fecha_inicio DATE
     fecha_fin DATE
 )
