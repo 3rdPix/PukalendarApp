@@ -1,3 +1,4 @@
+from enum import StrEnum, Enum, auto
 from datetime import datetime
 from typing import Literal
 from config import PUCalendarAppPaths
@@ -19,6 +20,25 @@ if not exists(PUCalendarAppPaths.Config.DATABASE):
   database_connection.commit()
   database_connection.close()
 
+class SchemaKeys:
+  class Cursos_Maestros(Enum):
+    curso_maestro_id = auto()
+    sigla = auto()
+    nombre = auto()
+    creditos = auto()
+  
+  class Inscripciones(Enum):
+    inscripcion_id = auto()
+    curso_maestro_id = auto()
+    periodo = auto()
+    nrc = auto()
+    profesor = auto()
+    campus = auto()
+    seccion = auto()
+    alias = auto()
+    color = auto()
+    nota_final = auto()
+
 class CourseAlreadyExists(Exception):
   def __init__(self, *args: object) -> None:
     self.alias, self.color = args
@@ -38,6 +58,7 @@ class DatabaseManager:
   def create_course(self, sigla: str, nombre: str, creditos: int, periodo: int,
                     nrc: int, seccion: int, alias: str, color: str,
                     profesor: str|None=None, campus: str|None=None,
+                    schedule: list[tuple[str, str, str, str]]|None=None
                     ) -> int:
     with self.database_connection:
       self.database_cursor.execute(
@@ -70,7 +91,28 @@ class DatabaseManager:
         VALUES (?, ?, ?, ?, ?, ?, ?, ?);
         """,
         (master_id, periodo, nrc, profesor, campus, seccion, alias, color))
-      return self.database_cursor.lastrowid or -1
+      inscription_rowid = self.database_cursor.lastrowid
+      if inscription_rowid is None:
+        raise RuntimeError("Couldn't save inscription")
+      for module in schedule:
+        dia_semana, numero_modulo, sala, instance_name = module
+        print("Buscando", dia_semana, numero_modulo)
+        self.database_cursor.execute(
+          """
+          SELECT hora_inicio, hora_fin FROM Modulos_Oficiales
+          WHERE dia_semana = ? AND numero_modulo = ? AND valido = 1;
+          """,
+          (dia_semana, numero_modulo))
+        result = self.database_cursor.fetchone()
+        print(result)
+        hora_inicio, hora_fin = result
+        self.database_cursor.execute(
+          """
+          INSERT INTO Modulos_Horarios (inscripcion_id, dia_semana, hora_inicio,
+          hora_fin, sala, nombre) VALUES (?, ?, ?, ?, ?, ?);
+          """,
+          (inscription_rowid, dia_semana, hora_inicio, hora_fin, sala, instance_name))
+      return inscription_rowid
 
   def create_hour_module(self, inscripcion_id: int, dia_semana: weekDay,
                          hora_inicio: str, hora_fin: str,

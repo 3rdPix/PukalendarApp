@@ -51,6 +51,7 @@ CREATE TABLE Modulos_Horarios (
     hora_inicio TIME NOT NULL,
     hora_fin TIME NOT NULL,
     sala VARCHAR(50),
+    nombre VARCHAR(15),
     UNIQUE (inscripcion_id, dia_semana, hora_inicio, hora_fin, sala)
     FOREIGN KEY (inscripcion_id) REFERENCES Inscripciones(inscripcion_id)
 );
@@ -176,7 +177,9 @@ CREATE TABLE Modulos_Oficiales (
     modulo_id INTEGER PRIMARY KEY AUTOINCREMENT,
     dia_semana TEXT NOT NULL CHECK(dia_semana IN ('Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom')),
     hora_inicio TIME NOT NULL,
-    hora_fin TIME NOT NULL
+    hora_fin TIME NOT NULL,
+    numero_modulo INTEGER NOT NULL,
+    valido BOOLEAN DEFAULT 0
 );
 -----------------------------------------------------------
 -- 13. Semestres

@@ -23,6 +23,9 @@ from collections import defaultdict
 from entities import StudySession
 from datetime import datetime
 from utils.i18n import _
+from controllers.database_handler import DatabaseManager
+from controllers.database_handler import SchemaKeys
+from utils.buscacursos import get_year_and_value
 
 
 log = logging.getLogger("Driver")
@@ -97,6 +100,7 @@ class MainDriver(QObject):
     def __init__(self) -> None:
         super().__init__()
         self.web_search_results = None
+        self.database_handle = DatabaseManager()
 
     def drive(self) -> None:
         # Corre la aplicación
@@ -291,13 +295,43 @@ class MainDriver(QObject):
 
     def RQ_NewClassDialog_create(self, index_ref: int, alias: str, color: str) -> None:
         official_info = self.web_search_results[index_ref]
-        course = Course(alias, color)
-        course._load_official_data(official_info)
-        identifier = course.official_nrc
-        self.courses[identifier] = course
-        self.web_search_results = None
-        self._udpate_timeinfobox(1)
-        log.debug(f"Successfully addded {identifier} to Courses")
+        # course = Course(alias, color)
+        # course._load_official_data(official_info)
+        # identifier = course.official_nrc
+        # self.courses[identifier] = course
+        # self.web_search_results = None
+        # self._udpate_timeinfobox(1)
+        # log.debug(f"Successfully addded {identifier} to Courses")
+        year, semester = get_year_and_value()
+        single_to_three: dict[str, str] = {
+            'L': "Lun", 'M': "Mar", 'W': "Mie",
+            'J': "Jue", 'V': "Vie", 'S': "Sab"}
+        scheduled = list()
+        # [['L-W-V:4', 'CLAS', 'M2'], ['L:5', 'AYU', 'BC21'], ['L:6', 'LAB', 'SIN SALA']]
+        for instance_type in official_info["official_modules"]:
+            times, name, place = instance_type
+            days, modules = times.split(':')
+            days_separated = days.split('-')
+            modules_separated = modules.split(',')
+            for day in days_separated:
+                for module in modules_separated:
+                    dia_semana = single_to_three[day]
+                    numero_modulo = module
+                    sala = place
+                    nombre = name
+                    scheduled.append((dia_semana, numero_modulo, sala, nombre))
+        self.database_handle.create_course(
+            sigla=official_info[SchemaKeys.Cursos_Maestros.sigla],
+            nombre=official_info[SchemaKeys.Cursos_Maestros.nombre],
+            creditos=official_info[SchemaKeys.Cursos_Maestros.creditos],
+            periodo=int(semester),
+            nrc=official_info[SchemaKeys.Inscripciones.nrc],
+            seccion=official_info[SchemaKeys.Inscripciones.seccion],
+            alias=alias,
+            color=color,
+            profesor=official_info[SchemaKeys.Inscripciones.profesor],
+            campus=official_info[SchemaKeys.Inscripciones.campus],
+            schedule=scheduled)
 
     def RQ_CoursesView_showSingleClass(self, _with: str) -> None:
         """"""

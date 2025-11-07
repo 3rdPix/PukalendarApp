@@ -8,6 +8,7 @@ contenido del sitio [Buscacursos](http://buscacursos.uc.cl).
 import requests
 import datetime
 from bs4 import BeautifulSoup
+from controllers.database_handler import SchemaKeys
 
 
 __all__ = {"search_for_puclasses"}
@@ -34,18 +35,19 @@ def _extract_course_data(html_snippet: str) -> list:
     for row in rows:
         columns = row.find_all('td')
         course_dict = {
-            'official_nrc': columns[0].get_text().strip(),
-            'official_code': columns[1].get_text().strip(),
-            'official_name': columns[9].get_text().strip(),
-            'official_campus': columns[11].get_text().strip(),
-            'official_section': columns[4].get_text().strip(),  
+            SchemaKeys.Inscripciones.nrc: columns[0].get_text().strip(),
+            SchemaKeys.Cursos_Maestros.sigla: columns[1].get_text().strip(),
+            SchemaKeys.Cursos_Maestros.nombre: columns[9].get_text().strip(),
+            SchemaKeys.Inscripciones.campus: columns[11].get_text().strip(),
+            SchemaKeys.Inscripciones.seccion: columns[4].get_text().strip(),
+            SchemaKeys.Cursos_Maestros.creditos: columns[12].get_text().strip(),
             'official_modules': []}
 
         try:
-            course_dict['official_professor'] = \
+            course_dict[SchemaKeys.Inscripciones.profesor] = \
                 columns[10].find_all('a')[0].get_text().strip()
         except IndexError:
-            course_dict['official_professor'] = 'Ninguno'
+            course_dict[SchemaKeys.Inscripciones.profesor] = 'Ninguno'
 
         # Extract dates from the table
         table_rows = row.find_all('tr')

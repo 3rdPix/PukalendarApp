@@ -15,6 +15,7 @@ from PyQt6.QtGui import QColor
 from random import randint
 from gui import PukalendarWidget
 from utils.i18n import _
+from controllers.database_handler import SchemaKeys
 
 
 class NewClassDialog(QWidget, PukalendarWidget):
@@ -135,13 +136,13 @@ class NewClassDialog(QWidget, PukalendarWidget):
         results: list[str] = list()
         for course_dict in course_list:
             presentation: str = '"'
-            presentation += course_dict.get("official_name")
+            presentation += course_dict.get(SchemaKeys.Cursos_Maestros.nombre)
             presentation += "\" -"
-            presentation += course_dict.get("official_section")
+            presentation += course_dict.get(SchemaKeys.Inscripciones.seccion)
             presentation += ':'
-            presentation += course_dict.get("official_professor")
+            presentation += course_dict.get(SchemaKeys.Inscripciones.profesor)
             presentation += "  ("
-            presentation += course_dict.get("official_code")
+            presentation += course_dict.get(SchemaKeys.Cursos_Maestros.sigla)
             presentation += ')'
             results.append(presentation)
         self.search_result_view.addItems(results)
