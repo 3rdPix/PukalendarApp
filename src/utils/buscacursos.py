@@ -7,8 +7,8 @@ contenido del sitio [Buscacursos](http://buscacursos.uc.cl).
 """
 import requests
 import datetime
-from bs4 import BeautifulSoup
-from controllers.database_handler import SchemaKeys
+from bs4 import BeautifulSoup, ResultSet
+from common.entities import ResultadoBuscacurso
 
 
 __all__ = {"search_for_puclasses"}
@@ -23,32 +23,24 @@ def get_year_and_value() -> tuple[str, str]:
         return (current_year, '2')
 
 
-def _extract_course_data(html_snippet: str) -> list:
+def _extract_course_data(html_snippet: str) -> list[ResultadoBuscacurso]:
     """
     Parsear HTML del sitio para leer resultados
     """
     soup = BeautifulSoup(html_snippet, 'html.parser')
-    rows = soup.find_all(class_=["resultadosRowPar", "resultadosRowImpar"])
+    rows: ResultSet = soup.find_all(class_=["resultadosRowPar", "resultadosRowImpar"])
 
-    course_list = []
-
+    course_list: list[ResultadoBuscacurso] = []
+    year, semester = get_year_and_value()
+    periodo = str(year)[-2:] + semester
     for row in rows:
         columns = row.find_all('td')
-        course_dict = {
-            SchemaKeys.Inscripciones.nrc: columns[0].get_text().strip(),
-            SchemaKeys.Cursos_Maestros.sigla: columns[1].get_text().strip(),
-            SchemaKeys.Cursos_Maestros.nombre: columns[9].get_text().strip(),
-            SchemaKeys.Inscripciones.campus: columns[11].get_text().strip(),
-            SchemaKeys.Inscripciones.seccion: columns[4].get_text().strip(),
-            SchemaKeys.Cursos_Maestros.creditos: columns[12].get_text().strip(),
-            'official_modules': []}
-
         try:
-            course_dict[SchemaKeys.Inscripciones.profesor] = \
-                columns[10].find_all('a')[0].get_text().strip()
+            profesor = columns[10].find_all('a')[0].get_text().strip()
         except IndexError:
-            course_dict[SchemaKeys.Inscripciones.profesor] = 'Ninguno'
-
+            profesor = "No asignado"
+        
+        horarios: list[list[str]] = list()
         # Extract dates from the table
         table_rows = row.find_all('tr')
         for table_row in table_rows:
@@ -57,14 +49,25 @@ def _extract_course_data(html_snippet: str) -> list:
                 date_info = [date_columns[0].get_text().strip(),
                              date_columns[1].get_text().strip(),
                              date_columns[2].get_text().strip()]
-                course_dict['official_modules'].append(date_info)
+                horarios.append(date_info)
 
-        course_list.append(course_dict)
+        curso = ResultadoBuscacurso(
+            sigla=columns[1].get_text().strip(),
+            nombre=columns[9].get_text().strip(),
+            creditos=int(columns[12].get_text().strip()),
+            nrc=columns[0].get_text().strip(),
+            profesor=profesor,
+            campus=columns[11].get_text().strip(),
+            seccion=int(columns[4].get_text().strip()),
+            modulos=horarios,
+            periodo=periodo)
+
+        course_list.append(curso)
         
     return course_list
 
 
-def search_for_puclasses(search_pattern: str) -> list[dict] | None:
+def search_for_puclasses(search_pattern: str) -> list[ResultadoBuscacurso]:
     """
     # Busca cursos que coincidan con el texto
     

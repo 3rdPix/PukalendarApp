@@ -28,7 +28,7 @@ CREATE TABLE Cursos_Maestros (
 CREATE TABLE Inscripciones (
     inscripcion_id INTEGER PRIMARY KEY AUTOINCREMENT,
     curso_maestro_id INTEGER NOT NULL,
-    periodo INTEGER NOT NULL,
+    periodo VARCHAR(3) NOT NULL,
     nrc INTEGER NOT NULL,
     profesor VARCHAR(150),
     campus VARCHAR(100),
@@ -37,8 +37,7 @@ CREATE TABLE Inscripciones (
     color CHAR(7) NOT NULL,
     nota_final DECIMAL(4,2),
     UNIQUE (nrc, periodo),
-    FOREIGN KEY (curso_maestro_id) REFERENCES Cursos_Maestros(curso_maestro_id),
-    FOREIGN KEY (periodo) REFERENCES Semestres(semestre_id)
+    FOREIGN KEY (curso_maestro_id) REFERENCES Cursos_Maestros(curso_maestro_id)
 );
 
 -----------------------------------------------------------
@@ -184,10 +183,10 @@ CREATE TABLE Modulos_Oficiales (
 -----------------------------------------------------------
 -- 13. Semestres
 -----------------------------------------------------------
-CREATE TABLE Semestres (
-    semestre_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    anio INTEGER
-    etapa INTEGER -- Tav = 0. primer semestre = 1, segundo semestre = 2
-    fecha_inicio DATE
-    fecha_fin DATE
-)
+-- CREATE TABLE Semestres (
+--     semestre_id INTEGER PRIMARY KEY AUTOINCREMENT,
+--     anio INTEGER
+--     etapa INTEGER -- Tav = 0. primer semestre = 1, segundo semestre = 2
+--     fecha_inicio DATE
+--     fecha_fin DATE
+-- );

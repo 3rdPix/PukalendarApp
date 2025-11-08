@@ -15,7 +15,7 @@ from PyQt6.QtGui import QColor
 from random import randint
 from gui import PukalendarWidget
 from utils.i18n import _
-from controllers.database_handler import SchemaKeys
+from common.entities import ResultadoBuscacurso
 
 
 class NewClassDialog(QWidget, PukalendarWidget):
@@ -131,18 +131,18 @@ class NewClassDialog(QWidget, PukalendarWidget):
     ###                     Recibir                       ###
     #########################################################
         
-    def RQ_web_search_result(self, course_list: list[dict]) -> None:
+    def RQ_web_search_result(self, course_list: list[ResultadoBuscacurso]) -> None:
         self.search_result_view.clear()
         results: list[str] = list()
-        for course_dict in course_list:
+        for course in course_list:
             presentation: str = '"'
-            presentation += course_dict.get(SchemaKeys.Cursos_Maestros.nombre)
+            presentation += course.nombre
             presentation += "\" -"
-            presentation += course_dict.get(SchemaKeys.Inscripciones.seccion)
+            presentation += f"{course.seccion}"
             presentation += ':'
-            presentation += course_dict.get(SchemaKeys.Inscripciones.profesor)
+            presentation += course.profesor
             presentation += "  ("
-            presentation += course_dict.get(SchemaKeys.Cursos_Maestros.sigla)
+            presentation += course.sigla
             presentation += ')'
             results.append(presentation)
         self.search_result_view.addItems(results)

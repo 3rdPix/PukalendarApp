@@ -32,6 +32,7 @@ from qfluentwidgets import MessageDialog
 from gui import PukalendarWidget
 import logging
 from PyQt6.QtGui import QResizeEvent
+from common.entities import CursoAplicacion
 
 
 log = logging.getLogger("CoursesTab")
@@ -148,12 +149,10 @@ class CoursesView(QFrame, PukalendarWidget):
         cb.actions()[2].setEnabled(False)
         cb.actions()[3].setEnabled(False)
 
-    def RQ_update_courses(self, courses_list: list[dict]) -> None:
+    def RQ_update_courses(self, courses_list: list[CursoAplicacion]) -> None:
         self._all_classes_view.clear()
         for course in courses_list:
-            alias = course.get("user_alias")
-            color = course.get("user_color")
-            self._all_classes_view.add_class(alias, color, course)
+            self._all_classes_view.add_class(course)
         # ¿? Automáticamente mostrar segunda capa
         # -- weno pero usando su método para ajustar botones
         self.show_all_classes()
@@ -177,11 +176,8 @@ class AllClassesView(QFrame, PukalendarWidget):
         super().__init__(flags=Qt.WindowType.FramelessWindowHint)
         self._flow_container: FlowLayout = FlowLayout(self)
 
-    def add_class(self, alias: str, color: str, data: dict={}) -> None:
-        new_box: AllClassesClassBox = AllClassesClassBox()
-        new_box.set_class_alias(alias)
-        new_box.set_class_color(color)
-        new_box.load_data(data)
+    def add_class(self, data: CursoAplicacion) -> None:
+        new_box: AllClassesClassBox = AllClassesClassBox(data)
         new_box.clicked.connect(
             lambda: self.SG_CoursesView_showSingleClass.emit(new_box.identifier))
         self._flow_container.addWidget(new_box)

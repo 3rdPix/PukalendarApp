@@ -27,6 +27,10 @@ from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtCore import Qt
 from logging import getLogger
 from qfluentwidgets import PopUpAniStackedWidget
+from PyQt6.QtWidgets import QGridLayout
+from common.entities import CursoAplicacion
+from PyQt6.QtGui import QBrush
+from PyQt6.QtGui import QColor
 
 log = getLogger("Boxes")
 
@@ -98,60 +102,45 @@ class _HomeViewInfoBoxManager:
 
 class AllClassesClassBox(ElevatedCardWidget, PukalendarWidget):
 
-    def __init__(self):
+    def __init__(self, data: CursoAplicacion) -> None:
         super().__init__()
-        self._init_gui()
+        self.identifier = data.identificador
+        self._init_gui(data)
 
-    def _init_gui(self) -> None:
-        container: QVBoxLayout = QVBoxLayout(self)
-        top_container: QHBoxLayout = QHBoxLayout()
-        self._color_label: QLabel = QLabel()
+    def _init_gui(self, data: CursoAplicacion) -> None:
+        container = QVBoxLayout(self)
+        top_container = QHBoxLayout()
+        self._color_label = QLabel(parent=self)
         self._color_label.setMaximumWidth(4)
-        self._alias_label: StrongBodyLabel = StrongBodyLabel()
+        self._color_label.setStyleSheet(f"QLabel{{background:{data.color}}}")
+        self._alias_label = StrongBodyLabel(text=data.alias)
         top_container.addWidget(self._color_label)
-        top_container.addWidget(self._alias_label)
+        top_container.addWidget(self._alias_label,
+                                alignment=Qt.AlignmentFlag.AlignLeft)
         container.addLayout(top_container)
         container.addWidget(CardSeparator())
         
         # mas info específica
         # de momento es lo que se me ocurre poner
-
-        self._prof_name: QLabel = QLabel(
+        info_grid = QGridLayout()
+        professor_indicator = QLabel(
             _("MainWindow.Courses.AllCourses.CardBox.Professor"))
-        self._section: QLabel = QLabel(
+        section_indicator = QLabel(
             _("MainWindow.Courses.AllCourses.CardBox.Section"))
-        #self._current_grade: QLabel = QLabel(
-        #    _("MainWindow.Courses.AllCourses.CardBox.CurrentGrade"))
-        self._class_code: QLabel = QLabel(
+        code_indicator = QLabel(
             _("MainWindow.Courses.AllCourses.CardBox.CourseCode"))
+        self._prof_name = QLabel(text=data.profesor)
+        self._section = QLabel(text=str(data.seccion))
+        self._class_code = QLabel(text=data.sigla)
 
-        self._shown_info_labels: dict[str, QLabel] = {}
+        info_grid.addWidget(professor_indicator, 0, 0, alignment=Qt.AlignmentFlag.AlignLeft)
+        info_grid.addWidget(self._prof_name, 0, 1, alignment=Qt.AlignmentFlag.AlignRight)
+        info_grid.addWidget(section_indicator, 1, 0, alignment=Qt.AlignmentFlag.AlignLeft)
+        info_grid.addWidget(self._section, 1, 1, alignment=Qt.AlignmentFlag.AlignRight)
+        info_grid.addWidget(code_indicator, 2, 0, alignment=Qt.AlignmentFlag.AlignLeft)
+        info_grid.addWidget(self._class_code, 2, 1, alignment=Qt.AlignmentFlag.AlignRight)
+        container.addLayout(info_grid)
 
-        self._shown_info_labels['official_professor'] = self._prof_name
-        self._shown_info_labels['official_section'] = self._section
-        # self._shown_info_labels['current_grade'] = self._current_grade
-        self._shown_info_labels['official_code'] = self._class_code
-
-        container.addWidget(self._prof_name)
-        # container.addWidget(self._prof_mail)
-        container.addWidget(self._section)
-        # container.addWidget(self._current_grade)
-        container.addWidget(self._class_code)
-
-    def load_data(self, data: dict) -> None:
-        self.identifier = data.get("official_nrc")
-        for key, value in data.items():
-            if key in self._shown_info_labels:
-                self._shown_info_labels.get(key).setText(
-                    self._shown_info_labels.get(key).text()
-                    + ": " + value)
-                
-    def set_class_alias(self, alias: str) -> None:
-        self._alias_label.setText(alias)
-    
-    def set_class_color(self, color: str) -> None:
-        # Usar hex color #xxxxxx
-        self._color_label.setStyleSheet(f'QLabel {{background: {color};}}')
 
 class SingleClassCategoryBox(CardWidget, PukalendarWidget):
 

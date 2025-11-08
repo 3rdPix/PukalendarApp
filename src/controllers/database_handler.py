@@ -1,8 +1,9 @@
-from enum import StrEnum, Enum, auto
 from datetime import datetime
 from typing import Literal
 from config import PUCalendarAppPaths
 from os.path import exists
+from common.entities import CursoAplicacion
+from common.entities import ResultadoBuscacurso
 import sqlite3
 
 if not exists(PUCalendarAppPaths.Config.DATABASE):
@@ -20,24 +21,7 @@ if not exists(PUCalendarAppPaths.Config.DATABASE):
   database_connection.commit()
   database_connection.close()
 
-class SchemaKeys:
-  class Cursos_Maestros(Enum):
-    curso_maestro_id = auto()
-    sigla = auto()
-    nombre = auto()
-    creditos = auto()
-  
-  class Inscripciones(Enum):
-    inscripcion_id = auto()
-    curso_maestro_id = auto()
-    periodo = auto()
-    nrc = auto()
-    profesor = auto()
-    campus = auto()
-    seccion = auto()
-    alias = auto()
-    color = auto()
-    nota_final = auto()
+
 
 class CourseAlreadyExists(Exception):
   def __init__(self, *args: object) -> None:
@@ -55,10 +39,8 @@ class DatabaseManager:
       PUCalendarAppPaths.Config.DATABASE)
     self.database_cursor = self.database_connection.cursor()
 
-  def create_course(self, sigla: str, nombre: str, creditos: int, periodo: int,
-                    nrc: int, seccion: int, alias: str, color: str,
-                    profesor: str|None=None, campus: str|None=None,
-                    schedule: list[tuple[str, str, str, str]]|None=None
+  def create_course(self, desde: ResultadoBuscacurso, color: str, alias: str,
+                    scheduled: list[tuple[str, int, str, str]]
                     ) -> int:
     with self.database_connection:
       self.database_cursor.execute(
@@ -66,12 +48,12 @@ class DatabaseManager:
         INSERT OR IGNORE INTO Cursos_Maestros (sigla, nombre, creditos)
         VALUES (?, ?, ?);
         """,
-        (sigla, nombre, creditos))
+        (desde.sigla, desde.nombre, desde.creditos))
       self.database_cursor.execute(
         """
         SELECT curso_maestro_id FROM Cursos_Maestros WHERE sigla = ?;
         """,
-        (sigla,))
+        (desde.sigla,))
       master_id: int = self.database_cursor.fetchone()[0]
 
       self.database_cursor.execute(
@@ -79,7 +61,7 @@ class DatabaseManager:
         SELECT alias, color FROM Inscripciones
         WHERE nrc = ? AND periodo = ?;
         """,
-        (nrc, periodo))
+        (desde.nrc, desde.periodo))
       existing = self.database_cursor.fetchone()
       if existing is not None:
           raise CourseAlreadyExists(*existing)
@@ -90,11 +72,12 @@ class DatabaseManager:
         alias, color)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?);
         """,
-        (master_id, periodo, nrc, profesor, campus, seccion, alias, color))
+        (master_id, desde.periodo, desde.nrc, desde.profesor,
+         desde.campus, desde.seccion, alias, color))
       inscription_rowid = self.database_cursor.lastrowid
       if inscription_rowid is None:
         raise RuntimeError("Couldn't save inscription")
-      for module in schedule:
+      for module in scheduled:
         dia_semana, numero_modulo, sala, instance_name = module
         print("Buscando", dia_semana, numero_modulo)
         self.database_cursor.execute(
@@ -139,3 +122,18 @@ class DatabaseManager:
         VALUES (?, ?, ?, ?, ?);
         """,
         (inscripcion_id, fecha_inicio, fecha_fin, objetivo, es_manual))
+
+  def obtener_cursos(self) -> dict[int, CursoAplicacion]:
+    recuperados: dict[int, CursoAplicacion] = {}
+    with self.database_connection:
+      self.database_cursor.execute(
+        """
+        SELECT sigla, nombre, creditos, nrc, profesor, campus, seccion, periodo,
+         inscripcion_id, alias, color FROM Inscripciones INNER JOIN Cursos_Maestros
+        WHERE Inscripciones.curso_maestro_id = Cursos_Maestros.curso_maestro_id;
+        """)
+      for inscript in self.database_cursor.fetchall():
+        inscript: tuple[str, str, int, str, str, str, int, str, int, str, str]
+        objeto_curso = CursoAplicacion(*inscript)
+        recuperados[objeto_curso.identificador] = objeto_curso
+    return recuperados
