@@ -4,6 +4,7 @@ from config import PUCalendarAppPaths
 from os.path import exists
 from common.entities import CursoAplicacion
 from common.entities import ResultadoBuscacurso
+from common.entities import StudySession
 import sqlite3
 
 if not exists(PUCalendarAppPaths.Config.DATABASE):
@@ -97,6 +98,17 @@ class DatabaseManager:
           (inscription_rowid, dia_semana, hora_inicio, hora_fin, sala, instance_name))
       return inscription_rowid
 
+  def create_study_session(self, session: StudySession) -> None:
+    with self.database_connection:
+      self.database_cursor.execute(
+        """
+        INSERT INTO Sesiones_Estudio (inscripcion_id, fecha_inicio, fecha_fin,
+        objetivo, es_manual)
+        VALUES (?, ?, ?, ?, ?);
+        """,
+        (session.inscripcion_id, session.fecha_inicio, session.fecha_fin,
+         session.objetivo, session.es_manual))
+      
   def create_hour_module(self, inscripcion_id: int, dia_semana: weekDay,
                          hora_inicio: str, hora_fin: str,
                          sala: str|None=None
@@ -109,28 +121,16 @@ class DatabaseManager:
         VALUES (?, ?, ?, ?, ?);
         """,
         (inscripcion_id, dia_semana, hora_inicio, hora_fin, sala))
-      
-  def create_study_session(self, inscripcion_id: int, fecha_inicio: datetime,
-                           fecha_fin: datetime, objetivo: str='',
-                           es_manual: bool=False
-                           ) -> None:
-    with self.database_connection:
-      self.database_cursor.execute(
-        """
-        INSERT INTO Sesiones_Estudio (inscripcion_id, fecha_inicio, fecha_fin,
-        objetivo, es_manual)
-        VALUES (?, ?, ?, ?, ?);
-        """,
-        (inscripcion_id, fecha_inicio, fecha_fin, objetivo, es_manual))
 
-  def obtener_cursos(self) -> dict[int, CursoAplicacion]:
+  def obtener_cursos_activos(self) -> dict[int, CursoAplicacion]:
     recuperados: dict[int, CursoAplicacion] = {}
     with self.database_connection:
       self.database_cursor.execute(
         """
         SELECT sigla, nombre, creditos, nrc, profesor, campus, seccion, periodo,
          inscripcion_id, alias, color FROM Inscripciones INNER JOIN Cursos_Maestros
-        WHERE Inscripciones.curso_maestro_id = Cursos_Maestros.curso_maestro_id;
+        WHERE Inscripciones.curso_maestro_id = Cursos_Maestros.curso_maestro_id
+        AND Inscripciones.meta_estado = 'Activo';
         """)
       for inscript in self.database_cursor.fetchall():
         inscript: tuple[str, str, int, str, str, str, int, str, int, str, str]

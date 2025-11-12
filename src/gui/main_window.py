@@ -28,7 +28,7 @@ from PyQt6.QtCore import QEventLoop
 from PyQt6.QtCore import QTimer
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtCore import QRect
-from gui import PukalendarWidget
+from common import PukalendarWidget
 from collections import defaultdict
 import logging
 from PyQt6.QtWidgets import QApplication

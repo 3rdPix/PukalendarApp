@@ -29,7 +29,7 @@ from gui.widgets.dialogs import NewClassDialog
 from gui.widgets.misc import OpacityAniStackedWidget
 from entities.courses import NRC
 from qfluentwidgets import MessageDialog
-from gui import PukalendarWidget
+from common import PukalendarWidget
 import logging
 from PyQt6.QtGui import QResizeEvent
 from common.entities import CursoAplicacion
@@ -159,8 +159,8 @@ class CoursesView(QFrame, PukalendarWidget):
         # Al parecer tiene problemas si se pierde el foco
         self.setFocus()
 
-    def RQ_show_SingleClassView(self, data: dict) -> None:
-        self._single_class_view.load_data(data)
+    def RQ_show_SingleClassView(self, data: CursoAplicacion) -> None:
+        self._single_class_view.load_basic_data(data)
         self._stacked_area.setCurrentIndex(2)
         cb: CommandBar = self.layout().itemAt(0).widget()
         cb.actions()[0].setEnabled(False)
@@ -170,7 +170,7 @@ class CoursesView(QFrame, PukalendarWidget):
         
 
 class AllClassesView(QFrame, PukalendarWidget):
-    SG_CoursesView_showSingleClass = pyqtSignal(NRC, name="SG_CoursesView_showSingleClass")
+    SG_CoursesView_showSingleClass = pyqtSignal(int, name="SG_CoursesView_showSingleClass")
 
     def __init__(self) -> None:
         super().__init__(flags=Qt.WindowType.FramelessWindowHint)
@@ -199,8 +199,8 @@ class SingleClassView(QFrame, PukalendarWidget):
      - Eventos / Tareas / Pendientes
     """
     request_return = pyqtSignal()
-    SG_SingleClass_start_timer = pyqtSignal(NRC, name="SG_SingleClass_start_timer")
-    SG_SingleClass_stop_timer = pyqtSignal(NRC, name="SG_SingleClass_stop_timer")
+    SG_SingleClass_start_timer = pyqtSignal(int, name="SG_SingleClass_start_timer")
+    SG_SingleClass_stop_timer = pyqtSignal(int, name="SG_SingleClass_stop_timer")
     SG_SingleClass_accept_bullet = pyqtSignal(
         str, name="SG_SingleClass_accept_bullet")
 
@@ -218,12 +218,12 @@ class SingleClassView(QFrame, PukalendarWidget):
         """
         <- [color] Nombre [color]
         --------------------------
-              [general][horario]
+              [general/tiempo][horario]
               [calificaciones][eventos]
         """
         first_layout: QVBoxLayout = QVBoxLayout(self)
         top_layout: QHBoxLayout = QHBoxLayout()
-        self._return_button: PrimaryToolButton = PrimaryToolButton(FIF.RETURN, self)
+        self._return_button = PrimaryToolButton(FIF.RETURN, self)
         self._return_button.clicked.connect(self.request_return.emit)
         self._left_stripe = QLabel()
         self._left_stripe.setFixedHeight(10)
@@ -276,13 +276,17 @@ class SingleClassView(QFrame, PukalendarWidget):
         self.stop_timer_button = PushButton(FIF.PAUSE, _(
             "MainWindow.Courses.SingleClassView.ButtonStopTimer"))
         self.stop_timer_button.clicked.connect(self.TR_stop_timer_clicked)
-        how_much = SubtitleLabel()
+        self.dedicated_time = SubtitleLabel(text="00:00:00")
         layout_general = QVBoxLayout()
         layout_general.addWidget(self.start_timer_button)
         layout_general.addWidget(self.stop_timer_button)
-        layout_general.addWidget(how_much)
+        layout_general.addWidget(self.dedicated_time)
         self._events_cat_box.set_content_layout(layout_general)
         return self._events_cat_box
+
+    def RQ_update_current_session_time(self, time: timedelta) -> None:
+        print(f"Will show {time=}")
+        self.dedicated_time.setText(f"{time.seconds // 3600:02}:{(time.seconds % 3600) // 60:02}:{time.seconds % 60:02}")
 
     def TR_start_timer_clicked(self) -> None:
         self.SG_SingleClass_start_timer.emit(self._current_course_id)
@@ -294,8 +298,7 @@ class SingleClassView(QFrame, PukalendarWidget):
         self.start_timer_button.setEnabled(True)
         self.stop_timer_button.setEnabled(False)
 
-
-    def __create_generic_box(self) -> QWidget:
+    def __create_generic_box(self) -> QWidget|None:
         if hasattr(self, "_generic_cat_box"): return None
         self._generic_cat_box: SingleClassCategoryBox = SingleClassCategoryBox(
             _("MainWindow.Courses.SingleClassView.General"))
@@ -333,56 +336,51 @@ class SingleClassView(QFrame, PukalendarWidget):
         self._generic_cat_box.set_content_layout(pusher_layout)
         return self._generic_cat_box
 
-    def RQ_update_SingleClassView(self, course_dict: dict) -> None:
-        self.load_data(course_dict)
+    def RQ_update_SingleClassView(self, course_dict: CursoAplicacion) -> None:
+        self.load_basic_data(course_dict)
         self.update()
 
-    def load_data(self, course_data: dict) -> None:
-        self._set_stripe_color(course_data.get("user_color"))
-        self._name_label.setText(course_data.get("official_name"))
-        self._current_course_id = course_data.get("official_nrc")
+    def load_basic_data(self, course_data: CursoAplicacion) -> None:
+        self._set_stripe_color(course_data.color)
+        self._name_label.setText(course_data.nombre)
+        self._current_course_id = course_data.identificador
         log.debug(f"Course id:{self._current_course_id}")
         
-        # Pendientes
-        self.bullets_list.clear_all_bullets()
-        table: BulletTaskTable = course_data.get("bullet_table")
-        for identifier, bullet in table.vault.items():
-            self.bullets_list.add_bullet(bullet.description,
-                                         bullet.done,
-                                         identifier)
+        # # Pendientes
+        # self.bullets_list.clear_all_bullets()
+        # table: BulletTaskTable = course_data.get("bullet_table")
+        # for identifier, bullet in table.vault.items():
+        #     self.bullets_list.add_bullet(bullet.description,
+        #                                  bullet.done,
+        #                                  identifier)
 
         # Información general
         distr: QGridLayout = self._generic_cat_box.get_content_layout().itemAt(1)
-        distr.itemAtPosition(0, 1).widget().setText(
-            str(course_data.get("official_nrc")))
-        distr.itemAtPosition(1, 1).widget().setText(
-            course_data.get("official_code"))
-        distr.itemAtPosition(2, 1).widget().setText(
-            course_data.get("official_professor"))
-        distr.itemAtPosition(3, 1).widget().setText(
-            course_data.get("official_campus"))
-        distr.itemAtPosition(4, 1).widget().setText(
-            course_data.get("official_section"))
+        distr.itemAtPosition(0, 1).widget().setText(str(course_data.nrc))
+        distr.itemAtPosition(1, 1).widget().setText(course_data.sigla)
+        distr.itemAtPosition(2, 1).widget().setText(course_data.profesor)
+        distr.itemAtPosition(3, 1).widget().setText(course_data.campus)
+        distr.itemAtPosition(4, 1).widget().setText(str(course_data.seccion))
 
         # Eventos
-        distr: QVBoxLayout = self._events_cat_box.get_content_layout()
+        # distr: QVBoxLayout = self._events_cat_box.get_content_layout()
         
-        cheating = sum(
-            (session.duration for session in course_data.get("user_sessions")),
-            start=timedelta(0))
+        # cheating = sum(
+        #     (session.duration for session in course_data.get("user_sessions")),
+        #     start=timedelta(0))
         
-        distr.itemAt(2).widget().setText(str(cheating))
-        if course_data.get("course_on_session"):
-            distr.itemAt(0).widget().setEnabled(False)
-            distr.itemAt(1).widget().setEnabled(True)
-        else:
-            distr.itemAt(0).widget().setEnabled(True)
-            distr.itemAt(1).widget().setEnabled(False)
+        # distr.itemAt(2).widget().setText(str(cheating))
+        # if course_data.get("course_on_session"):
+        #     distr.itemAt(0).widget().setEnabled(False)
+        #     distr.itemAt(1).widget().setEnabled(True)
+        # else:
+        #     distr.itemAt(0).widget().setEnabled(True)
+        #     distr.itemAt(1).widget().setEnabled(False)
 
     def _set_stripe_color(self, color: str) -> None:
         # Usar hexadecimal #xxxxxx
-        self._left_stripe.setStyleSheet(f'QLabel {{background: {color};}}')
-        self._right_stripe.setStyleSheet(f'QLabel {{background: {color};}}')
+        self._left_stripe.setStyleSheet(f'QLabel {{background: {color}}}')
+        self._right_stripe.setStyleSheet(f'QLabel {{background: {color}}}')
 
     def RQ_add_new_bullet(self, content: str, identifier: int) -> None:
         self.bullets_list.add_bullet(content, False, identifier)

@@ -1,7 +1,7 @@
 from enum import Enum
 from enum import auto
 from dataclasses import dataclass
-
+from datetime import datetime
 
 class SchemaKeys:
   class Cursos_Maestros(Enum):
@@ -137,3 +137,11 @@ class CursoAplicacion(InformacionCurso):
   identificador: int
   alias: str
   color: str
+
+@dataclass
+class StudySession:
+  inscripcion_id: int
+  fecha_inicio: datetime
+  fecha_fin: datetime
+  objetivo: str = ''
+  es_manual: bool = False

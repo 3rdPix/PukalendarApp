@@ -13,7 +13,7 @@ from qfluentwidgets import ListWidget
 from qfluentwidgets import ColorPickerButton
 from PyQt6.QtGui import QColor
 from random import randint
-from gui import PukalendarWidget
+from common import PukalendarWidget
 from utils.i18n import _
 from common.entities import ResultadoBuscacurso
 

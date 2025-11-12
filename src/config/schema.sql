@@ -36,6 +36,7 @@ CREATE TABLE Inscripciones (
     alias VARCHAR(50) NOT NULL,
     color CHAR(7) NOT NULL,
     nota_final DECIMAL(4,2),
+    meta_estado TEXT NOT NULL CHECK(meta_estado IN ('Activo', 'Retirado', 'Oculto')) DEFAULT 'Activo',
     UNIQUE (nrc, periodo),
     FOREIGN KEY (curso_maestro_id) REFERENCES Cursos_Maestros(curso_maestro_id)
 );

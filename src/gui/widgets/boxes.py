@@ -22,7 +22,7 @@ from PyQt6.QtWidgets import QStyle
 from utils.i18n import _
 from qfluentwidgets import StrongBodyLabel
 from qfluentwidgets import ElevatedCardWidget
-from gui import PukalendarWidget
+from common import PukalendarWidget
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtCore import Qt
 from logging import getLogger

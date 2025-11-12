@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QFrame
 from PyQt6.QtWidgets import QWidget
-from gui import PukalendarWidget
+from common import PukalendarWidget
 from PyQt6.QtWidgets import QVBoxLayout
 from qfluentwidgets import CommandBar
 from qfluentwidgets import SubtitleLabel

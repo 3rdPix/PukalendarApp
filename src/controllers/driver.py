@@ -16,6 +16,8 @@ from controllers.database_handler import DatabaseManager
 from common.entities import CursoAplicacion
 from common.entities import ResultadoBuscacurso
 from typing import Any
+from controllers.study_session import SessionController
+from datetime import timedelta
 
 
 log = logging.getLogger("Driver")
@@ -49,7 +51,7 @@ class CoursesDict(dict[int, CursoAplicacion]):
 class MainDriver(QObject):
     SG_update_courses = pyqtSignal(list)
     SG_web_search_results = pyqtSignal(list)
-    SG_show_SingleClassView = pyqtSignal(dict)
+    SG_show_SingleClassView = pyqtSignal(CursoAplicacion)
     SG_window_setting = pyqtSignal(QRect)
     SG_show_main_window = pyqtSignal()
     SG_finished_loading = pyqtSignal()
@@ -58,11 +60,14 @@ class MainDriver(QObject):
     SG_update_dedication_piechart = pyqtSignal(list, list)
     SG_show_error_bar = pyqtSignal(str, str)
     SG_add_to_bullet_list = pyqtSignal(str, int)
+    SG_pause_study_session = pyqtSignal()
+    SG_update_current_session_time = pyqtSignal(timedelta)
 
     def __init__(self) -> None:
         super().__init__()
         self.web_search_results: list[ResultadoBuscacurso]|None = None
         self.database_handle = DatabaseManager()
+        self.study_session_manager = SessionController(self)
 
     def drive(self) -> None:
         # Corre la aplicación
@@ -75,7 +80,7 @@ class MainDriver(QObject):
 
     def load_courses(self) -> None:
         self.courses = CoursesDict(self.SG_update_courses,
-                                   self.database_handle.obtener_cursos())
+                                   self.database_handle.obtener_cursos_activos())
         self.courses.update()
     
     def _udpate_timeinfobox(self, to: int, which: Optional[Course]=None,
@@ -126,7 +131,8 @@ class MainDriver(QObject):
                     sala = place
                     nombre = name
                     scheduled.append((dia_semana, int(numero_modulo), sala, nombre))
-        identifier = self.database_handle.create_course(desde=official_info, alias=alias, color=color, scheduled=scheduled)
+        identifier = self.database_handle.create_course(
+            desde=official_info, alias=alias, color=color, scheduled=scheduled)
         nuevo_curso = CursoAplicacion(
             sigla=official_info.sigla,
             nombre=official_info.nombre,
@@ -140,7 +146,6 @@ class MainDriver(QObject):
             alias=alias,
             color=color)
         self.courses[nuevo_curso.identificador] = nuevo_curso
-        
 
     def RQ_CoursesView_showSingleClass(self, _with: int) -> None:
         course_to_be_shown = self.courses.get(_with)
@@ -148,24 +153,11 @@ class MainDriver(QObject):
         self.SG_show_SingleClassView.emit(course_to_be_shown)
 
     def RQ_SingleClass_start_timer(self, course_id: int) -> None:
-        raise NotImplemented
-        log.debug(f"Received id:{course_id} to search on {self.courses}")
-        which: Course = self.courses.get(course_id)
-        log.debug(f"Got {which}")
-        if starting_point := which.start_session():
-            # Datos para timeinfobox
-            self._udpate_timeinfobox(2, which, starting_point)
-        else:
-            log(f"Can't initiate session for {course_id} because other"
-                f" course is on session.")
+        self.study_session_manager.start_session(course_id)
     
-    def RQ_SingleClass_stop_timer(self, course_id: int) -> None:
-        raise NotImplemented
-        which: Course = self.courses.get(course_id)
-        which.stop_session()
-        # Datos para timeinfobox
-        self._udpate_timeinfobox(1)
-        self.SG_update_SingleClassView.emit(which.__dict__)
+    def RQ_SingleClass_stop_timer(self) -> None:
+        session = self.study_session_manager.stop_session()
+        self.database_handle.create_study_session(session)
 
     def RQ_CoursesView_delete(self, nrc: NRC) -> None:
         raise NotImplemented
