@@ -8,11 +8,11 @@ from os.path import join
 from os.path import abspath
 from os.path import dirname
 
-__all__ = {"PUCalendarAppPaths"}
+__all__ = ["PUCalendarAppPaths"]
 
 # Start from /
 base_directory: str = abspath(join(dirname(__file__), "..", ".."))
-def build_path(*args) -> str: return join(base_directory, *args)
+def build_path(*args: str) -> str: return join(base_directory, *args)
 
 class PUCalendarAppPaths:
     """
@@ -50,6 +50,10 @@ class PUCalendarAppPaths:
     @dataclass
     class Config:
         """@private"""
+        USER_DIRECTORY: str
+        DATABASE: str
+        DATABASE_SCHEMA: str = build_path("src", "config", "schema.sql")
+        DATABASE_DEFAULT_ENTRIES = build_path("src", "config", "default_entries.sql")
         DEFAULTS: str = build_path("src", "config", "defaults.ini")
         USER_COURSES: str = build_path("usr", "courses.csv")
         BASE_COURSE_SESSIONS: str = build_path("usr", "")

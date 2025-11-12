@@ -6,7 +6,7 @@ from gui.main_window import MainWindow
 from controllers.driver import MainDriver
 from inspect import getmembers
 from logging import getLogger
-from gui import PukalendarWidget
+from common import PukalendarWidget
 from PyQt6.QtCore import pyqtBoundSignal
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QWidget
@@ -84,4 +84,5 @@ class MainApp(QApplication):
             self.main_window.RQ_show_error_bar)
         self.application_driver.SG_add_to_bullet_list.connect(
             self.main_window.courses_view._single_class_view.RQ_add_new_bullet)
-        
+        self.application_driver.study_session_manager.SG_active_session_time_changed.connect(
+            self.main_window.courses_view._single_class_view.RQ_update_current_session_time)
